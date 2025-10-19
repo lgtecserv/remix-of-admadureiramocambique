@@ -26,33 +26,27 @@ const CreateLeaderForm = ({ onSuccess }: CreateLeaderFormProps) => {
     setLoading(true);
 
     try {
-      // Create user account
-      const { data: authData, error: authError } = await supabase.auth.signUp({
-        email: formData.email,
-        password: formData.password,
-        options: {
-          data: {
-            full_name: formData.fullName,
-          },
+      // Call backend function to create leader (doesn't affect current session)
+      const { data, error } = await supabase.functions.invoke("create-leader", {
+        body: {
+          email: formData.email,
+          password: formData.password,
+          fullName: formData.fullName,
+          department: formData.department,
         },
       });
 
-      if (authError) throw authError;
+      if (error) throw error;
 
-      if (!authData.user) throw new Error("Erro ao criar usuário");
-
-      // Create user role
-      const { error: roleError } = await supabase.from("user_roles").insert({
-        user_id: authData.user.id,
-        role: "leader" as const,
-        department: formData.department as any,
-      });
-
-      if (roleError) throw roleError;
+      if (!data?.success) {
+        throw new Error(data?.error || "Erro ao cadastrar líder");
+      }
 
       toast.success("Líder cadastrado com sucesso!");
+      setFormData({ fullName: "", email: "", password: "", department: "" });
       onSuccess();
     } catch (error: any) {
+      console.error("Error creating leader:", error);
       toast.error(error.message || "Erro ao cadastrar líder");
     } finally {
       setLoading(false);

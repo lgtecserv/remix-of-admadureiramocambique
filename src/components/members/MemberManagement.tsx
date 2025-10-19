@@ -46,16 +46,19 @@ const MemberManagement = ({
   const [editingMember, setEditingMember] = useState<Member | null>(null);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
 
   const loadMembers = async () => {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
 
+    setCurrentUserId(user.id);
+
     const { data: roleData } = await supabase
       .from("user_roles")
       .select("role, department")
       .eq("user_id", user.id)
-      .single();
+      .maybeSingle();
 
     if (!roleData) return;
 
@@ -184,38 +187,44 @@ const MemberManagement = ({
                   </TableCell>
                   <TableCell>{new Date(member.created_at).toLocaleDateString("pt-BR")}</TableCell>
                   <TableCell className="text-right space-x-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => {
-                        setEditingMember(member);
-                        setEditDialogOpen(true);
-                      }}
-                    >
-                      <Pencil className="h-4 w-4" />
-                    </Button>
-
-                    <AlertDialog>
-                      <AlertDialogTrigger asChild>
-                        <Button variant="destructive" size="sm">
-                          <Trash2 className="h-4 w-4" />
+                    {member.leader_id === currentUserId ? (
+                      <>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => {
+                            setEditingMember(member);
+                            setEditDialogOpen(true);
+                          }}
+                        >
+                          <Pencil className="h-4 w-4" />
                         </Button>
-                      </AlertDialogTrigger>
-                      <AlertDialogContent>
-                        <AlertDialogHeader>
-                          <AlertDialogTitle>Confirmar remoção</AlertDialogTitle>
-                          <AlertDialogDescription>
-                            Tem certeza que deseja remover este membro? Esta ação não pode ser desfeita.
-                          </AlertDialogDescription>
-                        </AlertDialogHeader>
-                        <AlertDialogFooter>
-                          <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                          <AlertDialogAction onClick={() => handleDelete(member.id)}>
-                            Remover
-                          </AlertDialogAction>
-                        </AlertDialogFooter>
-                      </AlertDialogContent>
-                    </AlertDialog>
+
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button variant="destructive" size="sm">
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>Confirmar remoção</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                Tem certeza que deseja remover este membro? Esta ação não pode ser desfeita.
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                              <AlertDialogAction onClick={() => handleDelete(member.id)}>
+                                Remover
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
+                      </>
+                    ) : (
+                      <span className="text-sm text-muted-foreground">Sem permissão</span>
+                    )}
                   </TableCell>
                 </TableRow>
               ))

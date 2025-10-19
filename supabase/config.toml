@@ -1,1 +1,7 @@
 project_id = "ofplaocvnlwdnqvlqqka"
+
+[functions.update-member-status]
+verify_jwt = false
+
+[functions.create-leader]
+verify_jwt = true

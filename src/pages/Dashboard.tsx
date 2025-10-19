@@ -36,11 +36,16 @@ const Dashboard = () => {
 
       setUser(session.user);
 
-      const { data: roleData } = await supabase
+      // Use maybeSingle to avoid errors if role not found yet
+      const { data: roleData, error: roleError } = await supabase
         .from("user_roles")
         .select("role, department")
         .eq("user_id", session.user.id)
-        .single();
+        .maybeSingle();
+
+      if (roleError) {
+        console.error("Error fetching role:", roleError);
+      }
 
       if (roleData) {
         setRole(roleData.role);
@@ -51,10 +56,17 @@ const Dashboard = () => {
         .from("profiles")
         .select("full_name")
         .eq("id", session.user.id)
-        .single();
+        .maybeSingle();
 
       if (profileData) {
         setProfile(profileData);
+      }
+
+      // Update member statuses (novo -> ativo after 3 months)
+      try {
+        await supabase.functions.invoke("update-member-status");
+      } catch (error) {
+        console.error("Error updating member statuses:", error);
       }
 
       setLoading(false);
