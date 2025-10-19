@@ -1,0 +1,147 @@
+import { useEffect, useState } from "react";
+import { supabase, getDepartmentLabel } from "@/lib/supabase";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Button } from "@/components/ui/button";
+import { Trash2, Loader2 } from "lucide-react";
+import { toast } from "sonner";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+
+interface Leader {
+  id: string;
+  user_id: string;
+  department: string;
+  email: string;
+  full_name: string;
+}
+
+const LeaderManagement = () => {
+  const [leaders, setLeaders] = useState<Leader[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  const loadLeaders = async () => {
+    const { data: rolesData } = await supabase
+      .from("user_roles")
+      .select("id, user_id, department")
+      .eq("role", "leader");
+
+    if (rolesData) {
+      const leadersWithDetails = await Promise.all(
+        rolesData.map(async (role) => {
+          const { data: profile } = await supabase
+            .from("profiles")
+            .select("full_name")
+            .eq("id", role.user_id)
+            .single();
+
+          const { data: { user } } = await supabase.auth.admin.getUserById(role.user_id);
+
+          return {
+            id: role.id,
+            user_id: role.user_id,
+            department: role.department,
+            email: user?.email || "",
+            full_name: profile?.full_name || "",
+          };
+        })
+      );
+
+      setLeaders(leadersWithDetails);
+    }
+
+    setLoading(false);
+  };
+
+  useEffect(() => {
+    loadLeaders();
+  }, []);
+
+  const handleDelete = async (userId: string, roleId: string) => {
+    const { error: roleError } = await supabase
+      .from("user_roles")
+      .delete()
+      .eq("id", roleId);
+
+    if (roleError) {
+      toast.error("Erro ao remover líder");
+      return;
+    }
+
+    toast.success("Líder removido com sucesso");
+    loadLeaders();
+  };
+
+  if (loading) {
+    return (
+      <div className="flex justify-center py-8">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  if (leaders.length === 0) {
+    return (
+      <div className="text-center py-8 text-muted-foreground">
+        Nenhum líder cadastrado ainda.
+      </div>
+    );
+  }
+
+  return (
+    <div className="rounded-md border">
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead>Nome</TableHead>
+            <TableHead>E-mail</TableHead>
+            <TableHead>Departamento</TableHead>
+            <TableHead className="text-right">Ações</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {leaders.map((leader) => (
+            <TableRow key={leader.id}>
+              <TableCell className="font-medium">{leader.full_name}</TableCell>
+              <TableCell>{leader.email}</TableCell>
+              <TableCell>{getDepartmentLabel(leader.department)}</TableCell>
+              <TableCell className="text-right">
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button variant="destructive" size="sm">
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Confirmar remoção</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        Tem certeza que deseja remover este líder? Esta ação não pode ser desfeita.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                      <AlertDialogAction onClick={() => handleDelete(leader.user_id, leader.id)}>
+                        Remover
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </div>
+  );
+};
+
+export default LeaderManagement;
