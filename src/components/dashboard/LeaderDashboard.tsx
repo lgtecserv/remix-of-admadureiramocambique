@@ -134,7 +134,7 @@ const LeaderDashboard = ({ user }: LeaderDashboardProps) => {
             </Dialog>
           </CardHeader>
           <CardContent>
-            <MemberManagement department={department} leaderId={user.id} />
+            <MemberManagement />
           </CardContent>
         </Card>
       </main>
