@@ -7,17 +7,15 @@ import DepartmentChart from "@/components/dashboard/DepartmentChart";
 import StatusChart from "@/components/dashboard/StatusChart";
 import GrowthChart from "@/components/dashboard/GrowthChart";
 import { Loader2 } from "lucide-react";
-import { getDepartmentLabel, getStatusLabel } from "@/lib/supabase";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 const Statistics = () => {
   const navigate = useNavigate();
   const [user, setUser] = useState<User | null>(null);
   const [role, setRole] = useState<string | null>(null);
+  const [department, setDepartment] = useState<string | null>(null);
   const [profile, setProfile] = useState<{ full_name: string } | null>(null);
   const [loading, setLoading] = useState(true);
-  const [departmentData, setDepartmentData] = useState<{ name: string; value: number }[]>([]);
-  const [statusData, setStatusData] = useState<{ name: string; value: number }[]>([]);
-  const [growthData, setGrowthData] = useState<{ month: string; total: number; novos: number }[]>([]);
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -38,7 +36,7 @@ const Statistics = () => {
 
       if (roleData) {
         setRole(roleData.role);
-        await loadStatistics(roleData.role, roleData.department);
+        setDepartment(roleData.department);
       }
 
       const { data: profileData } = await supabase
@@ -57,47 +55,6 @@ const Statistics = () => {
     checkAuth();
   }, [navigate]);
 
-  const loadStatistics = async (userRole: string, userDepartment: string | null) => {
-    // Load department distribution
-    const { data: members } = await supabase
-      .from("members")
-      .select("department, status")
-      .eq(userRole === "leader" ? "department" : "id", userRole === "leader" ? userDepartment : "id");
-
-    if (members) {
-      // Department data
-      const deptCounts = members.reduce((acc: any, member) => {
-        const dept = getDepartmentLabel(member.department);
-        acc[dept] = (acc[dept] || 0) + 1;
-        return acc;
-      }, {});
-
-      setDepartmentData(
-        Object.entries(deptCounts).map(([name, value]) => ({ name, value: value as number }))
-      );
-
-      // Status data
-      const statusCounts = members.reduce((acc: any, member) => {
-        const status = getStatusLabel(member.status);
-        acc[status] = (acc[status] || 0) + 1;
-        return acc;
-      }, {});
-
-      setStatusData(
-        Object.entries(statusCounts).map(([name, value]) => ({ name, value: value as number }))
-      );
-    }
-
-    // Growth data (last 6 months)
-    const months = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun"];
-    const mockGrowthData = months.map((month, index) => ({
-      month,
-      total: 50 + index * 10,
-      novos: 5 + index * 2,
-    }));
-    setGrowthData(mockGrowthData);
-  };
-
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -107,24 +64,49 @@ const Statistics = () => {
   }
 
   return (
-    <AppLayout userName={profile?.full_name}>
-      <div className="space-y-6">
+    <AppLayout userName={profile?.full_name} role={role || undefined}>
+      <div className="space-y-8 animate-fade-in">
         <div>
           <h1 className="text-3xl font-bold text-foreground">Estatísticas</h1>
           <p className="text-muted-foreground">Análise detalhada dos dados</p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {role === "pastor" && departmentData.length > 0 && (
-            <DepartmentChart data={departmentData} />
+        <div className="grid gap-6 lg:grid-cols-2">
+          {role === "pastor" && (
+            <Card className="shadow-lg">
+              <CardHeader>
+                <CardTitle>Membros por Departamento</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <DepartmentChart />
+              </CardContent>
+            </Card>
           )}
-          {statusData.length > 0 && <StatusChart data={statusData} />}
-          {growthData.length > 0 && (
-            <div className="lg:col-span-2">
-              <GrowthChart data={growthData} />
-            </div>
-          )}
+          
+          <Card className="shadow-lg">
+            <CardHeader>
+              <CardTitle>Status dos Membros</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <StatusChart 
+                department={role === "leader" ? (department || undefined) : undefined}
+                leaderId={role === "leader" ? user?.id : undefined}
+              />
+            </CardContent>
+          </Card>
         </div>
+
+        <Card className="shadow-lg">
+          <CardHeader>
+            <CardTitle>Crescimento Mensal</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <GrowthChart 
+              department={role === "leader" ? (department || undefined) : undefined}
+              leaderId={role === "leader" ? user?.id : undefined}
+            />
+          </CardContent>
+        </Card>
       </div>
     </AppLayout>
   );

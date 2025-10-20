@@ -1,13 +1,11 @@
 import { useEffect, useState } from "react";
 import { User } from "@supabase/supabase-js";
 import { supabase, getDepartmentLabel } from "@/lib/supabase";
-import Header from "./Header";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Users, UserPlus } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import MemberManagement from "@/components/members/MemberManagement";
-import CreateMemberForm from "@/components/members/CreateMemberForm";
+import { Users, TrendingUp } from "lucide-react";
+import StatusChart from "./StatusChart";
+import GrowthChart from "./GrowthChart";
+import AppLayout from "@/components/layout/AppLayout";
 
 interface LeaderDashboardProps {
   user: User;
@@ -17,7 +15,7 @@ const LeaderDashboard = ({ user }: LeaderDashboardProps) => {
   const [department, setDepartment] = useState<string>("");
   const [memberCount, setMemberCount] = useState(0);
   const [profile, setProfile] = useState<any>(null);
-  const [createDialogOpen, setCreateDialogOpen] = useState(false);
+  const [activeMembers, setActiveMembers] = useState(0);
 
   const loadDepartmentInfo = async () => {
     const { data: roleData } = await supabase
@@ -36,6 +34,15 @@ const LeaderDashboard = ({ user }: LeaderDashboardProps) => {
         .eq("leader_id", user.id);
 
       setMemberCount(count || 0);
+
+      const { count: activeCount } = await supabase
+        .from("members")
+        .select("*", { count: "exact", head: true })
+        .eq("department", roleData.department)
+        .eq("leader_id", user.id)
+        .eq("status", "ativo");
+
+      setActiveMembers(activeCount || 0);
     }
   };
 
@@ -70,20 +77,19 @@ const LeaderDashboard = ({ user }: LeaderDashboardProps) => {
   }, [user.id]);
 
   return (
-    <>
-      <Header userName={profile?.full_name} />
-      <main className="container mx-auto px-4 py-8">
-        <div className="mb-8">
-          <h2 className="text-3xl font-bold text-primary mb-2">
+    <AppLayout userName={profile?.full_name} role="leader">
+      <div className="space-y-8 animate-fade-in">
+        <div>
+          <h2 className="text-3xl font-bold text-foreground mb-2">
             Painel de {getDepartmentLabel(department)}
           </h2>
           <p className="text-muted-foreground">Gerencie os membros do seu departamento</p>
         </div>
 
-        <div className="grid gap-6 md:grid-cols-2 mb-8">
-          <Card className="border-2 shadow-lg">
+        <div className="grid gap-6 md:grid-cols-3">
+          <Card className="border-2 shadow-lg hover-scale transition-all">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Meus Membros</CardTitle>
+              <CardTitle className="text-sm font-medium">Total de Membros</CardTitle>
               <Users className="h-5 w-5 text-primary" />
             </CardHeader>
             <CardContent>
@@ -94,51 +100,54 @@ const LeaderDashboard = ({ user }: LeaderDashboardProps) => {
             </CardContent>
           </Card>
 
-          <Card className="shadow-lg">
+          <Card className="shadow-lg hover-scale transition-all">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Departamento</CardTitle>
-              <Users className="h-5 w-5 text-accent" />
+              <CardTitle className="text-sm font-medium">Membros Ativos</CardTitle>
+              <TrendingUp className="h-5 w-5 text-accent" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{getDepartmentLabel(department)}</div>
-              <p className="text-xs text-muted-foreground mt-1">Sua área de responsabilidade</p>
+              <div className="text-3xl font-bold text-accent">{activeMembers}</div>
+              <p className="text-xs text-muted-foreground mt-1">
+                Status ativo
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card className="shadow-lg hover-scale transition-all">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Departamento</CardTitle>
+              <Users className="h-5 w-5 text-secondary" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-xl font-bold text-secondary">
+                {getDepartmentLabel(department)}
+              </div>
+              <p className="text-xs text-muted-foreground mt-1">Sua área</p>
             </CardContent>
           </Card>
         </div>
 
-        <Card className="shadow-lg">
-          <CardHeader className="flex flex-row items-center justify-between">
-            <div>
-              <CardTitle className="text-xl">Gestão de Membros</CardTitle>
-              <p className="text-sm text-muted-foreground mt-1">
-                Cadastre e gerencie os membros do seu departamento
-              </p>
-            </div>
-            <Dialog open={createDialogOpen} onOpenChange={setCreateDialogOpen}>
-              <DialogTrigger asChild>
-                <Button>
-                  <UserPlus className="h-4 w-4 mr-2" />
-                  Adicionar Membro
-                </Button>
-              </DialogTrigger>
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle>Cadastrar Novo Membro</DialogTitle>
-                </DialogHeader>
-                <CreateMemberForm
-                  department={department}
-                  leaderId={user.id}
-                  onSuccess={() => setCreateDialogOpen(false)}
-                />
-              </DialogContent>
-            </Dialog>
-          </CardHeader>
-          <CardContent>
-            <MemberManagement />
-          </CardContent>
-        </Card>
-      </main>
-    </>
+        <div className="grid gap-6 lg:grid-cols-2">
+          <Card className="shadow-lg">
+            <CardHeader>
+              <CardTitle>Status dos Membros</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <StatusChart department={department} leaderId={user.id} />
+            </CardContent>
+          </Card>
+
+          <Card className="shadow-lg">
+            <CardHeader>
+              <CardTitle>Crescimento do Departamento</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <GrowthChart department={department} leaderId={user.id} />
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    </AppLayout>
   );
 };
 

@@ -1,4 +1,4 @@
-import { Home, Users, BarChart3, Settings, LogOut } from "lucide-react";
+import { Home, Users, BarChart3, Settings, LogOut, UserCog } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import {
   Sidebar,
@@ -15,16 +15,29 @@ import { supabase } from "@/lib/supabase";
 import { toast } from "sonner";
 import logo from "@/assets/logo.png";
 
-const items = [
+interface AppSidebarProps {
+  role?: string;
+}
+
+const pastorItems = [
+  { title: "Dashboard", url: "/dashboard", icon: Home },
+  { title: "Líderes", url: "/dashboard/leaders", icon: UserCog },
+  { title: "Membros", url: "/dashboard/members", icon: Users },
+  { title: "Estatísticas", url: "/dashboard/statistics", icon: BarChart3 },
+  { title: "Configurações", url: "/dashboard/settings", icon: Settings },
+];
+
+const leaderItems = [
   { title: "Dashboard", url: "/dashboard", icon: Home },
   { title: "Membros", url: "/dashboard/members", icon: Users },
   { title: "Estatísticas", url: "/dashboard/statistics", icon: BarChart3 },
   { title: "Configurações", url: "/dashboard/settings", icon: Settings },
 ];
 
-export function AppSidebar() {
+export function AppSidebar({ role = "leader" }: AppSidebarProps) {
   const { state } = useSidebar();
   const collapsed = state === "collapsed";
+  const items = role === "pastor" ? pastorItems : leaderItems;
 
   const handleLogout = async () => {
     const { error } = await supabase.auth.signOut();

@@ -65,8 +65,8 @@ const Members = () => {
   }
 
   return (
-    <AppLayout userName={profile?.full_name}>
-      <div className="space-y-6">
+    <AppLayout userName={profile?.full_name} role={role || undefined}>
+      <div className="space-y-6 animate-fade-in">
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold text-foreground">Gestão de Membros</h1>

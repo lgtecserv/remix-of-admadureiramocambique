@@ -10,10 +10,8 @@ import logo from "@/assets/logo.png";
 
 const Auth = () => {
   const navigate = useNavigate();
-  const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [fullName, setFullName] = useState("");
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -37,29 +35,13 @@ const Auth = () => {
     setLoading(true);
 
     try {
-      if (isLogin) {
-        const { error } = await supabase.auth.signInWithPassword({
-          email,
-          password,
-        });
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
 
-        if (error) throw error;
-        toast.success("Login realizado com sucesso!");
-      } else {
-        const { error } = await supabase.auth.signUp({
-          email,
-          password,
-          options: {
-            data: {
-              full_name: fullName,
-            },
-            emailRedirectTo: `${window.location.origin}/dashboard`,
-          },
-        });
-
-        if (error) throw error;
-        toast.success("Conta criada! Por favor, verifique seu e-mail.");
-      }
+      if (error) throw error;
+      toast.success("Login realizado com sucesso!");
     } catch (error: any) {
       toast.error(error.message || "Erro ao autenticar");
     } finally {
@@ -85,19 +67,6 @@ const Auth = () => {
         </CardHeader>
         <CardContent>
           <form onSubmit={handleAuth} className="space-y-4">
-            {!isLogin && (
-              <div className="space-y-2">
-                <Label htmlFor="fullName">Nome Completo</Label>
-                <Input
-                  id="fullName"
-                  type="text"
-                  placeholder="João Silva"
-                  value={fullName}
-                  onChange={(e) => setFullName(e.target.value)}
-                  required
-                />
-              </div>
-            )}
             <div className="space-y-2">
               <Label htmlFor="email">E-mail</Label>
               <Input
@@ -122,17 +91,13 @@ const Auth = () => {
               />
             </div>
             <Button type="submit" className="w-full" disabled={loading}>
-              {loading ? "Carregando..." : isLogin ? "Entrar" : "Criar Conta"}
+              {loading ? "Carregando..." : "Entrar"}
             </Button>
           </form>
-          <div className="mt-4 text-center text-sm">
-            <button
-              type="button"
-              onClick={() => setIsLogin(!isLogin)}
-              className="text-primary hover:underline font-medium"
-            >
-              {isLogin ? "Criar nova conta" : "Já tenho conta"}
-            </button>
+          <div className="mt-6 p-4 bg-muted/50 rounded-lg">
+            <p className="text-xs text-center text-muted-foreground">
+              <strong>Acesso restrito:</strong> As credenciais são fornecidas pelo administrador do sistema.
+            </p>
           </div>
         </CardContent>
       </Card>

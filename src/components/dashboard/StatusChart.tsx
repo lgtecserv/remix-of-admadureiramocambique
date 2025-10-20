@@ -1,8 +1,10 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useEffect, useState } from "react";
+import { supabase } from "@/lib/supabase";
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from "recharts";
 
 interface StatusChartProps {
-  data: { name: string; value: number }[];
+  department?: string;
+  leaderId?: string;
 }
 
 const STATUS_COLORS = {
@@ -11,35 +13,59 @@ const STATUS_COLORS = {
   Inativo: "hsl(var(--chart-3))",
 };
 
-const StatusChart = ({ data }: StatusChartProps) => {
+const StatusChart = ({ department, leaderId }: StatusChartProps = {}) => {
+  const [data, setData] = useState<{ name: string; value: number }[]>([]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      let query = supabase.from("members").select("status");
+      
+      if (department && leaderId) {
+        query = query.eq("department", department as any).eq("leader_id", leaderId);
+      }
+
+      const { data: members } = await query;
+
+      if (members) {
+        const statusCount: Record<string, number> = {};
+        members.forEach((m) => {
+          const status = m.status === "novo" ? "Novo" : m.status === "ativo" ? "Ativo" : "Inativo";
+          statusCount[status] = (statusCount[status] || 0) + 1;
+        });
+
+        const chartData = Object.entries(statusCount).map(([name, value]) => ({
+          name,
+          value,
+        }));
+
+        setData(chartData);
+      }
+    };
+
+    fetchData();
+  }, [department, leaderId]);
+
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Status dos Membros</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <ResponsiveContainer width="100%" height={300}>
-          <PieChart>
-            <Pie
-              data={data}
-              cx="50%"
-              cy="50%"
-              labelLine={false}
-              label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
-              outerRadius={80}
-              fill="#8884d8"
-              dataKey="value"
-            >
-              {data.map((entry, index) => (
-                <Cell key={`cell-${index}`} fill={STATUS_COLORS[entry.name as keyof typeof STATUS_COLORS]} />
-              ))}
-            </Pie>
-            <Tooltip />
-            <Legend />
-          </PieChart>
-        </ResponsiveContainer>
-      </CardContent>
-    </Card>
+    <ResponsiveContainer width="100%" height={300}>
+      <PieChart>
+        <Pie
+          data={data}
+          cx="50%"
+          cy="50%"
+          labelLine={false}
+          label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+          outerRadius={80}
+          fill="#8884d8"
+          dataKey="value"
+        >
+          {data.map((entry, index) => (
+            <Cell key={`cell-${index}`} fill={STATUS_COLORS[entry.name as keyof typeof STATUS_COLORS]} />
+          ))}
+        </Pie>
+        <Tooltip />
+        <Legend />
+      </PieChart>
+    </ResponsiveContainer>
   );
 };
 
