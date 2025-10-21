@@ -87,42 +87,33 @@ const LeaderDashboard = ({ user }: LeaderDashboardProps) => {
         </div>
 
         <div className="grid gap-6 md:grid-cols-3">
-          <Card className="border-2 shadow-lg hover-scale transition-all">
+          <Card className="border-2 hover:border-primary/50 transition-colors">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Total de Membros</CardTitle>
               <Users className="h-5 w-5 text-primary" />
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold text-primary">{memberCount}</div>
-              <p className="text-xs text-muted-foreground mt-1">
-                Membros cadastrados
-              </p>
+              <div className="text-3xl font-bold">{memberCount}</div>
             </CardContent>
           </Card>
 
-          <Card className="shadow-lg hover-scale transition-all">
+          <Card className="border-2 hover:border-primary/50 transition-colors">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Membros Ativos</CardTitle>
-              <TrendingUp className="h-5 w-5 text-accent" />
+              <TrendingUp className="h-5 w-5 text-chart-2" />
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold text-accent">{activeMembers}</div>
-              <p className="text-xs text-muted-foreground mt-1">
-                Status ativo
-              </p>
+              <div className="text-3xl font-bold">{activeMembers}</div>
             </CardContent>
           </Card>
 
-          <Card className="shadow-lg hover-scale transition-all">
+          <Card className="border-2 hover:border-primary/50 transition-colors">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Departamento</CardTitle>
-              <Users className="h-5 w-5 text-secondary" />
+              <Users className="h-5 w-5 text-chart-1" />
             </CardHeader>
             <CardContent>
-              <div className="text-xl font-bold text-secondary">
-                {getDepartmentLabel(department)}
-              </div>
-              <p className="text-xs text-muted-foreground mt-1">Sua área</p>
+              <div className="text-2xl font-bold">{getDepartmentLabel(department)}</div>
             </CardContent>
           </Card>
         </div>

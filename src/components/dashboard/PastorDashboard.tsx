@@ -86,44 +86,33 @@ const PastorDashboard = ({ user }: PastorDashboardProps) => {
         </div>
 
         <div className="grid gap-6 md:grid-cols-3">
-          <Card className="border-2 shadow-lg hover-scale transition-all">
+          <Card className="border-2 hover:border-primary/50 transition-colors">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Total de Membros</CardTitle>
               <Users className="h-5 w-5 text-primary" />
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold text-primary">{stats.total}</div>
-              <p className="text-xs text-muted-foreground mt-1">
-                Membros ativos na igreja
-              </p>
+              <div className="text-3xl font-bold">{stats.total}</div>
             </CardContent>
           </Card>
 
-          <Card className="shadow-lg hover-scale transition-all">
+          <Card className="border-2 hover:border-primary/50 transition-colors">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Líderes Ativos</CardTitle>
-              <UserCog className="h-5 w-5 text-accent" />
+              <UserCog className="h-5 w-5 text-chart-1" />
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold text-accent">{leaderCount}</div>
-              <p className="text-xs text-muted-foreground mt-1">
-                Líderes de departamentos
-              </p>
+              <div className="text-3xl font-bold">{leaderCount}</div>
             </CardContent>
           </Card>
 
-          <Card className="shadow-lg hover-scale transition-all">
+          <Card className="border-2 hover:border-primary/50 transition-colors">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Departamentos</CardTitle>
-              <TrendingUp className="h-5 w-5 text-secondary" />
+              <TrendingUp className="h-5 w-5 text-chart-2" />
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold text-secondary">
-                {Object.keys(stats.byDepartment).length}
-              </div>
-              <p className="text-xs text-muted-foreground mt-1">
-                Áreas de ministério
-              </p>
+              <div className="text-3xl font-bold">{Object.keys(stats.byDepartment).length}</div>
             </CardContent>
           </Card>
         </div>

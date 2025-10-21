@@ -47,6 +47,16 @@ serve(async (req) => {
 
     console.log("User created successfully:", userData.user.id);
 
+    // Update profile with email
+    const { error: profileError } = await supabase
+      .from("profiles")
+      .update({ email: email })
+      .eq("id", userData.user.id);
+
+    if (profileError) {
+      console.error("Error updating profile:", profileError);
+    }
+
     // Insert role immediately
     const { error: roleError } = await supabase.from("user_roles").insert({
       user_id: userData.user.id,

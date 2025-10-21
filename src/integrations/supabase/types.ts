@@ -50,18 +50,21 @@ export type Database = {
       profiles: {
         Row: {
           created_at: string
+          email: string | null
           full_name: string
           id: string
           updated_at: string
         }
         Insert: {
           created_at?: string
+          email?: string | null
           full_name: string
           id: string
           updated_at?: string
         }
         Update: {
           created_at?: string
+          email?: string | null
           full_name?: string
           id?: string
           updated_at?: string
@@ -89,6 +92,48 @@ export type Database = {
           id?: string
           role?: Database["public"]["Enums"]["app_role"]
           user_id?: string
+        }
+        Relationships: []
+      }
+      visitors: {
+        Row: {
+          created_at: string
+          department: Database["public"]["Enums"]["department_type"]
+          full_name: string
+          id: string
+          invited_by: string | null
+          leader_id: string
+          observations: string | null
+          phone_number: string
+          returned: boolean
+          updated_at: string
+          visit_date: string
+        }
+        Insert: {
+          created_at?: string
+          department: Database["public"]["Enums"]["department_type"]
+          full_name: string
+          id?: string
+          invited_by?: string | null
+          leader_id: string
+          observations?: string | null
+          phone_number: string
+          returned?: boolean
+          updated_at?: string
+          visit_date?: string
+        }
+        Update: {
+          created_at?: string
+          department?: Database["public"]["Enums"]["department_type"]
+          full_name?: string
+          id?: string
+          invited_by?: string | null
+          leader_id?: string
+          observations?: string | null
+          phone_number?: string
+          returned?: boolean
+          updated_at?: string
+          visit_date?: string
         }
         Relationships: []
       }

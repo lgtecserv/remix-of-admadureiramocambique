@@ -23,6 +23,7 @@ const pastorItems = [
   { title: "Dashboard", url: "/dashboard", icon: Home },
   { title: "Líderes", url: "/dashboard/leaders", icon: UserCog },
   { title: "Membros", url: "/dashboard/members", icon: Users },
+  { title: "Visitantes", url: "/dashboard/visitors", icon: Users },
   { title: "Estatísticas", url: "/dashboard/statistics", icon: BarChart3 },
   { title: "Configurações", url: "/dashboard/settings", icon: Settings },
 ];
@@ -30,6 +31,7 @@ const pastorItems = [
 const leaderItems = [
   { title: "Dashboard", url: "/dashboard", icon: Home },
   { title: "Membros", url: "/dashboard/members", icon: Users },
+  { title: "Visitantes", url: "/dashboard/visitors", icon: Users },
   { title: "Estatísticas", url: "/dashboard/statistics", icon: BarChart3 },
   { title: "Configurações", url: "/dashboard/settings", icon: Settings },
 ];

@@ -31,29 +31,22 @@ const LeaderManagement = () => {
   const loadLeaders = async () => {
     const { data: rolesData } = await supabase
       .from("user_roles")
-      .select("id, user_id, department")
+      .select(`
+        id, 
+        user_id, 
+        department,
+        profiles!inner(full_name, email)
+      `)
       .eq("role", "leader");
 
     if (rolesData) {
-      const leadersWithDetails = await Promise.all(
-        rolesData.map(async (role) => {
-          const { data: profile } = await supabase
-            .from("profiles")
-            .select("full_name")
-            .eq("id", role.user_id)
-            .single();
-
-          const { data: { user } } = await supabase.auth.admin.getUserById(role.user_id);
-
-          return {
-            id: role.id,
-            user_id: role.user_id,
-            department: role.department,
-            email: user?.email || "",
-            full_name: profile?.full_name || "",
-          };
-        })
-      );
+      const leadersWithDetails = rolesData.map((role: any) => ({
+        id: role.id,
+        user_id: role.user_id,
+        department: role.department,
+        email: role.profiles?.email || "",
+        full_name: role.profiles?.full_name || "",
+      }));
 
       setLeaders(leadersWithDetails);
     }

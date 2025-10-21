@@ -7,6 +7,7 @@ import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
 import Leaders from "./pages/Leaders";
 import Members from "./pages/Members";
+import Visitors from "./pages/Visitors";
 import Statistics from "./pages/Statistics";
 import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
@@ -25,6 +26,7 @@ const App = () => (
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/dashboard/leaders" element={<Leaders />} />
           <Route path="/dashboard/members" element={<Members />} />
+          <Route path="/dashboard/visitors" element={<Visitors />} />
           <Route path="/dashboard/statistics" element={<Statistics />} />
           <Route path="/dashboard/settings" element={<Settings />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
