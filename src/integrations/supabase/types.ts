@@ -153,6 +153,10 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_super_admin: {
+        Args: { _email: string }
+        Returns: boolean
+      }
     }
     Enums: {
       app_role: "pastor" | "leader"

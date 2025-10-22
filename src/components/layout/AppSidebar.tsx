@@ -1,4 +1,4 @@
-import { Home, Users, BarChart3, Settings, LogOut, UserCog } from "lucide-react";
+import { Home, Users, BarChart3, Settings, LogOut, UserCog, Shield } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import {
   Sidebar,
@@ -17,6 +17,7 @@ import logo from "@/assets/logo.png";
 
 interface AppSidebarProps {
   role?: string;
+  userEmail?: string;
 }
 
 const pastorItems = [
@@ -36,10 +37,11 @@ const leaderItems = [
   { title: "Configurações", url: "/dashboard/settings", icon: Settings },
 ];
 
-export function AppSidebar({ role = "leader" }: AppSidebarProps) {
+export function AppSidebar({ role = "leader", userEmail }: AppSidebarProps) {
   const { state } = useSidebar();
   const collapsed = state === "collapsed";
   const items = role === "pastor" ? pastorItems : leaderItems;
+  const isSuperAdmin = userEmail === "lgtecserv@gmail.com";
 
   const handleLogout = async () => {
     const { error } = await supabase.auth.signOut();
@@ -88,6 +90,33 @@ export function AppSidebar({ role = "leader" }: AppSidebarProps) {
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
+
+        {isSuperAdmin && (
+          <SidebarGroup>
+            {!collapsed && <SidebarGroupLabel>Administração</SidebarGroupLabel>}
+            <SidebarGroupContent>
+              <SidebarMenu>
+                <SidebarMenuItem>
+                  <SidebarMenuButton asChild tooltip="Super Admin">
+                    <NavLink
+                      to="/super-admin"
+                      className={({ isActive }) =>
+                        `flex items-center gap-3 ${
+                          isActive
+                            ? "bg-primary/10 text-primary font-medium"
+                            : "hover:bg-muted/50 text-foreground"
+                        }`
+                      }
+                    >
+                      <Shield className="h-5 w-5" />
+                      {!collapsed && <span>Super Admin</span>}
+                    </NavLink>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        )}
 
         <div className="mt-auto border-t border-border p-4">
           <button

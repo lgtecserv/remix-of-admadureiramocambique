@@ -6,10 +6,12 @@ import { Users, TrendingUp, UserCog } from "lucide-react";
 import DepartmentChart from "./DepartmentChart";
 import StatusChart from "./StatusChart";
 import GrowthChart from "./GrowthChart";
+import { DepartmentStatsCard } from "./DepartmentStatsCard";
 import AppLayout from "@/components/layout/AppLayout";
 
 interface PastorDashboardProps {
   user: User;
+  userEmail?: string;
 }
 
 interface Stats {
@@ -17,7 +19,7 @@ interface Stats {
   byDepartment: Record<string, number>;
 }
 
-const PastorDashboard = ({ user }: PastorDashboardProps) => {
+const PastorDashboard = ({ user, userEmail }: PastorDashboardProps) => {
   const [stats, setStats] = useState<Stats>({ total: 0, byDepartment: {} });
   const [profile, setProfile] = useState<any>(null);
   const [leaderCount, setLeaderCount] = useState(0);
@@ -78,7 +80,7 @@ const PastorDashboard = ({ user }: PastorDashboardProps) => {
   }, [user.id]);
 
   return (
-    <AppLayout userName={profile?.full_name} role="pastor">
+    <AppLayout userName={profile?.full_name} role="pastor" userEmail={userEmail}>
       <div className="space-y-8 animate-fade-in">
         <div>
           <h2 className="text-3xl font-bold text-foreground mb-2">Painel do Pastor</h2>
@@ -116,6 +118,8 @@ const PastorDashboard = ({ user }: PastorDashboardProps) => {
             </CardContent>
           </Card>
         </div>
+
+        <DepartmentStatsCard />
 
         <div className="grid gap-6 lg:grid-cols-2">
           <Card className="shadow-lg">

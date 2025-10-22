@@ -5,13 +5,14 @@ interface AppLayoutProps {
   children: React.ReactNode;
   userName?: string;
   role?: string;
+  userEmail?: string;
 }
 
-const AppLayout = ({ children, userName, role }: AppLayoutProps) => {
+const AppLayout = ({ children, userName, role, userEmail }: AppLayoutProps) => {
   return (
     <SidebarProvider>
       <div className="min-h-screen flex w-full bg-gradient-to-br from-background via-muted/20 to-secondary/10">
-        <AppSidebar role={role} />
+        <AppSidebar role={role} userEmail={userEmail} />
         <div className="flex-1 flex flex-col">
           <header className="sticky top-0 z-40 bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/60 border-b border-border">
             <div className="flex items-center gap-4 px-6 py-4">

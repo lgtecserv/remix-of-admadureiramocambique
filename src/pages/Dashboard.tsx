@@ -10,6 +10,7 @@ const Dashboard = () => {
   const navigate = useNavigate();
   const [user, setUser] = useState<User | null>(null);
   const [role, setRole] = useState<string | null>(null);
+  const [userEmail, setUserEmail] = useState<string>("");
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -22,6 +23,7 @@ const Dashboard = () => {
       }
 
       setUser(session.user);
+      setUserEmail(session.user.email || "");
 
       // Use maybeSingle to avoid errors if role not found yet
       const { data: roleData, error: roleError } = await supabase
@@ -81,11 +83,11 @@ const Dashboard = () => {
   }
 
   if (role === "pastor" && user) {
-    return <PastorDashboard user={user} />;
+    return <PastorDashboard user={user} userEmail={userEmail} />;
   }
 
   if (role === "leader" && user) {
-    return <LeaderDashboard user={user} />;
+    return <LeaderDashboard user={user} userEmail={userEmail} />;
   }
 
   return null;

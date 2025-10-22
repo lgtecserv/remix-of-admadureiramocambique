@@ -9,9 +9,10 @@ import AppLayout from "@/components/layout/AppLayout";
 
 interface LeaderDashboardProps {
   user: User;
+  userEmail?: string;
 }
 
-const LeaderDashboard = ({ user }: LeaderDashboardProps) => {
+const LeaderDashboard = ({ user, userEmail }: LeaderDashboardProps) => {
   const [department, setDepartment] = useState<string>("");
   const [memberCount, setMemberCount] = useState(0);
   const [profile, setProfile] = useState<any>(null);
@@ -77,7 +78,7 @@ const LeaderDashboard = ({ user }: LeaderDashboardProps) => {
   }, [user.id]);
 
   return (
-    <AppLayout userName={profile?.full_name} role="leader">
+    <AppLayout userName={profile?.full_name} role="leader" userEmail={userEmail}>
       <div className="space-y-8 animate-fade-in">
         <div>
           <h2 className="text-3xl font-bold text-foreground mb-2">

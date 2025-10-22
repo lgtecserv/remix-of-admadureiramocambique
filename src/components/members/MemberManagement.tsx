@@ -179,7 +179,11 @@ const MemberManagement = ({
                 <TableRow key={member.id}>
                   <TableCell className="font-medium">{member.full_name}</TableCell>
                   <TableCell>{member.phone_number}</TableCell>
-                  <TableCell>{getDepartmentLabel(member.department)}</TableCell>
+                  <TableCell>
+                    <Badge variant="outline">
+                      {getDepartmentLabel(member.department)}
+                    </Badge>
+                  </TableCell>
                   <TableCell>
                     <Badge variant={getStatusBadgeVariant(member.status)}>
                       {getStatusLabel(member.status)}
