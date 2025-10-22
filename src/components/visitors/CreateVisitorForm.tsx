@@ -12,6 +12,21 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { CalendarIcon } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import { z } from "zod";
+
+const visitorSchema = z.object({
+  fullName: z.string()
+    .trim()
+    .min(1, "Nome é obrigatório")
+    .max(100, "Nome deve ter no máximo 100 caracteres"),
+  phoneNumber: z.string()
+    .trim()
+    .min(1, "Telefone é obrigatório")
+    .max(20, "Telefone deve ter no máximo 20 caracteres")
+    .regex(/^\+?[0-9\s\-()]+$/, "Formato de telefone inválido"),
+  invitedBy: z.string().max(100, "Nome deve ter no máximo 100 caracteres").optional(),
+  observations: z.string().max(500, "Observações devem ter no máximo 500 caracteres").optional(),
+});
 
 interface CreateVisitorFormProps {
   onSuccess: () => void;
@@ -32,20 +47,27 @@ const CreateVisitorForm = ({ onSuccess, user, userDepartment }: CreateVisitorFor
     e.preventDefault();
     setLoading(true);
 
-    const { error } = await supabase.from("visitors").insert({
-      full_name: fullName,
-      phone_number: phoneNumber,
-      visit_date: format(visitDate, "yyyy-MM-dd"),
-      invited_by: invitedBy,
-      observations: observations,
-      department: department as any,
-      leader_id: user.id,
-    });
+    try {
+      // Validate input
+      const validatedData = visitorSchema.parse({
+        fullName,
+        phoneNumber,
+        invitedBy,
+        observations,
+      });
 
-    if (error) {
-      toast.error("Erro ao cadastrar visitante");
-      console.error(error);
-    } else {
+      const { error } = await supabase.from("visitors").insert({
+        full_name: validatedData.fullName,
+        phone_number: validatedData.phoneNumber,
+        visit_date: format(visitDate, "yyyy-MM-dd"),
+        invited_by: validatedData.invitedBy || "",
+        observations: validatedData.observations || "",
+        department: department as any,
+        leader_id: user.id,
+      });
+
+      if (error) throw error;
+
       toast.success("Visitante cadastrado com sucesso!");
       setFullName("");
       setPhoneNumber("");
@@ -53,9 +75,15 @@ const CreateVisitorForm = ({ onSuccess, user, userDepartment }: CreateVisitorFor
       setInvitedBy("");
       setObservations("");
       onSuccess();
+    } catch (error: any) {
+      if (error instanceof z.ZodError) {
+        toast.error(error.errors[0].message);
+      } else {
+        toast.error(error.message || "Erro ao cadastrar visitante");
+      }
+    } finally {
+      setLoading(false);
     }
-
-    setLoading(false);
   };
 
   return (
@@ -66,6 +94,7 @@ const CreateVisitorForm = ({ onSuccess, user, userDepartment }: CreateVisitorFor
           id="fullName"
           value={fullName}
           onChange={(e) => setFullName(e.target.value)}
+          maxLength={100}
           required
         />
       </div>
@@ -76,6 +105,7 @@ const CreateVisitorForm = ({ onSuccess, user, userDepartment }: CreateVisitorFor
           id="phoneNumber"
           value={phoneNumber}
           onChange={(e) => setPhoneNumber(e.target.value)}
+          maxLength={20}
           required
         />
       </div>
@@ -106,6 +136,7 @@ const CreateVisitorForm = ({ onSuccess, user, userDepartment }: CreateVisitorFor
           id="invitedBy"
           value={invitedBy}
           onChange={(e) => setInvitedBy(e.target.value)}
+          maxLength={100}
         />
       </div>
 
@@ -133,6 +164,7 @@ const CreateVisitorForm = ({ onSuccess, user, userDepartment }: CreateVisitorFor
           id="observations"
           value={observations}
           onChange={(e) => setObservations(e.target.value)}
+          maxLength={500}
           rows={3}
         />
       </div>

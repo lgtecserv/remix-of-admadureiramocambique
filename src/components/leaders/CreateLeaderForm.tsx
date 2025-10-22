@@ -5,6 +5,22 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
+import { z } from "zod";
+
+const leaderSchema = z.object({
+  fullName: z.string()
+    .trim()
+    .min(1, "Nome é obrigatório")
+    .max(100, "Nome deve ter no máximo 100 caracteres"),
+  email: z.string()
+    .trim()
+    .email("Email inválido")
+    .max(255, "Email deve ter no máximo 255 caracteres"),
+  password: z.string()
+    .min(6, "Senha deve ter no mínimo 6 caracteres")
+    .max(72, "Senha deve ter no máximo 72 caracteres"),
+  department: z.string().min(1, "Departamento é obrigatório"),
+});
 
 interface CreateLeaderFormProps {
   onSuccess: () => void;
@@ -26,13 +42,16 @@ const CreateLeaderForm = ({ onSuccess }: CreateLeaderFormProps) => {
     setLoading(true);
 
     try {
+      // Validate input
+      const validatedData = leaderSchema.parse(formData);
+
       // Call backend function to create leader (doesn't affect current session)
       const { data, error } = await supabase.functions.invoke("create-leader", {
         body: {
-          email: formData.email,
-          password: formData.password,
-          fullName: formData.fullName,
-          department: formData.department,
+          email: validatedData.email,
+          password: validatedData.password,
+          fullName: validatedData.fullName,
+          department: validatedData.department,
         },
       });
 
@@ -46,8 +65,12 @@ const CreateLeaderForm = ({ onSuccess }: CreateLeaderFormProps) => {
       setFormData({ fullName: "", email: "", password: "", department: "" });
       onSuccess();
     } catch (error: any) {
-      console.error("Error creating leader:", error);
-      toast.error(error.message || "Erro ao cadastrar líder");
+      if (error instanceof z.ZodError) {
+        toast.error(error.errors[0].message);
+      } else {
+        console.error("Error creating leader:", error);
+        toast.error(error.message || "Erro ao cadastrar líder");
+      }
     } finally {
       setLoading(false);
     }
@@ -62,6 +85,7 @@ const CreateLeaderForm = ({ onSuccess }: CreateLeaderFormProps) => {
           type="text"
           value={formData.fullName}
           onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
+          maxLength={100}
           required
         />
       </div>
@@ -73,6 +97,7 @@ const CreateLeaderForm = ({ onSuccess }: CreateLeaderFormProps) => {
           type="email"
           value={formData.email}
           onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+          maxLength={255}
           required
         />
       </div>
@@ -84,8 +109,9 @@ const CreateLeaderForm = ({ onSuccess }: CreateLeaderFormProps) => {
           type="password"
           value={formData.password}
           onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-          required
           minLength={6}
+          maxLength={72}
+          required
         />
       </div>
 

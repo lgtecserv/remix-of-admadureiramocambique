@@ -4,6 +4,19 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
+import { z } from "zod";
+
+const memberSchema = z.object({
+  fullName: z.string()
+    .trim()
+    .min(1, "Nome é obrigatório")
+    .max(100, "Nome deve ter no máximo 100 caracteres"),
+  phoneNumber: z.string()
+    .trim()
+    .min(1, "Telefone é obrigatório")
+    .max(20, "Telefone deve ter no máximo 20 caracteres")
+    .regex(/^\+?[0-9\s\-()]+$/, "Formato de telefone inválido"),
+});
 
 interface CreateMemberFormProps {
   department: string;
@@ -23,9 +36,12 @@ const CreateMemberForm = ({ department, leaderId, onSuccess }: CreateMemberFormP
     setLoading(true);
 
     try {
+      // Validate input
+      const validatedData = memberSchema.parse(formData);
+
       const { error } = await supabase.from("members").insert({
-        full_name: formData.fullName,
-        phone_number: formData.phoneNumber,
+        full_name: validatedData.fullName,
+        phone_number: validatedData.phoneNumber,
         department: department as any,
         leader_id: leaderId,
         status: "novo" as const,
@@ -36,7 +52,11 @@ const CreateMemberForm = ({ department, leaderId, onSuccess }: CreateMemberFormP
       toast.success("Membro cadastrado com sucesso!");
       onSuccess();
     } catch (error: any) {
-      toast.error(error.message || "Erro ao cadastrar membro");
+      if (error instanceof z.ZodError) {
+        toast.error(error.errors[0].message);
+      } else {
+        toast.error(error.message || "Erro ao cadastrar membro");
+      }
     } finally {
       setLoading(false);
     }
@@ -51,6 +71,7 @@ const CreateMemberForm = ({ department, leaderId, onSuccess }: CreateMemberFormP
           type="text"
           value={formData.fullName}
           onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
+          maxLength={100}
           required
         />
       </div>
@@ -63,6 +84,7 @@ const CreateMemberForm = ({ department, leaderId, onSuccess }: CreateMemberFormP
           value={formData.phoneNumber}
           onChange={(e) => setFormData({ ...formData, phoneNumber: e.target.value })}
           placeholder="+258 XX XXX XXXX"
+          maxLength={20}
           required
         />
       </div>

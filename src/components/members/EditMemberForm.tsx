@@ -5,6 +5,20 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
+import { z } from "zod";
+
+const editMemberSchema = z.object({
+  fullName: z.string()
+    .trim()
+    .min(1, "Nome é obrigatório")
+    .max(100, "Nome deve ter no máximo 100 caracteres"),
+  phoneNumber: z.string()
+    .trim()
+    .min(1, "Telefone é obrigatório")
+    .max(20, "Telefone deve ter no máximo 20 caracteres")
+    .regex(/^\+?[0-9\s\-()]+$/, "Formato de telefone inválido"),
+  status: z.enum(["novo", "ativo", "inativo"]),
+});
 
 interface EditMemberFormProps {
   member: {
@@ -31,12 +45,15 @@ const EditMemberForm = ({ member, onSuccess }: EditMemberFormProps) => {
     setLoading(true);
 
     try {
+      // Validate input
+      const validatedData = editMemberSchema.parse(formData);
+
       const { error } = await supabase
         .from("members")
         .update({
-          full_name: formData.fullName,
-          phone_number: formData.phoneNumber,
-          status: formData.status as any,
+          full_name: validatedData.fullName,
+          phone_number: validatedData.phoneNumber,
+          status: validatedData.status as any,
         })
         .eq("id", member.id);
 
@@ -45,7 +62,11 @@ const EditMemberForm = ({ member, onSuccess }: EditMemberFormProps) => {
       toast.success("Membro atualizado com sucesso!");
       onSuccess();
     } catch (error: any) {
-      toast.error(error.message || "Erro ao atualizar membro");
+      if (error instanceof z.ZodError) {
+        toast.error(error.errors[0].message);
+      } else {
+        toast.error(error.message || "Erro ao atualizar membro");
+      }
     } finally {
       setLoading(false);
     }
@@ -60,6 +81,7 @@ const EditMemberForm = ({ member, onSuccess }: EditMemberFormProps) => {
           type="text"
           value={formData.fullName}
           onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
+          maxLength={100}
           required
         />
       </div>
@@ -71,6 +93,7 @@ const EditMemberForm = ({ member, onSuccess }: EditMemberFormProps) => {
           type="tel"
           value={formData.phoneNumber}
           onChange={(e) => setFormData({ ...formData, phoneNumber: e.target.value })}
+          maxLength={20}
           required
         />
       </div>

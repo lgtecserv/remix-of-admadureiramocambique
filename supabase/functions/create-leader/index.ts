@@ -26,6 +26,28 @@ serve(async (req) => {
       throw new Error("Todos os campos são obrigatórios");
     }
 
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email) || email.length > 255) {
+      throw new Error("Email inválido");
+    }
+
+    // Validate name length
+    if (fullName.trim().length === 0 || fullName.length > 100) {
+      throw new Error("Nome deve ter entre 1 e 100 caracteres");
+    }
+
+    // Validate password length
+    if (password.length < 6 || password.length > 72) {
+      throw new Error("Senha deve ter entre 6 e 72 caracteres");
+    }
+
+    // Validate department
+    const validDepartments = ["jovens", "irmas", "varoes", "adolescentes", "criancas"];
+    if (!validDepartments.includes(department)) {
+      throw new Error("Departamento inválido");
+    }
+
     // Create user with admin privileges (bypasses RLS and doesn't change current session)
     const { data: userData, error: userError } = await supabase.auth.admin.createUser({
       email,
