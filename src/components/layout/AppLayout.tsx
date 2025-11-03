@@ -1,14 +1,17 @@
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "./AppSidebar";
+import NotificationBell from "@/components/notifications/NotificationBell";
+import { User } from "@supabase/supabase-js";
 
 interface AppLayoutProps {
   children: React.ReactNode;
   userName?: string;
   role?: string;
   userEmail?: string;
+  user?: User;
 }
 
-const AppLayout = ({ children, userName, role, userEmail }: AppLayoutProps) => {
+const AppLayout = ({ children, userName, role, userEmail, user }: AppLayoutProps) => {
   return (
     <SidebarProvider>
       <div className="min-h-screen flex w-full bg-gradient-to-br from-background via-muted/20 to-secondary/10">
@@ -18,6 +21,7 @@ const AppLayout = ({ children, userName, role, userEmail }: AppLayoutProps) => {
             <div className="flex items-center gap-4 px-6 py-4">
               <SidebarTrigger />
               <div className="flex-1" />
+              {user && <NotificationBell userId={user.id} />}
               {userName && (
                 <div className="flex items-center gap-2">
                   <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center">

@@ -1,0 +1,102 @@
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
+
+interface AdditionalMemberFieldsProps {
+  formData: {
+    address: string;
+    birthDate: string;
+    maritalStatus: string;
+    occupation: string;
+    baptismDate: string;
+    observations: string;
+  };
+  setFormData: (data: any) => void;
+}
+
+const AdditionalMemberFields = ({ formData, setFormData }: AdditionalMemberFieldsProps) => {
+  return (
+    <>
+      <div className="space-y-2">
+        <Label htmlFor="address">Endereço</Label>
+        <Input
+          id="address"
+          type="text"
+          value={formData.address}
+          onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+          maxLength={200}
+          placeholder="Rua, número, bairro..."
+        />
+      </div>
+
+      <div className="grid grid-cols-2 gap-4">
+        <div className="space-y-2">
+          <Label htmlFor="birthDate">Data de Nascimento</Label>
+          <Input
+            id="birthDate"
+            type="date"
+            value={formData.birthDate}
+            onChange={(e) => setFormData({ ...formData, birthDate: e.target.value })}
+          />
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="maritalStatus">Estado Civil</Label>
+          <Select
+            value={formData.maritalStatus}
+            onValueChange={(value) => setFormData({ ...formData, maritalStatus: value })}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Selecione..." />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="solteiro">Solteiro(a)</SelectItem>
+              <SelectItem value="casado">Casado(a)</SelectItem>
+              <SelectItem value="divorciado">Divorciado(a)</SelectItem>
+              <SelectItem value="viuvo">Viúvo(a)</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-2 gap-4">
+        <div className="space-y-2">
+          <Label htmlFor="occupation">Profissão</Label>
+          <Input
+            id="occupation"
+            type="text"
+            value={formData.occupation}
+            onChange={(e) => setFormData({ ...formData, occupation: e.target.value })}
+            maxLength={100}
+            placeholder="Sua profissão..."
+          />
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="baptismDate">Data de Batismo</Label>
+          <Input
+            id="baptismDate"
+            type="date"
+            value={formData.baptismDate}
+            onChange={(e) => setFormData({ ...formData, baptismDate: e.target.value })}
+          />
+        </div>
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="observations">Observações</Label>
+        <Textarea
+          id="observations"
+          value={formData.observations}
+          onChange={(e) => setFormData({ ...formData, observations: e.target.value })}
+          maxLength={500}
+          placeholder="Observações adicionais..."
+          rows={3}
+        />
+      </div>
+    </>
+  );
+};
+
+export default AdditionalMemberFields;

@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { z } from "zod";
+import AdditionalMemberFields from "./AdditionalMemberFields";
 
 const memberSchema = z.object({
   fullName: z.string()
@@ -16,6 +17,12 @@ const memberSchema = z.object({
     .min(1, "Telefone é obrigatório")
     .max(20, "Telefone deve ter no máximo 20 caracteres")
     .regex(/^\+?[0-9\s\-()]+$/, "Formato de telefone inválido"),
+  address: z.string().trim().max(200).optional(),
+  birthDate: z.string().optional(),
+  maritalStatus: z.enum(["solteiro", "casado", "divorciado", "viuvo"]).optional(),
+  occupation: z.string().trim().max(100).optional(),
+  baptismDate: z.string().optional(),
+  observations: z.string().trim().max(500).optional(),
 });
 
 interface CreateMemberFormProps {
@@ -29,6 +36,12 @@ const CreateMemberForm = ({ department, leaderId, onSuccess }: CreateMemberFormP
   const [formData, setFormData] = useState({
     fullName: "",
     phoneNumber: "",
+    address: "",
+    birthDate: "",
+    maritalStatus: "",
+    occupation: "",
+    baptismDate: "",
+    observations: "",
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -45,6 +58,12 @@ const CreateMemberForm = ({ department, leaderId, onSuccess }: CreateMemberFormP
         department: department as any,
         leader_id: leaderId,
         status: "novo" as const,
+        address: validatedData.address || null,
+        birth_date: validatedData.birthDate || null,
+        marital_status: validatedData.maritalStatus || null,
+        occupation: validatedData.occupation || null,
+        baptism_date: validatedData.baptismDate || null,
+        observations: validatedData.observations || null,
       });
 
       if (error) throw error;
@@ -88,6 +107,8 @@ const CreateMemberForm = ({ department, leaderId, onSuccess }: CreateMemberFormP
           required
         />
       </div>
+
+      <AdditionalMemberFields formData={formData} setFormData={setFormData} />
 
       <Button type="submit" className="w-full" disabled={loading}>
         {loading ? "Cadastrando..." : "Cadastrar Membro"}

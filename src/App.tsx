@@ -9,6 +9,7 @@ import Leaders from "./pages/Leaders";
 import Members from "./pages/Members";
 import Visitors from "./pages/Visitors";
 import Statistics from "./pages/Statistics";
+import Reports from "./pages/Reports";
 import Settings from "./pages/Settings";
 import SuperAdmin from "./pages/SuperAdmin";
 import NotFound from "./pages/NotFound";
@@ -29,6 +30,7 @@ const App = () => (
           <Route path="/dashboard/members" element={<Members />} />
           <Route path="/dashboard/visitors" element={<Visitors />} />
           <Route path="/dashboard/statistics" element={<Statistics />} />
+          <Route path="/dashboard/reports" element={<Reports />} />
           <Route path="/dashboard/settings" element={<Settings />} />
           <Route path="/super-admin" element={<SuperAdmin />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

@@ -14,36 +14,141 @@ export type Database = {
   }
   public: {
     Tables: {
+      attendances: {
+        Row: {
+          created_at: string
+          department: Database["public"]["Enums"]["department_type"]
+          event_date: string
+          event_type: string
+          id: string
+          leader_id: string
+          member_id: string | null
+          notes: string | null
+          updated_at: string
+          visitor_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          department: Database["public"]["Enums"]["department_type"]
+          event_date?: string
+          event_type: string
+          id?: string
+          leader_id: string
+          member_id?: string | null
+          notes?: string | null
+          updated_at?: string
+          visitor_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          department?: Database["public"]["Enums"]["department_type"]
+          event_date?: string
+          event_type?: string
+          id?: string
+          leader_id?: string
+          member_id?: string | null
+          notes?: string | null
+          updated_at?: string
+          visitor_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "attendances_member_id_fkey"
+            columns: ["member_id"]
+            isOneToOne: false
+            referencedRelation: "members"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "attendances_visitor_id_fkey"
+            columns: ["visitor_id"]
+            isOneToOne: false
+            referencedRelation: "visitors"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       members: {
         Row: {
+          address: string | null
+          baptism_date: string | null
+          birth_date: string | null
           created_at: string
           department: Database["public"]["Enums"]["department_type"]
           full_name: string
           id: string
           leader_id: string
+          marital_status: string | null
+          observations: string | null
+          occupation: string | null
           phone_number: string
           status: Database["public"]["Enums"]["member_status"]
           updated_at: string
         }
         Insert: {
+          address?: string | null
+          baptism_date?: string | null
+          birth_date?: string | null
           created_at?: string
           department: Database["public"]["Enums"]["department_type"]
           full_name: string
           id?: string
           leader_id: string
+          marital_status?: string | null
+          observations?: string | null
+          occupation?: string | null
           phone_number: string
           status?: Database["public"]["Enums"]["member_status"]
           updated_at?: string
         }
         Update: {
+          address?: string | null
+          baptism_date?: string | null
+          birth_date?: string | null
           created_at?: string
           department?: Database["public"]["Enums"]["department_type"]
           full_name?: string
           id?: string
           leader_id?: string
+          marital_status?: string | null
+          observations?: string | null
+          occupation?: string | null
           phone_number?: string
           status?: Database["public"]["Enums"]["member_status"]
           updated_at?: string
+        }
+        Relationships: []
+      }
+      notifications: {
+        Row: {
+          created_at: string
+          id: string
+          link: string | null
+          message: string
+          read: boolean
+          title: string
+          type: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          link?: string | null
+          message: string
+          read?: boolean
+          title: string
+          type: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          link?: string | null
+          message?: string
+          read?: boolean
+          title?: string
+          type?: string
+          user_id?: string
         }
         Relationships: []
       }
@@ -94,6 +199,53 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      visitor_followups: {
+        Row: {
+          created_at: string
+          department: Database["public"]["Enums"]["department_type"]
+          followup_date: string
+          followup_type: string
+          id: string
+          leader_id: string
+          notes: string | null
+          status: string
+          updated_at: string
+          visitor_id: string
+        }
+        Insert: {
+          created_at?: string
+          department: Database["public"]["Enums"]["department_type"]
+          followup_date?: string
+          followup_type: string
+          id?: string
+          leader_id: string
+          notes?: string | null
+          status: string
+          updated_at?: string
+          visitor_id: string
+        }
+        Update: {
+          created_at?: string
+          department?: Database["public"]["Enums"]["department_type"]
+          followup_date?: string
+          followup_type?: string
+          id?: string
+          leader_id?: string
+          notes?: string | null
+          status?: string
+          updated_at?: string
+          visitor_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "visitor_followups_visitor_id_fkey"
+            columns: ["visitor_id"]
+            isOneToOne: false
+            referencedRelation: "visitors"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       visitors: {
         Row: {

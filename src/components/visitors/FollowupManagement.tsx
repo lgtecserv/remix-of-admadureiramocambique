@@ -1,0 +1,159 @@
+import { useEffect, useState } from "react";
+import { supabase } from "@/lib/supabase";
+import { Button } from "@/components/ui/button";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Badge } from "@/components/ui/badge";
+import { Phone, Plus } from "lucide-react";
+import { format } from "date-fns";
+import { ptBR } from "date-fns/locale";
+import CreateFollowupDialog from "./CreateFollowupDialog";
+import { toast } from "sonner";
+
+interface Followup {
+  id: string;
+  followup_date: string;
+  followup_type: string;
+  status: string;
+  notes: string | null;
+  visitors: { full_name: string; phone_number: string };
+}
+
+interface FollowupManagementProps {
+  role: string;
+  department?: string;
+  leaderId: string;
+}
+
+const FollowupManagement = ({ role, department, leaderId }: FollowupManagementProps) => {
+  const [followups, setFollowups] = useState<Followup[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+
+  const loadFollowups = async () => {
+    try {
+      let query = supabase
+        .from("visitor_followups")
+        .select(`
+          *,
+          visitors(full_name, phone_number)
+        `)
+        .order("followup_date", { ascending: false });
+
+      if (role === "leader" && department) {
+        query = query.eq("department", department as any);
+      }
+
+      const { data, error } = await query;
+
+      if (error) throw error;
+      setFollowups(data || []);
+    } catch (error) {
+      console.error("Error loading followups:", error);
+      toast.error("Erro ao carregar acompanhamentos");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadFollowups();
+
+    const channel = supabase
+      .channel("followups-changes")
+      .on("postgres_changes", { event: "*", schema: "public", table: "visitor_followups" }, () => {
+        loadFollowups();
+      })
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [role, department]);
+
+  const getStatusBadge = (status: string) => {
+    const statusConfig: Record<string, { label: string; variant: "default" | "secondary" | "destructive" }> = {
+      pendente: { label: "Pendente", variant: "secondary" },
+      realizado: { label: "Realizado", variant: "default" },
+      sem_sucesso: { label: "Sem Sucesso", variant: "destructive" },
+    };
+    const config = statusConfig[status] || statusConfig.pendente;
+    return <Badge variant={config.variant}>{config.label}</Badge>;
+  };
+
+  const getTypeBadge = (type: string) => {
+    const typeLabels: Record<string, string> = {
+      ligacao: "Ligação",
+      whatsapp: "WhatsApp",
+      visita: "Visita",
+      email: "E-mail",
+    };
+    return <Badge variant="outline">{typeLabels[type] || type}</Badge>;
+  };
+
+  if (loading) {
+    return <div className="text-center p-4">Carregando...</div>;
+  }
+
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <Phone className="h-5 w-5 text-primary" />
+          <h3 className="text-lg font-semibold">Acompanhamento de Visitantes</h3>
+        </div>
+        <Button onClick={() => setIsDialogOpen(true)}>
+          <Plus className="h-4 w-4 mr-2" />
+          Novo Acompanhamento
+        </Button>
+      </div>
+
+      <div className="border rounded-lg">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Data</TableHead>
+              <TableHead>Visitante</TableHead>
+              <TableHead>Tipo</TableHead>
+              <TableHead>Status</TableHead>
+              <TableHead>Observações</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {followups.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={5} className="text-center text-muted-foreground">
+                  Nenhum acompanhamento registrado
+                </TableCell>
+              </TableRow>
+            ) : (
+              followups.map((followup) => (
+                <TableRow key={followup.id}>
+                  <TableCell>
+                    {format(new Date(followup.followup_date), "dd/MM/yyyy", { locale: ptBR })}
+                  </TableCell>
+                  <TableCell>{followup.visitors.full_name}</TableCell>
+                  <TableCell>{getTypeBadge(followup.followup_type)}</TableCell>
+                  <TableCell>{getStatusBadge(followup.status)}</TableCell>
+                  <TableCell className="max-w-xs truncate">
+                    {followup.notes || "-"}
+                  </TableCell>
+                </TableRow>
+              ))
+            )}
+          </TableBody>
+        </Table>
+      </div>
+
+      <CreateFollowupDialog
+        open={isDialogOpen}
+        onOpenChange={setIsDialogOpen}
+        onSuccess={loadFollowups}
+        department={department}
+        leaderId={leaderId}
+        role={role}
+      />
+    </div>
+  );
+};
+
+export default FollowupManagement;

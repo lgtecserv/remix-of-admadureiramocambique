@@ -80,7 +80,7 @@ const PastorDashboard = ({ user, userEmail }: PastorDashboardProps) => {
   }, [user.id]);
 
   return (
-    <AppLayout userName={profile?.full_name} role="pastor" userEmail={userEmail}>
+    <AppLayout userName={profile?.full_name} role="pastor" userEmail={userEmail} user={user}>
       <div className="space-y-8 animate-fade-in">
         <div>
           <h2 className="text-3xl font-bold text-foreground mb-2">Painel do Pastor</h2>

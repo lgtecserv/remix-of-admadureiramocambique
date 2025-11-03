@@ -1,4 +1,4 @@
-import { Home, Users, BarChart3, Settings, LogOut, UserCog, Shield } from "lucide-react";
+import { Home, Users, BarChart3, Settings, LogOut, UserCog, Shield, FileText } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import {
   Sidebar,
@@ -25,6 +25,7 @@ const pastorItems = [
   { title: "Líderes", url: "/dashboard/leaders", icon: UserCog },
   { title: "Membros", url: "/dashboard/members", icon: Users },
   { title: "Visitantes", url: "/dashboard/visitors", icon: Users },
+  { title: "Relatórios", url: "/dashboard/reports", icon: FileText },
   { title: "Estatísticas", url: "/dashboard/statistics", icon: BarChart3 },
   { title: "Configurações", url: "/dashboard/settings", icon: Settings },
 ];
@@ -33,6 +34,7 @@ const leaderItems = [
   { title: "Dashboard", url: "/dashboard", icon: Home },
   { title: "Membros", url: "/dashboard/members", icon: Users },
   { title: "Visitantes", url: "/dashboard/visitors", icon: Users },
+  { title: "Relatórios", url: "/dashboard/reports", icon: FileText },
   { title: "Estatísticas", url: "/dashboard/statistics", icon: BarChart3 },
   { title: "Configurações", url: "/dashboard/settings", icon: Settings },
 ];
