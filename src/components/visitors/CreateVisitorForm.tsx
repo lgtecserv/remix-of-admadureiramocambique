@@ -51,12 +51,20 @@ const CreateVisitorForm = ({ onSuccess, user, userDepartment }: CreateVisitorFor
     const normalizedName = name.toLowerCase().trim();
     const normalizedPhone = phone.replace(/\D/g, "");
 
-    const { data } = await supabase
+    // Use separate safe queries to prevent SQL injection
+    const { data: nameMatches } = await supabase
       .from("visitors")
       .select("id, full_name, phone_number, visit_date")
-      .or(`full_name.ilike.%${normalizedName}%,phone_number.eq.${phone}`);
+      .ilike("full_name", `%${normalizedName}%`);
 
-    return data && data.length > 0 ? data[0] : null;
+    const { data: phoneMatches } = await supabase
+      .from("visitors")
+      .select("id, full_name, phone_number, visit_date")
+      .eq("phone_number", phone);
+
+    // Merge results and return first match
+    const allMatches = [...(nameMatches || []), ...(phoneMatches || [])];
+    return allMatches.length > 0 ? allMatches[0] : null;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
