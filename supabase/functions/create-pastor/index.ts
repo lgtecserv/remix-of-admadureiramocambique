@@ -103,27 +103,7 @@ Deno.serve(async (req) => {
     }
 
     console.log('User created:', newUser.user.id);
-
-    // Create profile
-    const { error: profileInsertError } = await supabaseClient
-      .from('profiles')
-      .insert({
-        id: newUser.user.id,
-        full_name: fullName,
-        email: email
-      });
-
-    if (profileInsertError) {
-      console.error('Error creating profile:', profileInsertError);
-      // Clean up user if profile creation fails
-      await supabaseClient.auth.admin.deleteUser(newUser.user.id);
-      return new Response(
-        JSON.stringify({ error: 'Failed to create profile' }),
-        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
-
-    console.log('Profile created');
+    console.log('Profile created automatically by trigger');
 
     // Assign pastor role
     const { error: roleError } = await supabaseClient
@@ -135,8 +115,7 @@ Deno.serve(async (req) => {
 
     if (roleError) {
       console.error('Error assigning role:', roleError);
-      // Clean up user and profile if role assignment fails
-      await supabaseClient.from('profiles').delete().eq('id', newUser.user.id);
+      // Clean up user (CASCADE will automatically delete profile)
       await supabaseClient.auth.admin.deleteUser(newUser.user.id);
       return new Response(
         JSON.stringify({ error: 'Failed to assign pastor role' }),
