@@ -1,4 +1,4 @@
-import { Home, Users, BarChart3, Settings, LogOut, UserCog, Shield, FileText } from "lucide-react";
+import { Home, Users, BarChart3, Settings, LogOut, UserCog, Shield, FileText, Download } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import {
   Sidebar,
@@ -89,6 +89,31 @@ export function AppSidebar({ role = "leader", userEmail }: AppSidebarProps) {
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        <SidebarGroup>
+          {!collapsed && <SidebarGroupLabel>Aplicativo</SidebarGroupLabel>}
+          <SidebarGroupContent>
+            <SidebarMenu>
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild tooltip="Instalar App">
+                  <NavLink
+                    to="/install"
+                    className={({ isActive }) =>
+                      `flex items-center gap-3 ${
+                        isActive
+                          ? "bg-primary/10 text-primary font-medium"
+                          : "hover:bg-muted/50 text-foreground"
+                      }`
+                    }
+                  >
+                    <Download className="h-5 w-5" />
+                    {!collapsed && <span>Instalar App</span>}
+                  </NavLink>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>

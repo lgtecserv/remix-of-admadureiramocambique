@@ -12,6 +12,7 @@ import Statistics from "./pages/Statistics";
 import Reports from "./pages/Reports";
 import Settings from "./pages/Settings";
 import SuperAdmin from "./pages/SuperAdmin";
+import Install from "./pages/Install";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -25,6 +26,7 @@ const App = () => (
         <Routes>
           <Route path="/" element={<Navigate to="/auth" replace />} />
           <Route path="/auth" element={<Auth />} />
+          <Route path="/install" element={<Install />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/dashboard/leaders" element={<Leaders />} />
           <Route path="/dashboard/members" element={<Members />} />
