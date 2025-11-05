@@ -47,6 +47,7 @@ const MemberManagement = ({
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+  const [userRole, setUserRole] = useState<string | null>(null);
 
   const loadMembers = async () => {
     const { data: { user } } = await supabase.auth.getUser();
@@ -61,6 +62,8 @@ const MemberManagement = ({
       .maybeSingle();
 
     if (!roleData) return;
+
+    setUserRole(roleData.role);
 
     let query = supabase
       .from("members")
@@ -204,27 +207,29 @@ const MemberManagement = ({
                           <Pencil className="h-4 w-4" />
                         </Button>
 
-                        <AlertDialog>
-                          <AlertDialogTrigger asChild>
-                            <Button variant="destructive" size="sm">
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
-                          </AlertDialogTrigger>
-                          <AlertDialogContent>
-                            <AlertDialogHeader>
-                              <AlertDialogTitle>Confirmar remoção</AlertDialogTitle>
-                              <AlertDialogDescription>
-                                Tem certeza que deseja remover este membro? Esta ação não pode ser desfeita.
-                              </AlertDialogDescription>
-                            </AlertDialogHeader>
-                            <AlertDialogFooter>
-                              <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                              <AlertDialogAction onClick={() => handleDelete(member.id)}>
-                                Remover
-                              </AlertDialogAction>
-                            </AlertDialogFooter>
-                          </AlertDialogContent>
-                        </AlertDialog>
+                        {userRole === "pastor" && (
+                          <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                              <Button variant="destructive" size="sm">
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                              <AlertDialogHeader>
+                                <AlertDialogTitle>Confirmar remoção</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                  Tem certeza que deseja remover este membro? Esta ação não pode ser desfeita.
+                                </AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                                <AlertDialogAction onClick={() => handleDelete(member.id)}>
+                                  Remover
+                                </AlertDialogAction>
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
+                          </AlertDialog>
+                        )}
                       </>
                     ) : (
                       <span className="text-sm text-muted-foreground">Sem permissão</span>

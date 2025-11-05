@@ -4,6 +4,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Button } from "@/components/ui/button";
 import { Trash2, Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import TransferMembersDialog from "./TransferMembersDialog";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -27,6 +28,8 @@ interface Leader {
 const LeaderManagement = () => {
   const [leaders, setLeaders] = useState<Leader[]>([]);
   const [loading, setLoading] = useState(true);
+  const [transferDialogOpen, setTransferDialogOpen] = useState(false);
+  const [leaderToDelete, setLeaderToDelete] = useState<Leader & { memberCount: number } | null>(null);
 
   const loadLeaders = async () => {
     const { data: rolesData } = await supabase
@@ -58,11 +61,25 @@ const LeaderManagement = () => {
     loadLeaders();
   }, []);
 
-  const handleDelete = async (userId: string, roleId: string) => {
+  const handleDelete = async (leader: Leader) => {
+    // Verificar se o líder tem membros cadastrados
+    const { count } = await supabase
+      .from("members")
+      .select("*", { count: "exact", head: true })
+      .eq("leader_id", leader.user_id);
+
+    // Se tem membros, abrir dialog de transferência
+    if (count && count > 0) {
+      setLeaderToDelete({ ...leader, memberCount: count });
+      setTransferDialogOpen(true);
+      return;
+    }
+
+    // Se não tem membros, deletar diretamente
     const { error: roleError } = await supabase
       .from("user_roles")
       .delete()
-      .eq("id", roleId);
+      .eq("id", leader.id);
 
     if (roleError) {
       toast.error("Erro ao remover líder");
@@ -90,8 +107,20 @@ const LeaderManagement = () => {
   }
 
   return (
-    <div className="rounded-md border">
-      <Table>
+    <>
+      <TransferMembersDialog
+        open={transferDialogOpen}
+        onOpenChange={setTransferDialogOpen}
+        leader={leaderToDelete}
+        memberCount={leaderToDelete?.memberCount || 0}
+        onTransferComplete={() => {
+          setLeaderToDelete(null);
+          loadLeaders();
+        }}
+      />
+
+      <div className="rounded-md border">
+        <Table>
         <TableHeader>
           <TableRow>
             <TableHead>Nome</TableHead>
@@ -122,9 +151,9 @@ const LeaderManagement = () => {
                     </AlertDialogHeader>
                     <AlertDialogFooter>
                       <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                      <AlertDialogAction onClick={() => handleDelete(leader.user_id, leader.id)}>
-                        Remover
-                      </AlertDialogAction>
+                            <AlertDialogAction onClick={() => handleDelete(leader)}>
+                              Remover
+                            </AlertDialogAction>
                     </AlertDialogFooter>
                   </AlertDialogContent>
                 </AlertDialog>
@@ -134,6 +163,7 @@ const LeaderManagement = () => {
         </TableBody>
       </Table>
     </div>
+    </>
   );
 };
 

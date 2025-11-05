@@ -8,8 +8,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Loader2 } from "lucide-react";
+import { Loader2, KeyRound } from "lucide-react";
 import { toast } from "sonner";
+import ChangePasswordDialog from "@/components/auth/ChangePasswordDialog";
 
 const Settings = () => {
   const navigate = useNavigate();
@@ -20,6 +21,7 @@ const Settings = () => {
   const [loading, setLoading] = useState(true);
   const [fullName, setFullName] = useState("");
   const [saving, setSaving] = useState(false);
+  const [changePasswordOpen, setChangePasswordOpen] = useState(false);
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -121,6 +123,23 @@ const Settings = () => {
 
         <Card className="shadow-lg">
           <CardHeader>
+            <CardTitle>Segurança</CardTitle>
+            <CardDescription>Gerencie sua senha e segurança da conta</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Button
+              variant="outline"
+              onClick={() => setChangePasswordOpen(true)}
+              className="w-full sm:w-auto"
+            >
+              <KeyRound className="h-4 w-4 mr-2" />
+              Alterar Senha
+            </Button>
+          </CardContent>
+        </Card>
+
+        <Card className="shadow-lg">
+          <CardHeader>
             <CardTitle>Informações da Conta</CardTitle>
             <CardDescription>Detalhes sobre seu acesso ao sistema</CardDescription>
           </CardHeader>
@@ -149,6 +168,11 @@ const Settings = () => {
           </CardContent>
         </Card>
       </div>
+
+      <ChangePasswordDialog
+        open={changePasswordOpen}
+        onOpenChange={setChangePasswordOpen}
+      />
     </AppLayout>
   );
 };
