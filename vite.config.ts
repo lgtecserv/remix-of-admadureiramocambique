@@ -20,7 +20,7 @@ export default defineConfig(({ mode }) => ({
         name: 'AD Madureira Moçambique',
         short_name: 'AD Madureira',
         description: 'Sistema de gestão de membros da igreja AD Madureira Moçambique',
-        theme_color: '#1a1a1a',
+        theme_color: '#ffffff',
         background_color: '#ffffff',
         display: 'standalone',
         orientation: 'portrait',
