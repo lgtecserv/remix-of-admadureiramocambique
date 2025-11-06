@@ -41,9 +41,14 @@ serve(async (req) => {
       .rpc("has_role", { _user_id: user.id, _role: "pastor" });
 
     if (roleError || !roleData) {
+      // Return success silently if not pastor (no permission to update)
       return new Response(
-        JSON.stringify({ error: "Forbidden: Pastor role required" }),
-        { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 403 }
+        JSON.stringify({
+          success: true,
+          updated: 0,
+          message: "Sem permissão para atualizar status",
+        }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 200 }
       );
     }
 
