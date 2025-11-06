@@ -58,7 +58,16 @@ const CreateLeaderForm = ({ onSuccess }: CreateLeaderFormProps) => {
       if (error) throw error;
 
       if (!data?.success) {
-        throw new Error(data?.error || "Erro ao cadastrar líder");
+        // Check for specific error messages
+        const errorMessage = data?.error || "Erro ao cadastrar líder";
+        
+        if (errorMessage.includes("already been registered") || 
+            errorMessage.includes("já cadastrado") ||
+            errorMessage.includes("duplicate")) {
+          throw new Error("Este email já está cadastrado no sistema. Use outro email ou verifique se o líder já existe.");
+        }
+        
+        throw new Error(errorMessage);
       }
 
       toast.success("Líder cadastrado com sucesso!");

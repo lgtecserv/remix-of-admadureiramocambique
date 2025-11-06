@@ -8,10 +8,12 @@ import { toast } from "sonner";
 import { Loader2, AlertCircle } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
+type DepartmentType = "adolescentes" | "criancas" | "irmas" | "jovens" | "varoes";
+
 interface Leader {
   id: string;
   user_id: string;
-  department: string;
+  department: DepartmentType;
   email: string;
   full_name: string;
 }

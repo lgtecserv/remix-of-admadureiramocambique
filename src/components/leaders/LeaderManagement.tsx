@@ -17,10 +17,12 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 
+type DepartmentType = "adolescentes" | "criancas" | "irmas" | "jovens" | "varoes";
+
 interface Leader {
   id: string;
   user_id: string;
-  department: string;
+  department: DepartmentType;
   email: string;
   full_name: string;
 }
