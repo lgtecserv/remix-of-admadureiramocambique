@@ -12,7 +12,14 @@ const GrowthChart = ({ department, leaderId }: GrowthChartProps = {}) => {
 
   useEffect(() => {
     const fetchData = async () => {
-      let query = supabase.from("members").select("created_at, status");
+      // Fetch members from the last 12 months
+      const twelveMonthsAgo = new Date();
+      twelveMonthsAgo.setMonth(twelveMonthsAgo.getMonth() - 12);
+
+      let query = supabase
+        .from("members")
+        .select("created_at, status")
+        .gte("created_at", twelveMonthsAgo.toISOString());
       
       if (department && leaderId) {
         query = query.eq("department", department as any).eq("leader_id", leaderId);
@@ -21,15 +28,41 @@ const GrowthChart = ({ department, leaderId }: GrowthChartProps = {}) => {
       const { data: members } = await query;
 
       if (members) {
-        // Generate last 6 months data
-        const months = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun"];
-        const mockData = months.map((month, index) => ({
-          month,
-          total: Math.floor(Math.random() * 50) + 20 + index * 5,
-          novos: Math.floor(Math.random() * 20) + 5,
-        }));
+        // Generate last 12 months labels
+        const monthLabels = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
+        const now = new Date();
+        const chartData: { month: string; total: number; novos: number }[] = [];
+
+        // Create data for each of the last 12 months
+        for (let i = 11; i >= 0; i--) {
+          const monthDate = new Date(now.getFullYear(), now.getMonth() - i, 1);
+          const monthIndex = monthDate.getMonth();
+          const year = monthDate.getFullYear();
+          const monthLabel = monthLabels[monthIndex];
+
+          // Count new members created in this month
+          const novos = members.filter((m) => {
+            const createdDate = new Date(m.created_at);
+            return (
+              createdDate.getMonth() === monthIndex &&
+              createdDate.getFullYear() === year
+            );
+          }).length;
+
+          // Count total members up to this month
+          const total = members.filter((m) => {
+            const createdDate = new Date(m.created_at);
+            return createdDate <= new Date(year, monthIndex + 1, 0);
+          }).length;
+
+          chartData.push({
+            month: `${monthLabel}/${year.toString().slice(2)}`,
+            total,
+            novos,
+          });
+        }
         
-        setData(mockData);
+        setData(chartData);
       }
     };
 

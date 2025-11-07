@@ -53,6 +53,13 @@ export type Database = {
         }
         Relationships: [
           {
+            foreignKeyName: "attendances_leader_fk"
+            columns: ["leader_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "attendances_member_id_fkey"
             columns: ["member_id"]
             isOneToOne: false
@@ -117,7 +124,15 @@ export type Database = {
           status?: Database["public"]["Enums"]["member_status"]
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "members_leader_fk"
+            columns: ["leader_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       notifications: {
         Row: {
@@ -198,7 +213,15 @@ export type Database = {
           role?: Database["public"]["Enums"]["app_role"]
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "user_roles_user_fk"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       visitor_followups: {
         Row: {
@@ -238,6 +261,13 @@ export type Database = {
           visitor_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "visitor_followups_leader_fk"
+            columns: ["leader_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "visitor_followups_visitor_id_fkey"
             columns: ["visitor_id"]
@@ -287,7 +317,15 @@ export type Database = {
           updated_at?: string
           visit_date?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "visitors_leader_fk"
+            columns: ["leader_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {

@@ -194,7 +194,7 @@ const MemberManagement = ({
                   </TableCell>
                   <TableCell>{new Date(member.created_at).toLocaleDateString("pt-BR")}</TableCell>
                   <TableCell className="text-right space-x-2">
-                    {member.leader_id === currentUserId ? (
+                    {(userRole === "pastor" || member.leader_id === currentUserId) ? (
                       <>
                         <Button
                           variant="outline"

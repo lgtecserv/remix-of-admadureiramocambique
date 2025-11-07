@@ -34,12 +34,18 @@ const Leaders = () => {
         .eq("user_id", user.id)
         .maybeSingle();
 
-      if (roleData?.role !== "pastor") {
+      // Check if user is super admin
+      const { data: isSuperAdmin } = await supabase.rpc("is_super_admin", {
+        _user_id: user.id,
+      });
+
+      // Allow access to pastor or super admin
+      if (roleData?.role !== "pastor" && !isSuperAdmin) {
         navigate("/dashboard");
         return;
       }
 
-      setRole(roleData.role);
+      setRole(roleData?.role || "pastor");
 
       const { data: profileData } = await supabase
         .from("profiles")

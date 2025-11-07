@@ -49,7 +49,7 @@ const TransferMembersDialog = ({
 
     setLoadingLeaders(true);
     
-    const { data: rolesData } = await supabase
+    const { data: rolesData, error } = await supabase
       .from("user_roles")
       .select(`
         id, 
@@ -60,6 +60,13 @@ const TransferMembersDialog = ({
       .eq("role", "leader")
       .eq("department", leader.department)
       .neq("user_id", leader.user_id);
+
+    if (error) {
+      console.error("Erro ao carregar líderes:", error);
+      toast.error("Erro ao carregar líderes disponíveis");
+      setLoadingLeaders(false);
+      return;
+    }
 
     if (rolesData) {
       const leaders = rolesData.map((role: any) => ({

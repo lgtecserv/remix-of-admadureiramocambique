@@ -34,7 +34,7 @@ const LeaderManagement = () => {
   const [leaderToDelete, setLeaderToDelete] = useState<Leader & { memberCount: number } | null>(null);
 
   const loadLeaders = async () => {
-    const { data: rolesData } = await supabase
+    const { data: rolesData, error } = await supabase
       .from("user_roles")
       .select(`
         id, 
@@ -43,6 +43,13 @@ const LeaderManagement = () => {
         profiles!inner(full_name, email)
       `)
       .eq("role", "leader");
+
+    if (error) {
+      console.error("Erro ao carregar líderes:", error);
+      toast.error("Erro ao carregar líderes");
+      setLoading(false);
+      return;
+    }
 
     if (rolesData) {
       const leadersWithDetails = rolesData.map((role: any) => ({
