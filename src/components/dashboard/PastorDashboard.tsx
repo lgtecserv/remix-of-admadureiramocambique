@@ -87,7 +87,7 @@ const PastorDashboard = ({ user, userEmail }: PastorDashboardProps) => {
           <p className="text-muted-foreground">Visão geral completa da igreja</p>
         </div>
 
-        <div className="grid gap-6 md:grid-cols-3">
+        <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
           <Card className="border-2 hover:border-primary/50 transition-colors">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Total de Membros</CardTitle>
@@ -121,7 +121,7 @@ const PastorDashboard = ({ user, userEmail }: PastorDashboardProps) => {
 
         <DepartmentStatsCard />
 
-        <div className="grid gap-6 lg:grid-cols-2">
+        <div className="grid gap-4 grid-cols-1 lg:grid-cols-2">
           <Card className="shadow-lg">
             <CardHeader>
               <CardTitle>Membros por Departamento</CardTitle>

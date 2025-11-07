@@ -53,8 +53,11 @@ const StatusChart = ({ department, leaderId }: StatusChartProps = {}) => {
           cx="50%"
           cy="50%"
           labelLine={false}
-          label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
-          outerRadius={80}
+          label={(entry) => {
+            const isMobile = window.innerWidth < 768;
+            return isMobile ? `${(entry.percent * 100).toFixed(0)}%` : `${entry.name} ${(entry.percent * 100).toFixed(0)}%`;
+          }}
+          outerRadius={window.innerWidth < 768 ? 60 : 80}
           fill="#8884d8"
           dataKey="value"
         >
@@ -63,7 +66,7 @@ const StatusChart = ({ department, leaderId }: StatusChartProps = {}) => {
           ))}
         </Pie>
         <Tooltip />
-        <Legend />
+        <Legend wrapperStyle={{ fontSize: window.innerWidth < 768 ? '12px' : '14px' }} />
       </PieChart>
     </ResponsiveContainer>
   );
