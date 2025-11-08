@@ -461,7 +461,7 @@ export type Database = {
         | { Args: { _email: string }; Returns: boolean }
     }
     Enums: {
-      app_role: "pastor" | "leader"
+      app_role: "pastor" | "leader" | "super_admin"
       department_type:
         | "jovens"
         | "irmas"
@@ -596,7 +596,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["pastor", "leader"],
+      app_role: ["pastor", "leader", "super_admin"],
       department_type: [
         "jovens",
         "irmas",
