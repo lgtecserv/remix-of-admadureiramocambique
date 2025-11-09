@@ -33,18 +33,27 @@ const SuperAdmin = () => {
       return;
     }
 
+    // Verificar role super_admin na tabela user_roles
+    const { data: roleData } = await supabase
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", session.user.id)
+      .eq("role", "super_admin")
+      .maybeSingle();
+
+    if (!roleData) {
+      navigate("/dashboard");
+      return;
+    }
+
+    // Buscar informações do perfil
     const { data: profile } = await supabase
       .from("profiles")
       .select("email")
       .eq("id", session.user.id)
       .single();
 
-    if (!profile || profile.email !== "lgtecserv@gmail.com") {
-      navigate("/dashboard");
-      return;
-    }
-
-    setUserEmail(profile.email);
+    setUserEmail(profile?.email || "");
     loadPastors();
     setLoading(false);
   };

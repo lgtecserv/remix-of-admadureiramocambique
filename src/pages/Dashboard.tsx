@@ -82,6 +82,11 @@ const Dashboard = () => {
     );
   }
 
+  if (role === "super_admin") {
+    navigate("/super-admin");
+    return null;
+  }
+
   if (role === "pastor" && user) {
     return <PastorDashboard user={user} userEmail={userEmail} />;
   }
