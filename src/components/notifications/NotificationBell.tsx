@@ -23,6 +23,7 @@ interface Notification {
 const NotificationBell = ({ userId }: { userId: string }) => {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
+  const [notifiedIds, setNotifiedIds] = useState<Set<string>>(new Set());
   const { settings } = useNotificationSettings(userId);
   const { playNotificationSound } = useNotificationSound(settings);
 
@@ -34,8 +35,15 @@ const NotificationBell = ({ userId }: { userId: string }) => {
       .on(
         "postgres_changes",
         { event: "INSERT", schema: "public", table: "notifications", filter: `user_id=eq.${userId}` },
-        () => {
-          playNotificationSound();
+        (payload) => {
+          const newNotification = payload.new as Notification;
+          
+          // Só toca se não foi notificado ainda
+          if (!notifiedIds.has(newNotification.id)) {
+            playNotificationSound();
+            setNotifiedIds(prev => new Set([...prev, newNotification.id]));
+          }
+          
           loadNotifications();
         }
       )
@@ -44,7 +52,7 @@ const NotificationBell = ({ userId }: { userId: string }) => {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [userId]);
+  }, [userId, playNotificationSound, notifiedIds]);
 
   const loadNotifications = async () => {
     const { data, error } = await supabase
