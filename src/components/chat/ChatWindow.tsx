@@ -1,7 +1,9 @@
 import { useEffect, useRef } from "react";
 import { useMessages } from "@/hooks/useMessages";
+import { useTypingIndicator } from "@/hooks/useTypingIndicator";
 import MessageBubble from "./MessageBubble";
 import MessageInput from "./MessageInput";
+import TypingIndicator from "./TypingIndicator";
 import { Loader2 } from "lucide-react";
 import { format, isSameDay } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -15,12 +17,23 @@ interface ChatWindowProps {
 }
 
 const ChatWindow = ({ conversationId, conversationName, userId, onMarkAsRead, showHeader = true }: ChatWindowProps) => {
-  const { messages, loading, sendMessage } = useMessages(conversationId, userId);
+  const { messages, loading, sendMessage, editMessage, deleteMessage } = useMessages(conversationId, userId);
+  const { typingUsers, setTyping } = useTypingIndicator(conversationId, userId);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const messagesContainerRef = useRef<HTMLDivElement>(null);
   const hasScrolledRef = useRef(false);
 
+  // Verificar se usuário está próximo ao final da lista
+  const isNearBottom = () => {
+    const container = messagesContainerRef.current;
+    if (!container) return true;
+    const threshold = 100;
+    return container.scrollHeight - container.scrollTop - container.clientHeight < threshold;
+  };
+
+  // Auto-scroll inteligente - só scrolla se estiver perto do fim
   useEffect(() => {
-    if (!hasScrolledRef.current && messages.length > 0) {
+    if (messages.length > 0 && (!hasScrolledRef.current || isNearBottom())) {
       messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
       hasScrolledRef.current = true;
     }
@@ -67,7 +80,7 @@ const ChatWindow = ({ conversationId, conversationName, userId, onMarkAsRead, sh
       )}
 
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto p-3 sm:p-4 space-y-3 sm:space-y-4 min-h-0">
+      <div ref={messagesContainerRef} className="flex-1 overflow-y-auto p-3 sm:p-4 space-y-3 sm:space-y-4 min-h-0">
         {loading ? (
           <div className="flex justify-center py-8">
             <Loader2 className="h-8 w-8 animate-spin text-primary" />
@@ -89,17 +102,20 @@ const ChatWindow = ({ conversationId, conversationName, userId, onMarkAsRead, sh
                   key={message.id}
                   message={message}
                   isOwn={message.sender_id === userId}
+                  onEdit={editMessage}
+                  onDelete={deleteMessage}
                 />
               ))}
             </div>
           ))
         )}
+        <TypingIndicator users={typingUsers} />
         <div ref={messagesEndRef} />
       </div>
 
       {/* Input */}
       <div className="shrink-0">
-        <MessageInput onSend={sendMessage} disabled={loading} />
+        <MessageInput onSend={sendMessage} disabled={loading} onTyping={setTyping} />
       </div>
     </div>
   );

@@ -1,4 +1,4 @@
-import { useState, KeyboardEvent } from "react";
+import { useState, KeyboardEvent, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Send } from "lucide-react";
@@ -6,15 +6,38 @@ import { Send } from "lucide-react";
 interface MessageInputProps {
   onSend: (content: string) => void;
   disabled?: boolean;
+  onTyping?: (isTyping: boolean) => void;
 }
 
-const MessageInput = ({ onSend, disabled }: MessageInputProps) => {
+const MessageInput = ({ onSend, disabled, onTyping }: MessageInputProps) => {
   const [content, setContent] = useState("");
+  const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const handleSend = () => {
     if (content.trim() && !disabled) {
       onSend(content);
       setContent("");
+      if (onTyping) onTyping(false);
+      if (typingTimeoutRef.current) {
+        clearTimeout(typingTimeoutRef.current);
+        typingTimeoutRef.current = null;
+      }
+    }
+  };
+
+  const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setContent(e.target.value);
+    
+    if (onTyping) {
+      onTyping(true);
+      
+      if (typingTimeoutRef.current) {
+        clearTimeout(typingTimeoutRef.current);
+      }
+      
+      typingTimeoutRef.current = setTimeout(() => {
+        onTyping(false);
+      }, 1000);
     }
   };
 
@@ -30,7 +53,7 @@ const MessageInput = ({ onSend, disabled }: MessageInputProps) => {
       <div className="flex gap-2 items-end">
         <Textarea
           value={content}
-          onChange={(e) => setContent(e.target.value)}
+          onChange={handleChange}
           onKeyDown={handleKeyDown}
           placeholder="Digite sua mensagem..."
           className="min-h-[40px] sm:min-h-[48px] max-h-[80px] sm:max-h-[120px] resize-none text-sm"
