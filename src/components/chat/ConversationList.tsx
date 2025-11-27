@@ -85,7 +85,7 @@ const ConversationList = ({
     }
     
     return conv.participants?.some((p) =>
-      p.profiles.full_name.toLowerCase().includes(query)
+      p.profiles?.full_name?.toLowerCase().includes(query)
     );
   });
 
@@ -95,7 +95,7 @@ const ConversationList = ({
     }
     
     const otherParticipant = conv.participants?.find((p) => p.user_id !== currentUserId);
-    return otherParticipant?.profiles.full_name || "Conversa Privada";
+    return otherParticipant?.profiles?.full_name || "Conversa Privada";
   };
 
   const handleCreatePrivate = (userId: string) => {
