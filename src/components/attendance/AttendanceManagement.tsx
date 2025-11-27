@@ -89,23 +89,27 @@ const AttendanceManagement = ({ role, department, leaderId }: AttendanceManageme
   }
 
   return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between gap-3">
-        <div className="flex items-center gap-2">
-          <Calendar className="h-5 w-5 text-primary" />
-          <h3 className="text-base sm:text-lg font-semibold">
+    <div className="space-y-4 overflow-x-hidden">
+      <div className="flex items-center justify-between gap-2">
+        <div className="flex items-center gap-2 min-w-0">
+          <Calendar className="h-5 w-5 text-primary shrink-0" />
+          <h3 className="text-base sm:text-lg font-semibold truncate">
             <span className="hidden sm:inline">Registro de Presenças</span>
             <span className="sm:hidden">Presenças</span>
           </h3>
         </div>
-        <Button onClick={() => setIsDialogOpen(true)} size="sm" className="w-auto shrink-0">
-          <Users className="h-4 w-4 mr-1" />
-          <span className="hidden xs:inline">Registrar </span>Presença
+        <Button 
+          onClick={() => setIsDialogOpen(true)} 
+          size="sm" 
+          className="shrink-0 h-8 px-2 sm:px-3 text-xs"
+        >
+          <Users className="h-3 w-3 sm:h-4 sm:w-4" />
+          <span className="hidden sm:inline ml-1">Presença</span>
         </Button>
       </div>
 
       {/* Cards para Mobile */}
-      <div className="block sm:hidden space-y-3">
+      <div className="block sm:hidden space-y-3 overflow-x-hidden">
         {attendances.length === 0 ? (
           <Card className="p-6 text-center text-muted-foreground">
             Nenhuma presença registrada
@@ -113,16 +117,16 @@ const AttendanceManagement = ({ role, department, leaderId }: AttendanceManageme
         ) : (
           attendances.map((attendance) => (
             <Card key={attendance.id} className="p-4">
-              <div className="flex items-start justify-between mb-2">
-                <div className="space-y-1 flex-1">
-                  <p className="font-medium">
+              <div className="flex items-start justify-between gap-2 mb-2">
+                <div className="space-y-1 flex-1 min-w-0">
+                  <p className="font-medium truncate">
                     {attendance.members?.full_name || attendance.visitors?.full_name || "-"}
                   </p>
                   <p className="text-sm text-muted-foreground">
                     {format(new Date(attendance.event_date), "dd/MM/yyyy", { locale: ptBR })}
                   </p>
                 </div>
-                <div className="flex flex-col items-end gap-1">
+                <div className="flex flex-col items-end gap-1 shrink-0">
                   {getEventTypeBadge(attendance.event_type)}
                   <Badge variant="outline" className="text-xs">
                     {attendance.department}
@@ -130,7 +134,7 @@ const AttendanceManagement = ({ role, department, leaderId }: AttendanceManageme
                 </div>
               </div>
               {attendance.notes && (
-                <p className="text-sm text-muted-foreground mt-2 line-clamp-2">
+                <p className="text-sm text-muted-foreground mt-2 line-clamp-2 break-words">
                   {attendance.notes}
                 </p>
               )}
