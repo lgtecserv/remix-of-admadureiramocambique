@@ -48,9 +48,9 @@ const CreateMemberButton = ({ role, onSuccess }: CreateMemberButtonProps) => {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button>
-          <Plus className="h-4 w-4 mr-2" />
-          Novo Membro
+        <Button size="sm" className="w-auto shrink-0">
+          <Plus className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
+          <span className="hidden xs:inline">Novo </span>Membro
         </Button>
       </DialogTrigger>
       <DialogContent className="max-w-md w-[calc(100%-2rem)] mx-auto">

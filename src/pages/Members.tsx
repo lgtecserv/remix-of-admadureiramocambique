@@ -67,10 +67,10 @@ const Members = () => {
   return (
     <AppLayout userName={profile?.full_name} role={role || undefined}>
       <div className="space-y-6 animate-fade-in">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-foreground">Gestão de Membros</h1>
-            <p className="text-muted-foreground">Gerencie os membros {role === "leader" ? "do seu departamento" : "da igreja"}</p>
+        <div className="flex items-start justify-between gap-3">
+          <div className="flex-1 min-w-0">
+            <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-foreground">Gestão de Membros</h1>
+            <p className="text-sm text-muted-foreground">Gerencie os membros {role === "leader" ? "do seu departamento" : "da igreja"}</p>
           </div>
           <CreateMemberButton role={role} onSuccess={() => setCreateDialogOpen(false)} />
         </div>
