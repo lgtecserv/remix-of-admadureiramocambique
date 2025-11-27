@@ -205,6 +205,7 @@ export type Database = {
           edited_at: string | null
           id: string
           is_deleted: boolean | null
+          read_by: string[] | null
           sender_id: string | null
         }
         Insert: {
@@ -214,6 +215,7 @@ export type Database = {
           edited_at?: string | null
           id?: string
           is_deleted?: boolean | null
+          read_by?: string[] | null
           sender_id?: string | null
         }
         Update: {
@@ -223,6 +225,7 @@ export type Database = {
           edited_at?: string | null
           id?: string
           is_deleted?: boolean | null
+          read_by?: string[] | null
           sender_id?: string | null
         }
         Relationships: [
@@ -298,6 +301,45 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      typing_indicators: {
+        Row: {
+          conversation_id: string
+          id: string
+          is_typing: boolean | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          conversation_id: string
+          id?: string
+          is_typing?: boolean | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          conversation_id?: string
+          id?: string
+          is_typing?: boolean | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "typing_indicators_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "conversations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "typing_indicators_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_roles: {
         Row: {
@@ -463,6 +505,7 @@ export type Database = {
       is_super_admin:
         | { Args: { _user_id: string }; Returns: boolean }
         | { Args: { _email: string }; Returns: boolean }
+      mark_message_read: { Args: { msg_id: string }; Returns: undefined }
     }
     Enums: {
       app_role: "pastor" | "leader" | "super_admin"

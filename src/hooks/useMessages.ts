@@ -10,6 +10,7 @@ export interface Message {
   created_at: string;
   edited_at: string | null;
   is_deleted: boolean;
+  read_by: string[] | null;
   profiles: {
     full_name: string;
     email: string;
@@ -92,10 +93,51 @@ export const useMessages = (conversationId: string | null, userId: string | unde
     }
   };
 
+  const editMessage = async (messageId: string, newContent: string) => {
+    if (!userId || !newContent.trim()) return;
+
+    try {
+      const { error } = await supabase
+        .from("messages")
+        .update({ 
+          content: newContent.trim(), 
+          edited_at: new Date().toISOString() 
+        })
+        .eq("id", messageId)
+        .eq("sender_id", userId);
+
+      if (error) throw error;
+      toast.success("Mensagem editada");
+    } catch (error) {
+      console.error("Error editing message:", error);
+      toast.error("Erro ao editar mensagem");
+    }
+  };
+
+  const deleteMessage = async (messageId: string) => {
+    if (!userId) return;
+
+    try {
+      const { error } = await supabase
+        .from("messages")
+        .update({ is_deleted: true })
+        .eq("id", messageId)
+        .eq("sender_id", userId);
+
+      if (error) throw error;
+      toast.success("Mensagem excluída");
+    } catch (error) {
+      console.error("Error deleting message:", error);
+      toast.error("Erro ao excluir mensagem");
+    }
+  };
+
   return {
     messages,
     loading,
     sendMessage,
+    editMessage,
+    deleteMessage,
     refresh: loadMessages,
   };
 };

@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { Conversation } from "@/hooks/useConversations";
+import { usePresence } from "@/hooks/usePresence";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -40,6 +41,7 @@ const ConversationList = ({
   const [users, setUsers] = useState<any[]>([]);
   const [loadingUsers, setLoadingUsers] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const { isOnline } = usePresence(currentUserId, selectedId);
 
   const loadUsers = async () => {
     setLoadingUsers(true);
@@ -195,10 +197,16 @@ const ConversationList = ({
                   )}
                 >
                   <div className="flex items-start gap-2 sm:gap-3">
-                    <div className="h-8 w-8 sm:h-10 sm:w-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
-                      <span className="text-xs sm:text-sm font-medium">
-                        {getConversationName(conv).charAt(0).toUpperCase()}
-                      </span>
+                    <div className="relative shrink-0">
+                      <div className="h-8 w-8 sm:h-10 sm:w-10 rounded-full bg-primary/10 flex items-center justify-center">
+                        <span className="text-xs sm:text-sm font-medium">
+                          {getConversationName(conv).charAt(0).toUpperCase()}
+                        </span>
+                      </div>
+                      {conv.type === "private" && conv.participants && conv.participants.length > 0 && 
+                       isOnline(conv.participants.find(p => p.user_id !== currentUserId)?.user_id || "") && (
+                        <span className="absolute bottom-0 right-0 w-2 h-2 sm:w-2.5 sm:h-2.5 bg-green-500 rounded-full border-2 border-background" />
+                      )}
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between mb-1">
