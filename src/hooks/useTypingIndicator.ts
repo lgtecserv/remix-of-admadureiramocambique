@@ -19,22 +19,32 @@ export const useTypingIndicator = (conversationId: string | null, userId: string
     }
 
     try {
-      await supabase.from("typing_indicators").upsert({
-        conversation_id: conversationId,
-        user_id: userId,
-        is_typing: isTyping,
-        updated_at: new Date().toISOString(),
-      });
+      await supabase.from("typing_indicators").upsert(
+        {
+          conversation_id: conversationId,
+          user_id: userId,
+          is_typing: isTyping,
+          updated_at: new Date().toISOString(),
+        },
+        {
+          onConflict: 'conversation_id,user_id'
+        }
+      );
 
       // Auto-remover depois de 3 segundos se não houver nova atualização
       if (isTyping) {
         typingTimeout = setTimeout(() => {
-          supabase.from("typing_indicators").upsert({
-            conversation_id: conversationId,
-            user_id: userId,
-            is_typing: false,
-            updated_at: new Date().toISOString(),
-          });
+          supabase.from("typing_indicators").upsert(
+            {
+              conversation_id: conversationId,
+              user_id: userId,
+              is_typing: false,
+              updated_at: new Date().toISOString(),
+            },
+            {
+              onConflict: 'conversation_id,user_id'
+            }
+          );
         }, 3000);
       }
     } catch (error) {
@@ -99,12 +109,17 @@ export const useTypingIndicator = (conversationId: string | null, userId: string
     return () => {
       // Marcar como não digitando ao sair
       if (conversationId && userId) {
-        supabase.from("typing_indicators").upsert({
-          conversation_id: conversationId,
-          user_id: userId,
-          is_typing: false,
-          updated_at: new Date().toISOString(),
-        });
+        supabase.from("typing_indicators").upsert(
+          {
+            conversation_id: conversationId,
+            user_id: userId,
+            is_typing: false,
+            updated_at: new Date().toISOString(),
+          },
+          {
+            onConflict: 'conversation_id,user_id'
+          }
+        );
       }
       supabase.removeChannel(channel);
       if (typingTimeout) clearTimeout(typingTimeout);
