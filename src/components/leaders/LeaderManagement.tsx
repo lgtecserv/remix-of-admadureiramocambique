@@ -128,16 +128,18 @@ const LeaderManagement = () => {
         }}
       />
 
-      <div className="rounded-md border">
-        <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>Nome</TableHead>
-            <TableHead>E-mail</TableHead>
-            <TableHead>Departamento</TableHead>
-            <TableHead className="text-right">Ações</TableHead>
-          </TableRow>
-        </TableHeader>
+      <div className="overflow-x-auto -mx-4 sm:mx-0">
+        <div className="inline-block min-w-full align-middle">
+          <div className="rounded-md border">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Nome</TableHead>
+                  <TableHead>E-mail</TableHead>
+                  <TableHead>Departamento</TableHead>
+                  <TableHead className="text-right">Ações</TableHead>
+                </TableRow>
+              </TableHeader>
         <TableBody>
           {leaders.map((leader) => (
             <TableRow key={leader.id}>
@@ -171,6 +173,8 @@ const LeaderManagement = () => {
           ))}
         </TableBody>
       </Table>
+        </div>
+      </div>
     </div>
     </>
   );

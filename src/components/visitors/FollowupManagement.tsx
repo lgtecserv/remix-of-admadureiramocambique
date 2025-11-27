@@ -107,17 +107,19 @@ const FollowupManagement = ({ role, department, leaderId }: FollowupManagementPr
         </Button>
       </div>
 
-      <div className="border rounded-lg">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Data</TableHead>
-              <TableHead>Visitante</TableHead>
-              <TableHead>Tipo</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead>Observações</TableHead>
-            </TableRow>
-          </TableHeader>
+      <div className="overflow-x-auto -mx-4 sm:mx-0">
+        <div className="inline-block min-w-full align-middle">
+          <div className="border rounded-lg">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Data</TableHead>
+                  <TableHead>Visitante</TableHead>
+                  <TableHead>Tipo</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead className="hidden sm:table-cell">Observações</TableHead>
+                </TableRow>
+              </TableHeader>
           <TableBody>
             {followups.length === 0 ? (
               <TableRow>
@@ -134,7 +136,7 @@ const FollowupManagement = ({ role, department, leaderId }: FollowupManagementPr
                   <TableCell>{followup.visitors.full_name}</TableCell>
                   <TableCell>{getTypeBadge(followup.followup_type)}</TableCell>
                   <TableCell>{getStatusBadge(followup.status)}</TableCell>
-                  <TableCell className="max-w-xs truncate">
+                  <TableCell className="hidden sm:table-cell max-w-xs truncate">
                     {followup.notes || "-"}
                   </TableCell>
                 </TableRow>
@@ -142,6 +144,8 @@ const FollowupManagement = ({ role, department, leaderId }: FollowupManagementPr
             )}
           </TableBody>
         </Table>
+          </div>
+        </div>
       </div>
 
       <CreateFollowupDialog

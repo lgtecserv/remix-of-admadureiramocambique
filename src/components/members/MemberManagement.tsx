@@ -156,18 +156,20 @@ const MemberManagement = ({
 
   return (
     <div className="space-y-4">
-      <div className="rounded-md border bg-card">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Nome</TableHead>
-              <TableHead>Telefone</TableHead>
-              <TableHead>Departamento</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead>Data de Cadastro</TableHead>
-              <TableHead className="text-right">Ações</TableHead>
-            </TableRow>
-          </TableHeader>
+      <div className="overflow-x-auto -mx-4 sm:mx-0">
+        <div className="inline-block min-w-full align-middle">
+          <div className="rounded-md border bg-card">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Nome</TableHead>
+                  <TableHead>Telefone</TableHead>
+                  <TableHead>Departamento</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead className="hidden sm:table-cell">Data de Cadastro</TableHead>
+                  <TableHead className="text-right">Ações</TableHead>
+                </TableRow>
+              </TableHeader>
           <TableBody>
             {filteredMembers.length === 0 ? (
               <TableRow>
@@ -192,7 +194,7 @@ const MemberManagement = ({
                       {getStatusLabel(member.status)}
                     </Badge>
                   </TableCell>
-                  <TableCell>{new Date(member.created_at).toLocaleDateString("pt-BR")}</TableCell>
+                  <TableCell className="hidden sm:table-cell">{new Date(member.created_at).toLocaleDateString("pt-BR")}</TableCell>
                   <TableCell className="text-right space-x-2">
                     {(userRole === "pastor" || member.leader_id === currentUserId) ? (
                       <>
@@ -240,6 +242,8 @@ const MemberManagement = ({
             )}
           </TableBody>
         </Table>
+          </div>
+        </div>
       </div>
 
       <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>

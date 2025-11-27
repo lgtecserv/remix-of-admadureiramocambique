@@ -148,19 +148,21 @@ const VisitorManagement = ({ userRole, userDepartment, userId, dateRange }: Visi
   }
 
   return (
-    <div className="rounded-md border">
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>Nome</TableHead>
-            <TableHead>Telefone</TableHead>
-            <TableHead>Data da Visita</TableHead>
-            <TableHead>Convidado por</TableHead>
-            <TableHead>Departamento</TableHead>
-            <TableHead>Status</TableHead>
-            <TableHead className="text-right">Ações</TableHead>
-          </TableRow>
-        </TableHeader>
+    <div className="overflow-x-auto -mx-4 sm:mx-0">
+      <div className="inline-block min-w-full align-middle">
+        <div className="rounded-md border">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Nome</TableHead>
+                <TableHead>Telefone</TableHead>
+                <TableHead>Data da Visita</TableHead>
+                <TableHead className="hidden sm:table-cell">Convidado por</TableHead>
+                <TableHead>Departamento</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead className="text-right">Ações</TableHead>
+              </TableRow>
+            </TableHeader>
         <TableBody>
           {visitors.map((visitor) => (
             <TableRow key={visitor.id}>
@@ -169,7 +171,7 @@ const VisitorManagement = ({ userRole, userDepartment, userId, dateRange }: Visi
               <TableCell>
                 {format(new Date(visitor.visit_date), "dd/MM/yyyy", { locale: ptBR })}
               </TableCell>
-              <TableCell>{visitor.invited_by || "-"}</TableCell>
+              <TableCell className="hidden sm:table-cell">{visitor.invited_by || "-"}</TableCell>
               <TableCell>{getDepartmentLabel(visitor.department)}</TableCell>
               <TableCell>
                 {visitor.returned ? (
@@ -242,6 +244,8 @@ const VisitorManagement = ({ userRole, userDepartment, userId, dateRange }: Visi
           ))}
         </TableBody>
       </Table>
+        </div>
+      </div>
     </div>
   );
 };

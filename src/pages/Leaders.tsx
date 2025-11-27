@@ -77,16 +77,16 @@ const Leaders = () => {
         </div>
 
         <Card className="shadow-lg">
-          <CardHeader className="flex flex-row items-center justify-between">
+          <CardHeader className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
-              <CardTitle className="text-xl">Líderes Cadastrados</CardTitle>
+              <CardTitle className="text-lg sm:text-xl">Líderes Cadastrados</CardTitle>
               <p className="text-sm text-muted-foreground mt-1">
                 Visualize e gerencie todos os líderes da igreja
               </p>
             </div>
             <Dialog open={createDialogOpen} onOpenChange={setCreateDialogOpen}>
               <DialogTrigger asChild>
-                <Button>
+                <Button className="w-full sm:w-auto">
                   <UserPlus className="h-4 w-4 mr-2" />
                   Adicionar Líder
                 </Button>

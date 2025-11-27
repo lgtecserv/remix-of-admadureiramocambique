@@ -100,17 +100,19 @@ const AttendanceManagement = ({ role, department, leaderId }: AttendanceManageme
         </Button>
       </div>
 
-      <div className="border rounded-lg">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Data</TableHead>
-              <TableHead>Tipo</TableHead>
-              <TableHead>Pessoa</TableHead>
-              <TableHead>Departamento</TableHead>
-              <TableHead>Observações</TableHead>
-            </TableRow>
-          </TableHeader>
+      <div className="overflow-x-auto -mx-4 sm:mx-0">
+        <div className="inline-block min-w-full align-middle">
+          <div className="border rounded-lg">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Data</TableHead>
+                  <TableHead>Tipo</TableHead>
+                  <TableHead>Pessoa</TableHead>
+                  <TableHead>Departamento</TableHead>
+                  <TableHead className="hidden sm:table-cell">Observações</TableHead>
+                </TableRow>
+              </TableHeader>
           <TableBody>
             {attendances.length === 0 ? (
               <TableRow>
@@ -131,7 +133,7 @@ const AttendanceManagement = ({ role, department, leaderId }: AttendanceManageme
                   <TableCell>
                     <Badge variant="outline">{attendance.department}</Badge>
                   </TableCell>
-                  <TableCell className="max-w-xs truncate">
+                  <TableCell className="hidden sm:table-cell max-w-xs truncate">
                     {attendance.notes || "-"}
                   </TableCell>
                 </TableRow>
@@ -139,6 +141,8 @@ const AttendanceManagement = ({ role, department, leaderId }: AttendanceManageme
             )}
           </TableBody>
         </Table>
+          </div>
+        </div>
       </div>
 
       <CreateAttendanceDialog

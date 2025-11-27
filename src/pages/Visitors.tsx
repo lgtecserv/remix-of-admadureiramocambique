@@ -95,16 +95,16 @@ const Visitors = () => {
   return (
     <AppLayout userName={profile?.full_name} role={role}>
       <div className="space-y-6">
-        <div className="flex justify-between items-center">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">Visitantes</h1>
+            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Visitantes</h1>
             <p className="text-muted-foreground mt-1">
               Gerencie os visitantes {role === "leader" ? `do departamento de ${profile?.department}` : "da igreja"}
             </p>
           </div>
           <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
             <DialogTrigger asChild>
-              <Button>
+              <Button className="w-full sm:w-auto">
                 <UserPlus className="mr-2 h-4 w-4" />
                 Cadastrar Visitante
               </Button>
@@ -159,7 +159,7 @@ const Visitors = () => {
 
         <Card>
           <CardHeader>
-            <div className="flex justify-between items-center">
+            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
               <div>
                 <CardTitle>Lista de Visitantes</CardTitle>
                 <CardDescription>

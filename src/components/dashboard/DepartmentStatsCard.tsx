@@ -134,11 +134,11 @@ export function DepartmentStatsCard() {
               </Badge>
             </div>
 
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            <div className="grid grid-cols-2 gap-3">
               <div className="flex items-center gap-2">
                 <Users className="h-4 w-4 text-muted-foreground" />
                 <div>
-                  <p className="text-2xl font-bold">{stat.total}</p>
+                  <p className="text-xl sm:text-2xl font-bold">{stat.total}</p>
                   <p className="text-xs text-muted-foreground">Total</p>
                 </div>
               </div>
@@ -146,7 +146,7 @@ export function DepartmentStatsCard() {
               <div className="flex items-center gap-2">
                 <UserCheck className="h-4 w-4 text-green-600" />
                 <div>
-                  <p className="text-2xl font-bold text-green-600">{stat.active}</p>
+                  <p className="text-xl sm:text-2xl font-bold text-green-600">{stat.active}</p>
                   <p className="text-xs text-muted-foreground">Ativos</p>
                 </div>
               </div>
@@ -154,7 +154,7 @@ export function DepartmentStatsCard() {
               <div className="flex items-center gap-2">
                 <UserPlus className="h-4 w-4 text-blue-600" />
                 <div>
-                  <p className="text-2xl font-bold text-blue-600">{stat.new}</p>
+                  <p className="text-xl sm:text-2xl font-bold text-blue-600">{stat.new}</p>
                   <p className="text-xs text-muted-foreground">Novos</p>
                 </div>
               </div>
@@ -162,7 +162,7 @@ export function DepartmentStatsCard() {
               <div className="flex items-center gap-2">
                 <UserX className="h-4 w-4 text-red-600" />
                 <div>
-                  <p className="text-2xl font-bold text-red-600">{stat.inactive}</p>
+                  <p className="text-xl sm:text-2xl font-bold text-red-600">{stat.inactive}</p>
                   <p className="text-xs text-muted-foreground">Inativos</p>
                 </div>
               </div>
