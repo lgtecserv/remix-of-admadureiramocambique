@@ -344,6 +344,42 @@ export type Database = {
           },
         ]
       }
+      user_notification_settings: {
+        Row: {
+          created_at: string
+          id: string
+          message_sound_enabled: boolean
+          notification_sound_enabled: boolean
+          sound_enabled: boolean
+          sound_name: string
+          updated_at: string
+          user_id: string
+          volume: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          message_sound_enabled?: boolean
+          notification_sound_enabled?: boolean
+          sound_enabled?: boolean
+          sound_name?: string
+          updated_at?: string
+          user_id: string
+          volume?: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          message_sound_enabled?: boolean
+          notification_sound_enabled?: boolean
+          sound_enabled?: boolean
+          sound_name?: string
+          updated_at?: string
+          user_id?: string
+          volume?: number
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string

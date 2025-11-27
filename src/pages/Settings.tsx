@@ -8,9 +8,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, KeyRound } from "lucide-react";
+import { Loader2, KeyRound, Bell } from "lucide-react";
 import { toast } from "sonner";
 import ChangePasswordDialog from "@/components/auth/ChangePasswordDialog";
+import NotificationSettings from "@/components/settings/NotificationSettings";
 
 const Settings = () => {
   const navigate = useNavigate();
@@ -135,6 +136,19 @@ const Settings = () => {
               <KeyRound className="h-4 w-4 mr-2" />
               Alterar Senha
             </Button>
+          </CardContent>
+        </Card>
+
+        <Card className="shadow-lg">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Bell className="h-5 w-5" />
+              Notificações
+            </CardTitle>
+            <CardDescription>Configure os sons e alertas do sistema</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <NotificationSettings userId={user?.id} />
           </CardContent>
         </Card>
 

@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { useNotificationSettings } from "./useNotificationSettings";
+import { useNotificationSound } from "./useNotificationSound";
 
 export interface Message {
   id: string;
@@ -21,6 +23,8 @@ export interface Message {
 export const useMessages = (conversationId: string | null, userId: string | undefined) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [loading, setLoading] = useState(true);
+  const { settings } = useNotificationSettings(userId);
+  const { playMessageSound } = useNotificationSound(settings);
 
   const loadMessages = async () => {
     if (!conversationId) {
@@ -63,12 +67,19 @@ export const useMessages = (conversationId: string | null, userId: string | unde
       .on(
         "postgres_changes",
         {
-          event: "*",
+          event: "INSERT",
           schema: "public",
           table: "messages",
           filter: `conversation_id=eq.${conversationId}`,
         },
-        () => loadMessages()
+        (payload) => {
+          const newMessage = payload.new as Message;
+          // Play sound only if message is from another user
+          if (newMessage.sender_id !== userId) {
+            playMessageSound();
+          }
+          loadMessages();
+        }
       )
       .subscribe();
 
