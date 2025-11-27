@@ -36,7 +36,7 @@ const CreateAttendanceDialog = ({
   const [eventType, setEventType] = useState("culto");
   const [eventDate, setEventDate] = useState<Date>(new Date());
   const [notes, setNotes] = useState("");
-  const [people, setPeople] = useState<{ id: string; full_name: string }[]>([]);
+  const [people, setPeople] = useState<{ id: string; full_name: string; department: string }[]>([]);
 
   useEffect(() => {
     if (open) {
@@ -47,7 +47,7 @@ const CreateAttendanceDialog = ({
   const loadPeople = async () => {
     try {
       const table = personType === "member" ? "members" : "visitors";
-      let query = supabase.from(table).select("id, full_name");
+      let query = supabase.from(table).select("id, full_name, department");
 
       if (role === "leader" && department) {
         query = query.eq("department", department as any);
@@ -67,10 +67,12 @@ const CreateAttendanceDialog = ({
     setLoading(true);
 
     try {
+      const selectedPersonData = people.find(p => p.id === selectedPerson);
+      
       const attendanceData: any = {
         event_type: eventType,
         event_date: format(eventDate, "yyyy-MM-dd"),
-        department: role === "leader" ? department : "todos",
+        department: selectedPersonData?.department || department,
         leader_id: leaderId,
         notes: notes || null,
       };
