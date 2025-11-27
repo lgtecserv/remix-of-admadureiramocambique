@@ -89,12 +89,12 @@ const AttendanceManagement = ({ role, department, leaderId }: AttendanceManageme
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div className="flex items-center gap-2">
           <Calendar className="h-5 w-5 text-primary" />
-          <h3 className="text-lg font-semibold">Registro de Presenças</h3>
+          <h3 className="text-base sm:text-lg font-semibold">Registro de Presenças</h3>
         </div>
-        <Button onClick={() => setIsDialogOpen(true)}>
+        <Button onClick={() => setIsDialogOpen(true)} className="w-full sm:w-auto">
           <Users className="h-4 w-4 mr-2" />
           Registrar Presença
         </Button>
@@ -106,11 +106,11 @@ const AttendanceManagement = ({ role, department, leaderId }: AttendanceManageme
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Data</TableHead>
-                  <TableHead>Tipo</TableHead>
-                  <TableHead>Pessoa</TableHead>
-                  <TableHead>Departamento</TableHead>
-                  <TableHead className="hidden sm:table-cell">Observações</TableHead>
+                  <TableHead className="whitespace-nowrap">Data</TableHead>
+                  <TableHead className="whitespace-nowrap">Tipo</TableHead>
+                  <TableHead className="whitespace-nowrap">Pessoa</TableHead>
+                  <TableHead className="whitespace-nowrap">Departamento</TableHead>
+                  <TableHead className="hidden sm:table-cell whitespace-nowrap">Observações</TableHead>
                 </TableRow>
               </TableHeader>
           <TableBody>

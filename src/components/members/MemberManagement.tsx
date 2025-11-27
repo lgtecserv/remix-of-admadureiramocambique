@@ -162,12 +162,12 @@ const MemberManagement = ({
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Nome</TableHead>
-                  <TableHead>Telefone</TableHead>
-                  <TableHead>Departamento</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead className="hidden sm:table-cell">Data de Cadastro</TableHead>
-                  <TableHead className="text-right">Ações</TableHead>
+                  <TableHead className="whitespace-nowrap">Nome</TableHead>
+                  <TableHead className="whitespace-nowrap">Telefone</TableHead>
+                  <TableHead className="whitespace-nowrap">Departamento</TableHead>
+                  <TableHead className="whitespace-nowrap">Status</TableHead>
+                  <TableHead className="hidden sm:table-cell whitespace-nowrap">Data de Cadastro</TableHead>
+                  <TableHead className="text-right whitespace-nowrap">Ações</TableHead>
                 </TableRow>
               </TableHeader>
           <TableBody>
@@ -247,7 +247,7 @@ const MemberManagement = ({
       </div>
 
       <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
-        <DialogContent>
+        <DialogContent className="max-w-md w-[calc(100%-2rem)] mx-auto">
           <DialogHeader>
             <DialogTitle>Editar Membro</DialogTitle>
           </DialogHeader>
