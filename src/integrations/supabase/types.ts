@@ -569,6 +569,7 @@ export type Database = {
         Args: { conv_id: string; uid: string }
         Returns: boolean
       }
+      is_leader_or_pastor: { Args: { profile_id: string }; Returns: boolean }
       is_super_admin:
         | { Args: { _user_id: string }; Returns: boolean }
         | { Args: { _email: string }; Returns: boolean }
