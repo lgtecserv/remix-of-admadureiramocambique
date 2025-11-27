@@ -71,7 +71,7 @@ const Reports = () => {
     <AppLayout role={role} userName={profile?.full_name} user={user}>
       <div className="space-y-6">
         <div>
-          <h1 className="text-3xl font-bold">Relatórios e Acompanhamento</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold">Relatórios e Acompanhamento</h1>
           <p className="text-muted-foreground mt-2">
             Gerencie presenças, acompanhamentos e exporte dados
           </p>

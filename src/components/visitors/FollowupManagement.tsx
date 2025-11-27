@@ -96,12 +96,12 @@ const FollowupManagement = ({ role, department, leaderId }: FollowupManagementPr
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div className="flex items-center gap-2">
           <Phone className="h-5 w-5 text-primary" />
-          <h3 className="text-lg font-semibold">Acompanhamento de Visitantes</h3>
+          <h3 className="text-base sm:text-lg font-semibold">Acompanhamento de Visitantes</h3>
         </div>
-        <Button onClick={() => setIsDialogOpen(true)}>
+        <Button onClick={() => setIsDialogOpen(true)} className="w-full sm:w-auto">
           <Plus className="h-4 w-4 mr-2" />
           Novo Acompanhamento
         </Button>
@@ -113,11 +113,11 @@ const FollowupManagement = ({ role, department, leaderId }: FollowupManagementPr
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Data</TableHead>
-                  <TableHead>Visitante</TableHead>
-                  <TableHead>Tipo</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead className="hidden sm:table-cell">Observações</TableHead>
+                  <TableHead className="whitespace-nowrap">Data</TableHead>
+                  <TableHead className="whitespace-nowrap">Visitante</TableHead>
+                  <TableHead className="whitespace-nowrap">Tipo</TableHead>
+                  <TableHead className="whitespace-nowrap">Status</TableHead>
+                  <TableHead className="hidden sm:table-cell whitespace-nowrap">Observações</TableHead>
                 </TableRow>
               </TableHeader>
           <TableBody>
