@@ -522,6 +522,7 @@ export type Database = {
     }
     Functions: {
       create_general_chat: { Args: never; Returns: undefined }
+      create_missing_notification_settings: { Args: never; Returns: undefined }
       create_private_conversation: {
         Args: { other_user_id: string }
         Returns: string
