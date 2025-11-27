@@ -17,13 +17,20 @@ import ReadReceipt from "./ReadReceipt";
 interface MessageBubbleProps {
   message: Message;
   isOwn: boolean;
+  participants?: Array<{ user_id: string }>;
   onEdit?: (messageId: string, newContent: string) => Promise<void>;
   onDelete?: (messageId: string) => Promise<void>;
 }
 
-const MessageBubble = ({ message, isOwn, onEdit, onDelete }: MessageBubbleProps) => {
+const MessageBubble = ({ message, isOwn, participants, onEdit, onDelete }: MessageBubbleProps) => {
   const [isEditing, setIsEditing] = useState(false);
   const [editContent, setEditContent] = useState(message.content);
+
+  // Função para detectar se é apenas emoji/sticker (máximo 4 caracteres de emoji)
+  const isOnlyEmoji = (text: string) => {
+    const emojiRegex = /^[\p{Emoji}\s]+$/u;
+    return emojiRegex.test(text) && text.trim().length <= 4;
+  };
 
   const handleEdit = async () => {
     if (!onEdit || editContent.trim() === message.content) {
@@ -88,7 +95,19 @@ const MessageBubble = ({ message, isOwn, onEdit, onDelete }: MessageBubbleProps)
                 </Button>
               </div>
             </div>
+          ) : isOnlyEmoji(message.content) ? (
+            // Sticker - exibir grande sem background
+            <>
+              <div className="text-5xl py-1">{message.content}</div>
+              <div className="flex items-center gap-1 px-2 sm:px-3">
+                <span className="text-[10px] sm:text-xs text-muted-foreground">
+                  {format(new Date(message.created_at), "HH:mm", { locale: ptBR })}
+                </span>
+                {isOwn && <ReadReceipt message={message} isOwn={isOwn} participants={participants} />}
+              </div>
+            </>
           ) : (
+            // Mensagem normal com bubble
             <>
               <div
                 className={cn(
@@ -107,7 +126,7 @@ const MessageBubble = ({ message, isOwn, onEdit, onDelete }: MessageBubbleProps)
                 <span className="text-[10px] sm:text-xs text-muted-foreground">
                   {format(new Date(message.created_at), "HH:mm", { locale: ptBR })}
                 </span>
-                {isOwn && <ReadReceipt message={message} isOwn={isOwn} />}
+                {isOwn && <ReadReceipt message={message} isOwn={isOwn} participants={participants} />}
               </div>
             </>
           )}

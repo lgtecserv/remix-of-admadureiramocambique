@@ -11,6 +11,7 @@ export interface Message {
   edited_at: string | null;
   is_deleted: boolean;
   read_by: string[] | null;
+  delivered_to: string[] | null;
   profiles: {
     full_name: string;
     email: string;
@@ -131,6 +132,32 @@ export const useMessages = (conversationId: string | null, userId: string | unde
       toast.error("Erro ao excluir mensagem");
     }
   };
+
+  const markAsDelivered = async () => {
+    if (!conversationId || !userId) return;
+    
+    // Buscar mensagens não entregues para este usuário
+    const undeliveredMessages = messages.filter(
+      m => m.sender_id !== userId && 
+      !(m.delivered_to || []).includes(userId)
+    );
+    
+    // Marcar cada uma como entregue
+    for (const msg of undeliveredMessages) {
+      try {
+        await supabase.rpc('mark_message_delivered', { msg_id: msg.id });
+      } catch (error) {
+        console.error("Error marking message as delivered:", error);
+      }
+    }
+  };
+
+  // Marcar mensagens como entregues quando carregam
+  useEffect(() => {
+    if (messages.length > 0 && userId) {
+      markAsDelivered();
+    }
+  }, [messages.length, userId]);
 
   return {
     messages,

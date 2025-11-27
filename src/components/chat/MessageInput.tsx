@@ -2,6 +2,7 @@ import { useState, KeyboardEvent, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Send } from "lucide-react";
+import StickerPicker from "./StickerPicker";
 
 interface MessageInputProps {
   onSend: (content: string) => void;
@@ -48,6 +49,11 @@ const MessageInput = ({ onSend, disabled, onTyping }: MessageInputProps) => {
     }
   };
 
+  const handleStickerSelect = (sticker: string) => {
+    onSend(sticker);
+    if (onTyping) onTyping(false);
+  };
+
   return (
     <div className="border-t bg-card p-2 sm:p-4">
       <div className="flex gap-2 items-end">
@@ -59,6 +65,7 @@ const MessageInput = ({ onSend, disabled, onTyping }: MessageInputProps) => {
           className="min-h-[40px] sm:min-h-[48px] max-h-[80px] sm:max-h-[120px] resize-none text-sm"
           disabled={disabled}
         />
+        <StickerPicker onSelect={handleStickerSelect} />
         <Button
           onClick={handleSend}
           disabled={!content.trim() || disabled}

@@ -202,6 +202,7 @@ export type Database = {
           content: string
           conversation_id: string | null
           created_at: string | null
+          delivered_to: string[] | null
           edited_at: string | null
           id: string
           is_deleted: boolean | null
@@ -212,6 +213,7 @@ export type Database = {
           content: string
           conversation_id?: string | null
           created_at?: string | null
+          delivered_to?: string[] | null
           edited_at?: string | null
           id?: string
           is_deleted?: boolean | null
@@ -222,6 +224,7 @@ export type Database = {
           content?: string
           conversation_id?: string | null
           created_at?: string | null
+          delivered_to?: string[] | null
           edited_at?: string | null
           id?: string
           is_deleted?: boolean | null
@@ -505,6 +508,7 @@ export type Database = {
       is_super_admin:
         | { Args: { _user_id: string }; Returns: boolean }
         | { Args: { _email: string }; Returns: boolean }
+      mark_message_delivered: { Args: { msg_id: string }; Returns: undefined }
       mark_message_read: { Args: { msg_id: string }; Returns: undefined }
     }
     Enums: {
