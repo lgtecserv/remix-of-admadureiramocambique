@@ -11,9 +11,10 @@ interface ChatWindowProps {
   conversationName: string;
   userId: string | undefined;
   onMarkAsRead: () => void;
+  showHeader?: boolean;
 }
 
-const ChatWindow = ({ conversationId, conversationName, userId, onMarkAsRead }: ChatWindowProps) => {
+const ChatWindow = ({ conversationId, conversationName, userId, onMarkAsRead, showHeader = true }: ChatWindowProps) => {
   const { messages, loading, sendMessage } = useMessages(conversationId, userId);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const hasScrolledRef = useRef(false);
@@ -57,14 +58,16 @@ const ChatWindow = ({ conversationId, conversationName, userId, onMarkAsRead }: 
   }
 
   return (
-    <div className="flex-1 flex flex-col h-full">
+    <div className="flex-1 flex flex-col h-full min-h-0">
       {/* Header */}
-      <div className="border-b bg-card p-4">
-        <h2 className="text-lg font-semibold">{conversationName}</h2>
-      </div>
+      {showHeader && (
+        <div className="border-b bg-card p-3 sm:p-4 shrink-0">
+          <h2 className="text-base sm:text-lg font-semibold truncate">{conversationName}</h2>
+        </div>
+      )}
 
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4">
+      <div className="flex-1 overflow-y-auto p-3 sm:p-4 space-y-3 sm:space-y-4 min-h-0">
         {loading ? (
           <div className="flex justify-center py-8">
             <Loader2 className="h-8 w-8 animate-spin text-primary" />
@@ -95,7 +98,9 @@ const ChatWindow = ({ conversationId, conversationName, userId, onMarkAsRead }: 
       </div>
 
       {/* Input */}
-      <MessageInput onSend={sendMessage} disabled={loading} />
+      <div className="shrink-0">
+        <MessageInput onSend={sendMessage} disabled={loading} />
+      </div>
     </div>
   );
 };

@@ -110,18 +110,18 @@ const ConversationList = ({
   }
 
   return (
-    <div className="h-full flex flex-col border-r bg-card">
+    <div className="h-full flex flex-col bg-card">
       {/* Header */}
-      <div className="p-4 border-b space-y-3">
-        <div className="flex items-center justify-between">
-          <h2 className="text-lg font-semibold">Mensagens</h2>
+      <div className="p-3 sm:p-4 border-b space-y-2 sm:space-y-3 shrink-0">
+        <div className="flex items-center justify-between gap-2">
+          <h2 className="text-base sm:text-lg font-semibold">Mensagens</h2>
           <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
             <DialogTrigger asChild>
-              <Button size="icon" variant="ghost">
-                <Plus className="h-5 w-5" />
+              <Button size="sm" variant="ghost" className="h-8 w-8">
+                <Plus className="h-4 w-4" />
               </Button>
             </DialogTrigger>
-            <DialogContent className="max-w-md w-[calc(100%-2rem)] mx-auto">
+            <DialogContent className="max-w-[calc(100vw-2rem)] sm:max-w-md">
               <DialogHeader>
                 <DialogTitle>Nova Conversa</DialogTitle>
                 <DialogDescription>
@@ -162,12 +162,12 @@ const ConversationList = ({
           </Dialog>
         </div>
         <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
-            placeholder="Buscar conversas..."
+            placeholder="Buscar..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-9"
+            className="pl-8 h-9 text-sm"
           />
         </div>
       </div>
@@ -178,7 +178,7 @@ const ConversationList = ({
           {filteredConversations.length === 0 ? (
             <div className="text-center py-8 text-muted-foreground">
               <MessageSquare className="h-12 w-12 mx-auto mb-2 opacity-20" />
-              <p>Nenhuma conversa encontrada</p>
+              <p className="text-sm">Nenhuma conversa encontrada</p>
             </div>
           ) : (
             filteredConversations.map((conv) => {
@@ -190,23 +190,23 @@ const ConversationList = ({
                   key={conv.id}
                   onClick={() => onSelect(conv.id)}
                   className={cn(
-                    "w-full p-3 rounded-lg text-left transition-colors hover:bg-muted/50",
+                    "w-full p-2 sm:p-3 rounded-lg text-left transition-colors hover:bg-muted/50",
                     isSelected && "bg-muted"
                   )}
                 >
-                  <div className="flex items-start gap-3">
-                    <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
-                      <span className="text-sm font-medium">
+                  <div className="flex items-start gap-2 sm:gap-3">
+                    <div className="h-8 w-8 sm:h-10 sm:w-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                      <span className="text-xs sm:text-sm font-medium">
                         {getConversationName(conv).charAt(0).toUpperCase()}
                       </span>
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between mb-1">
-                        <p className={cn("font-medium truncate", hasUnread && "text-primary")}>
+                        <p className={cn("text-sm font-medium truncate", hasUnread && "text-primary")}>
                           {getConversationName(conv)}
                         </p>
                         {hasUnread && (
-                          <Badge variant="default" className="ml-2 shrink-0">
+                          <Badge variant="default" className="ml-2 shrink-0 text-xs">
                             {conv.unreadCount}
                           </Badge>
                         )}
@@ -217,7 +217,7 @@ const ConversationList = ({
                         </p>
                       )}
                       {conv.lastMessage && (
-                        <p className="text-xs text-muted-foreground mt-1">
+                        <p className="text-[10px] sm:text-xs text-muted-foreground mt-1">
                           {format(new Date(conv.lastMessage.created_at), "HH:mm", { locale: ptBR })}
                         </p>
                       )}
