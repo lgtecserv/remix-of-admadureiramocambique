@@ -96,23 +96,27 @@ const FollowupManagement = ({ role, department, leaderId }: FollowupManagementPr
   }
 
   return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between gap-3">
-        <div className="flex items-center gap-2">
-          <Phone className="h-5 w-5 text-primary" />
-          <h3 className="text-base sm:text-lg font-semibold">
+    <div className="space-y-4 overflow-x-hidden">
+      <div className="flex items-center justify-between gap-2">
+        <div className="flex items-center gap-2 min-w-0">
+          <Phone className="h-5 w-5 text-primary shrink-0" />
+          <h3 className="text-base sm:text-lg font-semibold truncate">
             <span className="hidden sm:inline">Acompanhamento de Visitantes</span>
             <span className="sm:hidden">Acompanhamentos</span>
           </h3>
         </div>
-        <Button onClick={() => setIsDialogOpen(true)} size="sm" className="w-auto shrink-0">
-          <Plus className="h-4 w-4 mr-1" />
-          <span className="hidden xs:inline">Novo </span>Acompanhamento
+        <Button 
+          onClick={() => setIsDialogOpen(true)} 
+          size="sm" 
+          className="shrink-0 h-8 px-2 sm:px-3 text-xs"
+        >
+          <Plus className="h-3 w-3 sm:h-4 sm:w-4" />
+          <span className="hidden sm:inline ml-1">Acompanhamento</span>
         </Button>
       </div>
 
       {/* Cards para Mobile */}
-      <div className="block sm:hidden space-y-3">
+      <div className="block sm:hidden space-y-3 overflow-x-hidden">
         {followups.length === 0 ? (
           <Card className="p-6 text-center text-muted-foreground">
             Nenhum acompanhamento registrado
@@ -120,20 +124,20 @@ const FollowupManagement = ({ role, department, leaderId }: FollowupManagementPr
         ) : (
           followups.map((followup) => (
             <Card key={followup.id} className="p-4">
-              <div className="flex items-start justify-between mb-2">
-                <div className="space-y-1 flex-1">
-                  <p className="font-medium">{followup.visitors.full_name}</p>
+              <div className="flex items-start justify-between gap-2 mb-2">
+                <div className="space-y-1 flex-1 min-w-0">
+                  <p className="font-medium truncate">{followup.visitors.full_name}</p>
                   <p className="text-sm text-muted-foreground">
                     {format(new Date(followup.followup_date), "dd/MM/yyyy", { locale: ptBR })}
                   </p>
                 </div>
-                <div className="flex flex-col items-end gap-1">
+                <div className="flex flex-col items-end gap-1 shrink-0">
                   {getTypeBadge(followup.followup_type)}
                   {getStatusBadge(followup.status)}
                 </div>
               </div>
               {followup.notes && (
-                <p className="text-sm text-muted-foreground mt-2 line-clamp-2">
+                <p className="text-sm text-muted-foreground mt-2 line-clamp-2 break-words">
                   {followup.notes}
                 </p>
               )}
