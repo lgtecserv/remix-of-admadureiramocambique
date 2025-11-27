@@ -588,6 +588,8 @@ export type Database = {
         | "varoes"
         | "adolescentes"
         | "criancas"
+        | "patrimonio"
+        | "tesouraria"
       member_status: "novo" | "ativo" | "inativo"
     }
     CompositeTypes: {
@@ -723,6 +725,8 @@ export const Constants = {
         "varoes",
         "adolescentes",
         "criancas",
+        "patrimonio",
+        "tesouraria",
       ],
       member_status: ["novo", "ativo", "inativo"],
     },
