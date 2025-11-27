@@ -456,6 +456,10 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_conversation_participant: {
+        Args: { conv_id: string; uid: string }
+        Returns: boolean
+      }
       is_super_admin:
         | { Args: { _user_id: string }; Returns: boolean }
         | { Args: { _email: string }; Returns: boolean }

@@ -107,24 +107,25 @@ const Chat = () => {
 
   return (
     <AppLayout userName={profile?.full_name} role={role} userEmail={user?.email} user={user}>
-      <div className="h-[calc(100vh-120px)] flex flex-col">
+      <div className="h-[calc(100vh-80px)] sm:h-[calc(100vh-120px)] flex flex-col overflow-hidden">
         {/* Mobile: Show either list or chat */}
         {isMobile ? (
-          <div className="flex-1 flex flex-col">
+          <div className="flex-1 flex flex-col min-h-0 overflow-hidden">
             {showChat && selectedConversationId ? (
-              <div className="flex-1 flex flex-col">
-                <div className="border-b bg-card p-4 flex items-center gap-3">
-                  <Button variant="ghost" size="icon" onClick={handleBack}>
-                    <ArrowLeft className="h-5 w-5" />
+              <div className="flex-1 flex flex-col min-h-0 overflow-hidden">
+                <div className="border-b bg-card p-3 flex items-center gap-2 shrink-0">
+                  <Button variant="ghost" size="sm" onClick={handleBack} className="shrink-0">
+                    <ArrowLeft className="h-4 w-4" />
                   </Button>
-                  <h2 className="text-lg font-semibold">{getConversationName()}</h2>
+                  <h2 className="text-base font-semibold truncate">{getConversationName()}</h2>
                 </div>
-                <div className="flex-1 overflow-hidden">
+                <div className="flex-1 min-h-0 overflow-hidden">
                   <ChatWindow
                     conversationId={selectedConversationId}
-                    conversationName={getConversationName()}
+                    conversationName=""
                     userId={user?.id}
                     onMarkAsRead={handleMarkAsRead}
+                    showHeader={false}
                   />
                 </div>
               </div>
@@ -142,7 +143,7 @@ const Chat = () => {
         ) : (
           /* Desktop: Show both side by side */
           <div className="flex-1 flex overflow-hidden rounded-lg border">
-            <div className="w-80 shrink-0">
+            <div className="w-72 lg:w-80 shrink-0 border-r">
               <ConversationList
                 conversations={conversations}
                 selectedId={selectedConversationId}
@@ -157,6 +158,7 @@ const Chat = () => {
               conversationName={getConversationName()}
               userId={user?.id}
               onMarkAsRead={handleMarkAsRead}
+              showHeader={true}
             />
           </div>
         )}
