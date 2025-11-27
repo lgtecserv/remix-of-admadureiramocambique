@@ -36,7 +36,7 @@ const CreateFollowupDialog = ({
   const [status, setStatus] = useState("pendente");
   const [followupDate, setFollowupDate] = useState<Date>(new Date());
   const [notes, setNotes] = useState("");
-  const [visitors, setVisitors] = useState<{ id: string; full_name: string }[]>([]);
+  const [visitors, setVisitors] = useState<{ id: string; full_name: string; department: string }[]>([]);
 
   useEffect(() => {
     if (open) {
@@ -46,7 +46,7 @@ const CreateFollowupDialog = ({
 
   const loadVisitors = async () => {
     try {
-      let query = supabase.from("visitors").select("id, full_name");
+      let query = supabase.from("visitors").select("id, full_name, department");
 
       if (role === "leader" && department) {
         query = query.eq("department", department as any);
@@ -66,12 +66,14 @@ const CreateFollowupDialog = ({
     setLoading(true);
 
     try {
+      const selectedVisitor = visitors.find(v => v.id === visitorId);
+      
       const followupData = {
         visitor_id: visitorId,
         followup_type: followupType,
         status,
         followup_date: format(followupDate, "yyyy-MM-dd"),
-        department: role === "leader" ? department : "todos",
+        department: selectedVisitor?.department || department,
         leader_id: leaderId,
         notes: notes || null,
       };
