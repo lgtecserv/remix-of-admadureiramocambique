@@ -57,7 +57,7 @@ const Auth = () => {
             <img src={logo} alt="AD Madureira" className="h-24 w-24 object-contain" />
           </div>
           <div>
-            <CardTitle className="text-3xl font-bold text-primary">
+            <CardTitle className="text-2xl sm:text-3xl font-bold text-primary">
               Sistema de Gestão
             </CardTitle>
             <CardDescription className="text-base mt-2">

@@ -121,7 +121,7 @@ const ConversationList = ({
                 <Plus className="h-5 w-5" />
               </Button>
             </DialogTrigger>
-            <DialogContent className="max-w-md">
+            <DialogContent className="max-w-md w-[calc(100%-2rem)] mx-auto">
               <DialogHeader>
                 <DialogTitle>Nova Conversa</DialogTitle>
                 <DialogDescription>

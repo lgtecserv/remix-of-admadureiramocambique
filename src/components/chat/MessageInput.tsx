@@ -33,16 +33,16 @@ const MessageInput = ({ onSend, disabled }: MessageInputProps) => {
           onChange={(e) => setContent(e.target.value)}
           onKeyDown={handleKeyDown}
           placeholder="Digite sua mensagem... (Shift+Enter para nova linha)"
-          className="min-h-[60px] max-h-[120px] resize-none"
+          className="min-h-[48px] sm:min-h-[60px] max-h-[100px] sm:max-h-[120px] resize-none"
           disabled={disabled}
         />
         <Button
           onClick={handleSend}
           disabled={!content.trim() || disabled}
           size="icon"
-          className="shrink-0 h-[60px] w-[60px]"
+          className="shrink-0 h-[48px] w-[48px] sm:h-[60px] sm:w-[60px]"
         >
-          <Send className="h-5 w-5" />
+          <Send className="h-4 w-4 sm:h-5 sm:w-5" />
         </Button>
       </div>
     </div>

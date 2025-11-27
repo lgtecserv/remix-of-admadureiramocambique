@@ -67,7 +67,7 @@ const Statistics = () => {
     <AppLayout userName={profile?.full_name} role={role || undefined}>
       <div className="space-y-8 animate-fade-in">
         <div>
-          <h1 className="text-3xl font-bold text-foreground">Estatísticas</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold text-foreground">Estatísticas</h1>
           <p className="text-muted-foreground">Análise detalhada dos dados</p>
         </div>
 

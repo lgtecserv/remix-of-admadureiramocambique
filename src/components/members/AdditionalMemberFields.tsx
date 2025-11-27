@@ -30,7 +30,7 @@ const AdditionalMemberFields = ({ formData, setFormData }: AdditionalMemberField
         />
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div className="space-y-2">
           <Label htmlFor="birthDate">Data de Nascimento</Label>
           <Input
@@ -60,7 +60,7 @@ const AdditionalMemberFields = ({ formData, setFormData }: AdditionalMemberField
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div className="space-y-2">
           <Label htmlFor="occupation">Profissão</Label>
           <Input
