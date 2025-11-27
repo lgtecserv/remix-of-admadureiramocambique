@@ -14,6 +14,47 @@ export type Database = {
   }
   public: {
     Tables: {
+      asset_requests: {
+        Row: {
+          asset_id: string
+          created_at: string
+          id: string
+          purpose: string
+          quantity: number
+          requested_by: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          asset_id: string
+          created_at?: string
+          id?: string
+          purpose: string
+          quantity: number
+          requested_by: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          asset_id?: string
+          created_at?: string
+          id?: string
+          purpose?: string
+          quantity?: number
+          requested_by?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "asset_requests_asset_id_fkey"
+            columns: ["asset_id"]
+            isOneToOne: false
+            referencedRelation: "church_assets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       attendances: {
         Row: {
           created_at: string
@@ -75,6 +116,36 @@ export type Database = {
           },
         ]
       }
+      church_assets: {
+        Row: {
+          condition: string
+          created_at: string
+          id: string
+          leader_id: string
+          name: string
+          quantity: number
+          updated_at: string
+        }
+        Insert: {
+          condition: string
+          created_at?: string
+          id?: string
+          leader_id: string
+          name: string
+          quantity: number
+          updated_at?: string
+        }
+        Update: {
+          condition?: string
+          created_at?: string
+          id?: string
+          leader_id?: string
+          name?: string
+          quantity?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       conversation_participants: {
         Row: {
           conversation_id: string | null
@@ -135,6 +206,39 @@ export type Database = {
           name?: string | null
           type?: string
           updated_at?: string | null
+        }
+        Relationships: []
+      }
+      expenses: {
+        Row: {
+          amount: number
+          category: string
+          created_at: string
+          description: string
+          expense_date: string
+          id: string
+          recorded_by: string
+          updated_at: string
+        }
+        Insert: {
+          amount: number
+          category: string
+          created_at?: string
+          description: string
+          expense_date: string
+          id?: string
+          recorded_by: string
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          category?: string
+          created_at?: string
+          description?: string
+          expense_date?: string
+          id?: string
+          recorded_by?: string
+          updated_at?: string
         }
         Relationships: []
       }
@@ -281,6 +385,39 @@ export type Database = {
         }
         Relationships: []
       }
+      offerings: {
+        Row: {
+          amount: number
+          created_at: string
+          event_date: string
+          event_type: string
+          id: string
+          notes: string | null
+          recorded_by: string
+          updated_at: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          event_date: string
+          event_type: string
+          id?: string
+          notes?: string | null
+          recorded_by: string
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          event_date?: string
+          event_type?: string
+          id?: string
+          notes?: string | null
+          recorded_by?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string
@@ -331,6 +468,44 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      tithes: {
+        Row: {
+          amount: number
+          created_at: string
+          id: string
+          member_id: string
+          recorded_by: string
+          tithe_date: string
+          updated_at: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          id?: string
+          member_id: string
+          recorded_by: string
+          tithe_date: string
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          id?: string
+          member_id?: string
+          recorded_by?: string
+          tithe_date?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tithes_member_id_fkey"
+            columns: ["member_id"]
+            isOneToOne: false
+            referencedRelation: "members"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       typing_indicators: {
         Row: {
