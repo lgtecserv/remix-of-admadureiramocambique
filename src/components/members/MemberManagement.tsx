@@ -4,6 +4,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
+import { Card } from "@/components/ui/card";
 import { Pencil, Trash2, Loader2 } from "lucide-react";
 import EditMemberForm from "./EditMemberForm";
 import { toast } from "sonner";
@@ -156,93 +157,165 @@ const MemberManagement = ({
 
   return (
     <div className="space-y-4">
-      <div className="overflow-x-auto -mx-4 sm:mx-0">
-        <div className="inline-block min-w-full align-middle">
-          <div className="rounded-md border bg-card">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead className="whitespace-nowrap">Nome</TableHead>
-                  <TableHead className="whitespace-nowrap">Telefone</TableHead>
-                  <TableHead className="whitespace-nowrap">Departamento</TableHead>
-                  <TableHead className="whitespace-nowrap">Status</TableHead>
-                  <TableHead className="hidden sm:table-cell whitespace-nowrap">Data de Cadastro</TableHead>
-                  <TableHead className="text-right whitespace-nowrap">Ações</TableHead>
-                </TableRow>
-              </TableHeader>
-          <TableBody>
-            {filteredMembers.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={6} className="text-center text-muted-foreground py-8">
-                  {members.length === 0 
-                    ? "Nenhum membro cadastrado ainda." 
-                    : "Nenhum membro encontrado com os filtros aplicados."}
-                </TableCell>
-              </TableRow>
-            ) : (
-              filteredMembers.map((member) => (
-                <TableRow key={member.id}>
-                  <TableCell className="font-medium">{member.full_name}</TableCell>
-                  <TableCell>{member.phone_number}</TableCell>
-                  <TableCell>
-                    <Badge variant="outline">
+      {/* Cards para Mobile */}
+      <div className="block sm:hidden space-y-3">
+        {filteredMembers.length === 0 ? (
+          <Card className="p-6">
+            <p className="text-center text-muted-foreground text-sm">
+              {members.length === 0 
+                ? "Nenhum membro cadastrado ainda." 
+                : "Nenhum membro encontrado com os filtros aplicados."}
+            </p>
+          </Card>
+        ) : (
+          filteredMembers.map((member) => (
+            <Card key={member.id} className="p-4">
+              <div className="flex items-start justify-between gap-3">
+                <div className="flex-1 min-w-0">
+                  <p className="font-medium truncate text-sm">{member.full_name}</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">{member.phone_number}</p>
+                  <div className="flex items-center gap-2 mt-2 flex-wrap">
+                    <Badge variant="outline" className="text-xs">
                       {getDepartmentLabel(member.department)}
                     </Badge>
-                  </TableCell>
-                  <TableCell>
-                    <Badge variant={getStatusBadgeVariant(member.status)}>
+                    <Badge variant={getStatusBadgeVariant(member.status)} className="text-xs">
                       {getStatusLabel(member.status)}
                     </Badge>
-                  </TableCell>
-                  <TableCell className="hidden sm:table-cell">{new Date(member.created_at).toLocaleDateString("pt-BR")}</TableCell>
-                  <TableCell className="text-right space-x-2">
-                    {(userRole === "pastor" || member.leader_id === currentUserId) ? (
-                      <>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => {
-                            setEditingMember(member);
-                            setEditDialogOpen(true);
-                          }}
-                        >
-                          <Pencil className="h-4 w-4" />
-                        </Button>
+                  </div>
+                </div>
+                <div className="flex gap-1 shrink-0">
+                  {(userRole === "pastor" || member.leader_id === currentUserId) ? (
+                    <>
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        className="h-8 w-8"
+                        onClick={() => {
+                          setEditingMember(member);
+                          setEditDialogOpen(true);
+                        }}
+                      >
+                        <Pencil className="h-3 w-3" />
+                      </Button>
 
-                        {userRole === "pastor" && (
-                          <AlertDialog>
-                            <AlertDialogTrigger asChild>
-                              <Button variant="destructive" size="sm">
-                                <Trash2 className="h-4 w-4" />
-                              </Button>
-                            </AlertDialogTrigger>
-                            <AlertDialogContent>
-                              <AlertDialogHeader>
-                                <AlertDialogTitle>Confirmar remoção</AlertDialogTitle>
-                                <AlertDialogDescription>
-                                  Tem certeza que deseja remover este membro? Esta ação não pode ser desfeita.
-                                </AlertDialogDescription>
-                              </AlertDialogHeader>
-                              <AlertDialogFooter>
-                                <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                                <AlertDialogAction onClick={() => handleDelete(member.id)}>
-                                  Remover
-                                </AlertDialogAction>
-                              </AlertDialogFooter>
-                            </AlertDialogContent>
-                          </AlertDialog>
-                        )}
-                      </>
-                    ) : (
-                      <span className="text-sm text-muted-foreground">Sem permissão</span>
-                    )}
+                      {userRole === "pastor" && (
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button variant="destructive" size="icon" className="h-8 w-8">
+                              <Trash2 className="h-3 w-3" />
+                            </Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>Confirmar remoção</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                Tem certeza que deseja remover este membro? Esta ação não pode ser desfeita.
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                              <AlertDialogAction onClick={() => handleDelete(member.id)}>
+                                Remover
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
+                      )}
+                    </>
+                  ) : null}
+                </div>
+              </div>
+            </Card>
+          ))
+        )}
+      </div>
+
+      {/* Tabela para Desktop */}
+      <div className="hidden sm:block overflow-x-auto">
+        <div className="rounded-md border bg-card">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead className="whitespace-nowrap">Nome</TableHead>
+                <TableHead className="whitespace-nowrap">Telefone</TableHead>
+                <TableHead className="whitespace-nowrap">Departamento</TableHead>
+                <TableHead className="whitespace-nowrap">Status</TableHead>
+                <TableHead className="hidden md:table-cell whitespace-nowrap">Data de Cadastro</TableHead>
+                <TableHead className="text-right whitespace-nowrap">Ações</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {filteredMembers.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={6} className="text-center text-muted-foreground py-8">
+                    {members.length === 0 
+                      ? "Nenhum membro cadastrado ainda." 
+                      : "Nenhum membro encontrado com os filtros aplicados."}
                   </TableCell>
                 </TableRow>
-              ))
-            )}
-          </TableBody>
-        </Table>
-          </div>
+              ) : (
+                filteredMembers.map((member) => (
+                  <TableRow key={member.id}>
+                    <TableCell className="font-medium">{member.full_name}</TableCell>
+                    <TableCell>{member.phone_number}</TableCell>
+                    <TableCell>
+                      <Badge variant="outline">
+                        {getDepartmentLabel(member.department)}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant={getStatusBadgeVariant(member.status)}>
+                        {getStatusLabel(member.status)}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="hidden md:table-cell">{new Date(member.created_at).toLocaleDateString("pt-BR")}</TableCell>
+                    <TableCell className="text-right space-x-2">
+                      {(userRole === "pastor" || member.leader_id === currentUserId) ? (
+                        <>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => {
+                              setEditingMember(member);
+                              setEditDialogOpen(true);
+                            }}
+                          >
+                            <Pencil className="h-4 w-4" />
+                          </Button>
+
+                          {userRole === "pastor" && (
+                            <AlertDialog>
+                              <AlertDialogTrigger asChild>
+                                <Button variant="destructive" size="sm">
+                                  <Trash2 className="h-4 w-4" />
+                                </Button>
+                              </AlertDialogTrigger>
+                              <AlertDialogContent>
+                                <AlertDialogHeader>
+                                  <AlertDialogTitle>Confirmar remoção</AlertDialogTitle>
+                                  <AlertDialogDescription>
+                                    Tem certeza que deseja remover este membro? Esta ação não pode ser desfeita.
+                                  </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                  <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                                  <AlertDialogAction onClick={() => handleDelete(member.id)}>
+                                    Remover
+                                  </AlertDialogAction>
+                                </AlertDialogFooter>
+                              </AlertDialogContent>
+                            </AlertDialog>
+                          )}
+                        </>
+                      ) : (
+                        <span className="text-sm text-muted-foreground">Sem permissão</span>
+                      )}
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
+            </TableBody>
+          </Table>
         </div>
       </div>
 
