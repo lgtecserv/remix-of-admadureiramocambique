@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useMessages } from "@/hooks/useMessages";
 import { useTypingIndicator } from "@/hooks/useTypingIndicator";
+import { useChatNotificationSound } from "@/hooks/useChatNotificationSound";
 import { supabase } from "@/integrations/supabase/client";
 import MessageBubble from "./MessageBubble";
 import MessageInput from "./MessageInput";
@@ -20,10 +21,12 @@ interface ChatWindowProps {
 const ChatWindow = ({ conversationId, conversationName, userId, onMarkAsRead, showHeader = true }: ChatWindowProps) => {
   const { messages, loading, sendMessage, editMessage, deleteMessage } = useMessages(conversationId, userId);
   const { typingUsers, setTyping } = useTypingIndicator(conversationId, userId);
+  const { notifyNewMessage } = useChatNotificationSound(userId);
   const [participants, setParticipants] = useState<Array<{ user_id: string }>>([]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
   const hasScrolledRef = useRef(false);
+  const prevMessagesLengthRef = useRef(messages.length);
 
   // Buscar participantes da conversa
   useEffect(() => {
@@ -53,6 +56,17 @@ const ChatWindow = ({ conversationId, conversationName, userId, onMarkAsRead, sh
       hasScrolledRef.current = true;
     }
   }, [messages]);
+
+  // Tocar som quando nova mensagem chega
+  useEffect(() => {
+    if (messages.length > prevMessagesLengthRef.current) {
+      const newMessage = messages[messages.length - 1];
+      if (newMessage) {
+        notifyNewMessage(newMessage.id, newMessage.sender_id);
+      }
+    }
+    prevMessagesLengthRef.current = messages.length;
+  }, [messages, notifyNewMessage]);
 
   useEffect(() => {
     if (conversationId && messages.length > 0) {

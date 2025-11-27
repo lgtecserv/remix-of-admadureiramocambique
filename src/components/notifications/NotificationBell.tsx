@@ -7,6 +7,8 @@ import { supabase } from "@/lib/supabase";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import { useNotificationSettings } from "@/hooks/useNotificationSettings";
+import { useNotificationSound } from "@/hooks/useNotificationSound";
 
 interface Notification {
   id: string;
@@ -21,6 +23,8 @@ interface Notification {
 const NotificationBell = ({ userId }: { userId: string }) => {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
+  const { settings } = useNotificationSettings(userId);
+  const { playNotificationSound } = useNotificationSound(settings);
 
   useEffect(() => {
     loadNotifications();
@@ -31,7 +35,7 @@ const NotificationBell = ({ userId }: { userId: string }) => {
         "postgres_changes",
         { event: "INSERT", schema: "public", table: "notifications", filter: `user_id=eq.${userId}` },
         () => {
-          // TODO: Re-enable notification sound after build stabilizes
+          playNotificationSound();
           loadNotifications();
         }
       )
