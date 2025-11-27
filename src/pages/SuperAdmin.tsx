@@ -112,15 +112,17 @@ const SuperAdmin = () => {
                   Nenhum pastor cadastrado ainda
                 </p>
               ) : (
-                <div className="rounded-md border">
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Nome</TableHead>
-                        <TableHead>Email</TableHead>
-                        <TableHead>Status</TableHead>
-                      </TableRow>
-                    </TableHeader>
+                 <div className="rounded-md border">
+                  <div className="overflow-x-auto -mx-4 sm:mx-0">
+                    <div className="inline-block min-w-full align-middle">
+                      <Table>
+                        <TableHeader>
+                          <TableRow>
+                            <TableHead>Nome</TableHead>
+                            <TableHead>Email</TableHead>
+                            <TableHead>Status</TableHead>
+                          </TableRow>
+                        </TableHeader>
                     <TableBody>
                       {pastors.map((pastor) => (
                         <TableRow key={pastor.id}>
@@ -131,8 +133,10 @@ const SuperAdmin = () => {
                           </TableCell>
                         </TableRow>
                       ))}
-                    </TableBody>
-                  </Table>
+                        </TableBody>
+                      </Table>
+                    </div>
+                  </div>
                 </div>
               )}
             </CardContent>

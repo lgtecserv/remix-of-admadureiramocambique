@@ -78,10 +78,16 @@ const Reports = () => {
         </div>
 
         <Tabs defaultValue="attendance" className="w-full">
-          <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="attendance">Presenças</TabsTrigger>
-            <TabsTrigger value="followup">Acompanhamentos</TabsTrigger>
-            <TabsTrigger value="export">Exportar Dados</TabsTrigger>
+          <TabsList className="grid w-full grid-cols-3 h-auto">
+            <TabsTrigger value="attendance" className="text-xs sm:text-sm py-2">
+              Presenças
+            </TabsTrigger>
+            <TabsTrigger value="followup" className="text-xs sm:text-sm py-2">
+              Acompanhamentos
+            </TabsTrigger>
+            <TabsTrigger value="export" className="text-xs sm:text-sm py-2">
+              Exportar
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="attendance" className="mt-6">

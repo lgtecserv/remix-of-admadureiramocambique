@@ -68,9 +68,9 @@ export const DateRangeFilter = ({ onDateRangeChange }: DateRangeFilterProps) => 
   };
 
   return (
-    <div className="flex gap-2 items-center">
+    <div className="flex flex-col sm:flex-row gap-2 items-start sm:items-center w-full sm:w-auto">
       <Select value={period} onValueChange={handlePeriodChange}>
-        <SelectTrigger className="w-[180px]">
+        <SelectTrigger className="w-full sm:w-[180px]">
           <SelectValue placeholder="Período" />
         </SelectTrigger>
         <SelectContent>
@@ -84,10 +84,10 @@ export const DateRangeFilter = ({ onDateRangeChange }: DateRangeFilterProps) => 
       </Select>
 
       {period === "custom" && (
-        <div className="flex gap-2 items-center">
+        <div className="flex flex-wrap gap-2 items-center w-full sm:w-auto">
           <Popover>
             <PopoverTrigger asChild>
-              <Button variant="outline" size="sm">
+              <Button variant="outline" size="sm" className="flex-1 sm:flex-none">
                 <CalendarIcon className="h-4 w-4 mr-2" />
                 {customFrom ? format(customFrom, "dd/MM/yyyy", { locale: ptBR }) : "De"}
               </Button>
@@ -104,7 +104,7 @@ export const DateRangeFilter = ({ onDateRangeChange }: DateRangeFilterProps) => 
 
           <Popover>
             <PopoverTrigger asChild>
-              <Button variant="outline" size="sm">
+              <Button variant="outline" size="sm" className="flex-1 sm:flex-none">
                 <CalendarIcon className="h-4 w-4 mr-2" />
                 {customTo ? format(customTo, "dd/MM/yyyy", { locale: ptBR }) : "Até"}
               </Button>
@@ -119,7 +119,7 @@ export const DateRangeFilter = ({ onDateRangeChange }: DateRangeFilterProps) => 
             </PopoverContent>
           </Popover>
 
-          <Button onClick={handleCustomDateApply} size="sm">
+          <Button onClick={handleCustomDateApply} size="sm" className="w-full sm:w-auto">
             Aplicar
           </Button>
         </div>
