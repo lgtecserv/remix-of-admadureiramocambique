@@ -91,6 +91,7 @@ export const useConversations = (userId: string | undefined) => {
             .from("messages")
             .select("*", { count: "exact", head: true })
             .eq("conversation_id", conv.id)
+            .eq("is_deleted", false)
             .gt("created_at", p.last_read_at);
 
           return {
