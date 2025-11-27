@@ -74,7 +74,7 @@ const Chat = () => {
     const otherParticipant = selectedConversation.participants?.find(
       (p) => p.user_id !== user?.id
     );
-    return otherParticipant?.profiles.full_name || "Conversa Privada";
+    return otherParticipant?.profiles?.full_name || "Conversa Privada";
   };
 
   const handleSelectConversation = (id: string) => {
