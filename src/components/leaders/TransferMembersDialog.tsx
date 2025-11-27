@@ -167,17 +167,19 @@ const TransferMembersDialog = ({
           </div>
         )}
 
-        <DialogFooter>
+        <DialogFooter className="flex-col-reverse sm:flex-row gap-2">
           <Button
             variant="outline"
             onClick={() => onOpenChange(false)}
             disabled={loading}
+            className="w-full sm:w-auto"
           >
             Cancelar
           </Button>
           <Button
             onClick={handleTransfer}
             disabled={!selectedLeaderId || loading || availableLeaders.length === 0}
+            className="w-full sm:w-auto"
           >
             {loading && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
             Transferir e Remover

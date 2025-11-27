@@ -51,9 +51,13 @@ export function DuplicateVisitorDialog({
             Deseja marcar como retorno ou cadastrar uma nova visita?
           </AlertDialogDescription>
         </AlertDialogHeader>
-        <AlertDialogFooter>
-          <AlertDialogCancel onClick={onCreateNew}>Cadastrar Nova Visita</AlertDialogCancel>
-          <AlertDialogAction onClick={onMarkAsReturn}>Marcar como Retorno</AlertDialogAction>
+        <AlertDialogFooter className="flex-col-reverse sm:flex-row gap-2">
+          <AlertDialogCancel onClick={onCreateNew} className="w-full sm:w-auto">
+            Cadastrar Nova Visita
+          </AlertDialogCancel>
+          <AlertDialogAction onClick={onMarkAsReturn} className="w-full sm:w-auto">
+            Marcar como Retorno
+          </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>

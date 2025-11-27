@@ -53,7 +53,7 @@ const CreateMemberButton = ({ role, onSuccess }: CreateMemberButtonProps) => {
           Novo Membro
         </Button>
       </DialogTrigger>
-      <DialogContent>
+      <DialogContent className="max-w-md w-[calc(100%-2rem)] mx-auto">
         <DialogHeader>
           <DialogTitle>Cadastrar Novo Membro</DialogTitle>
         </DialogHeader>

@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from "recharts";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface GrowthChartProps {
   department?: string;
@@ -9,6 +10,7 @@ interface GrowthChartProps {
 
 const GrowthChart = ({ department, leaderId }: GrowthChartProps = {}) => {
   const [data, setData] = useState<{ month: string; total: number; novos: number }[]>([]);
+  const isMobile = useIsMobile();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -70,10 +72,16 @@ const GrowthChart = ({ department, leaderId }: GrowthChartProps = {}) => {
   }, [department, leaderId]);
 
   return (
-    <ResponsiveContainer width="100%" height={300}>
+    <ResponsiveContainer width="100%" height={isMobile ? 250 : 300}>
       <LineChart data={data}>
         <CartesianGrid strokeDasharray="3 3" />
-        <XAxis dataKey="month" />
+        <XAxis 
+          dataKey="month" 
+          tick={{ fontSize: isMobile ? 10 : 12 }}
+          angle={isMobile ? -45 : 0}
+          textAnchor={isMobile ? "end" : "middle"}
+          height={isMobile ? 60 : 30}
+        />
         <YAxis />
         <Tooltip />
         <Legend />

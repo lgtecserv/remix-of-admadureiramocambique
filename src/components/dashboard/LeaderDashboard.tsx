@@ -81,7 +81,7 @@ const LeaderDashboard = ({ user, userEmail }: LeaderDashboardProps) => {
     <AppLayout userName={profile?.full_name} role="leader" userEmail={userEmail} user={user}>
       <div className="space-y-8 animate-fade-in">
         <div>
-          <h2 className="text-3xl font-bold text-foreground mb-2">
+          <h2 className="text-2xl sm:text-3xl font-bold text-foreground mb-2">
             Painel de {getDepartmentLabel(department)}
           </h2>
           <p className="text-muted-foreground">Gerencie os membros do seu departamento</p>

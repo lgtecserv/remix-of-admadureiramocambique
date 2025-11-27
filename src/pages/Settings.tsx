@@ -92,7 +92,7 @@ const Settings = () => {
     <AppLayout userName={profile?.full_name} role={role || undefined}>
       <div className="space-y-8 max-w-2xl animate-fade-in">
         <div>
-          <h1 className="text-3xl font-bold text-foreground">Configurações</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold text-foreground">Configurações</h1>
           <p className="text-muted-foreground">Gerencie suas informações pessoais</p>
         </div>
 

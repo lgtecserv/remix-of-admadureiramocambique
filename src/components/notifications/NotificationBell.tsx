@@ -87,7 +87,7 @@ const NotificationBell = ({ userId }: { userId: string }) => {
           )}
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-80" align="end">
+      <PopoverContent className="w-[calc(100vw-2rem)] sm:w-80 max-w-sm" align="end">
         <div className="space-y-2">
           <div className="flex items-center justify-between">
             <h3 className="font-semibold">Notificações</h3>
