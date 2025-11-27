@@ -3,6 +3,7 @@ import { supabase } from "@/lib/supabase";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
+import { Card } from "@/components/ui/card";
 import { Phone, Plus } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -96,55 +97,88 @@ const FollowupManagement = ({ role, department, leaderId }: FollowupManagementPr
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+      <div className="flex items-center justify-between gap-3">
         <div className="flex items-center gap-2">
           <Phone className="h-5 w-5 text-primary" />
-          <h3 className="text-base sm:text-lg font-semibold">Acompanhamento de Visitantes</h3>
+          <h3 className="text-base sm:text-lg font-semibold">
+            <span className="hidden sm:inline">Acompanhamento de Visitantes</span>
+            <span className="sm:hidden">Acompanhamentos</span>
+          </h3>
         </div>
-        <Button onClick={() => setIsDialogOpen(true)} className="w-full sm:w-auto">
-          <Plus className="h-4 w-4 mr-2" />
-          Novo Acompanhamento
+        <Button onClick={() => setIsDialogOpen(true)} size="sm" className="w-auto shrink-0">
+          <Plus className="h-4 w-4 mr-1" />
+          <span className="hidden xs:inline">Novo </span>Acompanhamento
         </Button>
       </div>
 
-      <div className="overflow-x-auto -mx-4 sm:mx-0">
-        <div className="inline-block min-w-full align-middle">
-          <div className="border rounded-lg">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead className="whitespace-nowrap">Data</TableHead>
-                  <TableHead className="whitespace-nowrap">Visitante</TableHead>
-                  <TableHead className="whitespace-nowrap">Tipo</TableHead>
-                  <TableHead className="whitespace-nowrap">Status</TableHead>
-                  <TableHead className="hidden sm:table-cell whitespace-nowrap">Observações</TableHead>
-                </TableRow>
-              </TableHeader>
-          <TableBody>
-            {followups.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={5} className="text-center text-muted-foreground">
-                  Nenhum acompanhamento registrado
-                </TableCell>
-              </TableRow>
-            ) : (
-              followups.map((followup) => (
-                <TableRow key={followup.id}>
-                  <TableCell>
+      {/* Cards para Mobile */}
+      <div className="block sm:hidden space-y-3">
+        {followups.length === 0 ? (
+          <Card className="p-6 text-center text-muted-foreground">
+            Nenhum acompanhamento registrado
+          </Card>
+        ) : (
+          followups.map((followup) => (
+            <Card key={followup.id} className="p-4">
+              <div className="flex items-start justify-between mb-2">
+                <div className="space-y-1 flex-1">
+                  <p className="font-medium">{followup.visitors.full_name}</p>
+                  <p className="text-sm text-muted-foreground">
                     {format(new Date(followup.followup_date), "dd/MM/yyyy", { locale: ptBR })}
-                  </TableCell>
-                  <TableCell>{followup.visitors.full_name}</TableCell>
-                  <TableCell>{getTypeBadge(followup.followup_type)}</TableCell>
-                  <TableCell>{getStatusBadge(followup.status)}</TableCell>
-                  <TableCell className="hidden sm:table-cell max-w-xs truncate">
-                    {followup.notes || "-"}
+                  </p>
+                </div>
+                <div className="flex flex-col items-end gap-1">
+                  {getTypeBadge(followup.followup_type)}
+                  {getStatusBadge(followup.status)}
+                </div>
+              </div>
+              {followup.notes && (
+                <p className="text-sm text-muted-foreground mt-2 line-clamp-2">
+                  {followup.notes}
+                </p>
+              )}
+            </Card>
+          ))
+        )}
+      </div>
+
+      {/* Tabela para Desktop */}
+      <div className="hidden sm:block">
+        <div className="border rounded-lg">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead className="whitespace-nowrap">Data</TableHead>
+                <TableHead className="whitespace-nowrap">Visitante</TableHead>
+                <TableHead className="whitespace-nowrap">Tipo</TableHead>
+                <TableHead className="whitespace-nowrap">Status</TableHead>
+                <TableHead className="whitespace-nowrap">Observações</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {followups.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={5} className="text-center text-muted-foreground">
+                    Nenhum acompanhamento registrado
                   </TableCell>
                 </TableRow>
-              ))
-            )}
-          </TableBody>
-        </Table>
-          </div>
+              ) : (
+                followups.map((followup) => (
+                  <TableRow key={followup.id}>
+                    <TableCell>
+                      {format(new Date(followup.followup_date), "dd/MM/yyyy", { locale: ptBR })}
+                    </TableCell>
+                    <TableCell>{followup.visitors.full_name}</TableCell>
+                    <TableCell>{getTypeBadge(followup.followup_type)}</TableCell>
+                    <TableCell>{getStatusBadge(followup.status)}</TableCell>
+                    <TableCell className="max-w-xs truncate">
+                      {followup.notes || "-"}
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
+            </TableBody>
+          </Table>
         </div>
       </div>
 
