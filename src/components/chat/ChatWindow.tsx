@@ -1,6 +1,7 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useMessages } from "@/hooks/useMessages";
 import { useTypingIndicator } from "@/hooks/useTypingIndicator";
+import { supabase } from "@/integrations/supabase/client";
 import MessageBubble from "./MessageBubble";
 import MessageInput from "./MessageInput";
 import TypingIndicator from "./TypingIndicator";
@@ -19,9 +20,23 @@ interface ChatWindowProps {
 const ChatWindow = ({ conversationId, conversationName, userId, onMarkAsRead, showHeader = true }: ChatWindowProps) => {
   const { messages, loading, sendMessage, editMessage, deleteMessage } = useMessages(conversationId, userId);
   const { typingUsers, setTyping } = useTypingIndicator(conversationId, userId);
+  const [participants, setParticipants] = useState<Array<{ user_id: string }>>([]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
   const hasScrolledRef = useRef(false);
+
+  // Buscar participantes da conversa
+  useEffect(() => {
+    const loadParticipants = async () => {
+      if (!conversationId) return;
+      const { data } = await supabase
+        .from('conversation_participants')
+        .select('user_id')
+        .eq('conversation_id', conversationId);
+      setParticipants(data || []);
+    };
+    loadParticipants();
+  }, [conversationId]);
 
   // Verificar se usuário está próximo ao final da lista
   const isNearBottom = () => {
@@ -102,6 +117,7 @@ const ChatWindow = ({ conversationId, conversationName, userId, onMarkAsRead, sh
                   key={message.id}
                   message={message}
                   isOwn={message.sender_id === userId}
+                  participants={participants}
                   onEdit={editMessage}
                   onDelete={deleteMessage}
                 />
