@@ -8,6 +8,9 @@ import { toast } from "sonner";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { CreateRequestDialog } from "./CreateRequestDialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
 
 interface Request {
   id: string;
@@ -16,6 +19,7 @@ interface Request {
   purpose: string;
   status: string;
   image_url: string | null;
+  approval_comment: string | null;
   created_at: string;
   church_assets: {
     name: string;
@@ -27,6 +31,10 @@ export const RequestManagement = () => {
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<string>("all");
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
+  const [commentDialogOpen, setCommentDialogOpen] = useState(false);
+  const [selectedRequest, setSelectedRequest] = useState<Request | null>(null);
+  const [actionType, setActionType] = useState<"approve" | "reject">("approve");
+  const [comment, setComment] = useState("");
 
   const loadRequests = async () => {
     const { data, error } = await supabase
@@ -60,10 +68,13 @@ export const RequestManagement = () => {
     };
   }, []);
 
-  const handleUpdateStatus = async (id: string, status: string) => {
+  const handleUpdateStatus = async (id: string, status: string, comment?: string) => {
     const { error } = await supabase
       .from("asset_requests")
-      .update({ status })
+      .update({ 
+        status,
+        approval_comment: comment || null
+      })
       .eq("id", id);
 
     if (error) {
@@ -72,6 +83,14 @@ export const RequestManagement = () => {
     }
 
     toast.success(`Solicitação ${status === "aprovado" ? "aprovada" : "rejeitada"}`);
+    setCommentDialogOpen(false);
+    setComment("");
+  };
+
+  const openCommentDialog = (request: Request, type: "approve" | "reject") => {
+    setSelectedRequest(request);
+    setActionType(type);
+    setCommentDialogOpen(true);
   };
 
   const filteredRequests = requests.filter((request) => {
@@ -162,12 +181,18 @@ export const RequestManagement = () => {
                 <p className="text-sm text-muted-foreground mb-1">Finalidade:</p>
                 <p className="text-sm">{request.purpose}</p>
               </div>
+              {request.approval_comment && (
+                <div className="bg-muted/50 p-3 rounded-md">
+                  <p className="text-sm font-medium mb-1">Comentário:</p>
+                  <p className="text-sm text-muted-foreground">{request.approval_comment}</p>
+                </div>
+              )}
               {request.status === "pendente" && (
                 <div className="flex gap-2 pt-2">
                   <Button
                     size="sm"
                     variant="outline"
-                    onClick={() => handleUpdateStatus(request.id, "aprovado")}
+                    onClick={() => openCommentDialog(request, "approve")}
                     className="flex-1"
                   >
                     <Check className="mr-2 h-4 w-4" />
@@ -176,7 +201,7 @@ export const RequestManagement = () => {
                   <Button
                     size="sm"
                     variant="destructive"
-                    onClick={() => handleUpdateStatus(request.id, "rejeitado")}
+                    onClick={() => openCommentDialog(request, "reject")}
                     className="flex-1"
                   >
                     <X className="mr-2 h-4 w-4" />
@@ -203,6 +228,53 @@ export const RequestManagement = () => {
           loadRequests();
         }}
       />
+
+      <Dialog open={commentDialogOpen} onOpenChange={setCommentDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>
+              {actionType === "approve" ? "Aprovar" : "Rejeitar"} Solicitação
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="comment">Comentário (opcional)</Label>
+              <Textarea
+                id="comment"
+                value={comment}
+                onChange={(e) => setComment(e.target.value)}
+                placeholder="Adicione um comentário sobre esta decisão"
+                rows={4}
+              />
+            </div>
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setCommentDialogOpen(false);
+                  setComment("");
+                }}
+                className="flex-1"
+              >
+                Cancelar
+              </Button>
+              <Button
+                onClick={() =>
+                  selectedRequest &&
+                  handleUpdateStatus(
+                    selectedRequest.id,
+                    actionType === "approve" ? "aprovado" : "rejeitado",
+                    comment.trim() || undefined
+                  )
+                }
+                className="flex-1"
+              >
+                Confirmar
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

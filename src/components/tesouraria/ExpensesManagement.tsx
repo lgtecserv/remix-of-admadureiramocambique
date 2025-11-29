@@ -3,11 +3,12 @@ import { supabase } from "@/lib/supabase";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Trash2 } from "lucide-react";
+import { Plus, Trash2, Pencil } from "lucide-react";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { CreateExpenseDialog } from "./CreateExpenseDialog";
+import { EditExpenseDialog } from "./EditExpenseDialog";
 
 interface Expense {
   id: string;
@@ -22,6 +23,8 @@ export const ExpensesManagement = () => {
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [loading, setLoading] = useState(true);
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [selectedExpense, setSelectedExpense] = useState<Expense | null>(null);
 
   const loadExpenses = async () => {
     const { data, error } = await supabase
@@ -128,6 +131,17 @@ export const ExpensesManagement = () => {
               <div className="flex gap-2 pt-2">
                 <Button
                   size="sm"
+                  variant="outline"
+                  onClick={() => {
+                    setSelectedExpense(expense);
+                    setEditDialogOpen(true);
+                  }}
+                >
+                  <Pencil className="h-3 w-3 mr-2" />
+                  Editar
+                </Button>
+                <Button
+                  size="sm"
                   variant="destructive"
                   onClick={() => handleDelete(expense.id)}
                 >
@@ -154,6 +168,18 @@ export const ExpensesManagement = () => {
           loadExpenses();
         }}
       />
+
+      {selectedExpense && (
+        <EditExpenseDialog
+          open={editDialogOpen}
+          onOpenChange={setEditDialogOpen}
+          expense={selectedExpense}
+          onSuccess={() => {
+            setEditDialogOpen(false);
+            loadExpenses();
+          }}
+        />
+      )}
     </div>
   );
 };
