@@ -43,7 +43,7 @@ serve(async (req) => {
     }
 
     // Validate department
-    const validDepartments = ["jovens", "irmas", "varoes", "adolescentes", "criancas"];
+    const validDepartments = ["jovens", "irmas", "varoes", "adolescentes", "criancas", "patrimonio", "tesouraria"];
     if (!validDepartments.includes(department)) {
       throw new Error("Departamento inválido");
     }

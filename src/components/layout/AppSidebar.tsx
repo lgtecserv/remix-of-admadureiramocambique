@@ -1,4 +1,4 @@
-import { Home, Users, BarChart3, Settings, LogOut, UserCog, Shield, FileText, MessageSquare } from "lucide-react";
+import { Home, Users, BarChart3, Settings, LogOut, UserCog, Shield, FileText, MessageSquare, Package, DollarSign, UserPlus } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import {
   Sidebar,
@@ -17,6 +17,7 @@ import logo from "@/assets/logo.png";
 
 interface AppSidebarProps {
   role?: string;
+  department?: string;
   userEmail?: string;
 }
 
@@ -34,17 +35,42 @@ const pastorItems = [
 const leaderItems = [
   { title: "Dashboard", url: "/dashboard", icon: Home },
   { title: "Membros", url: "/dashboard/members", icon: Users },
-  { title: "Visitantes", url: "/dashboard/visitors", icon: Users },
-  { title: "Chat", url: "/dashboard/chat", icon: Users },
+  { title: "Visitantes", url: "/dashboard/visitors", icon: UserPlus },
+  { title: "Chat", url: "/dashboard/chat", icon: MessageSquare },
   { title: "Relatórios", url: "/dashboard/reports", icon: FileText },
   { title: "Estatísticas", url: "/dashboard/statistics", icon: BarChart3 },
   { title: "Configurações", url: "/dashboard/settings", icon: Settings },
 ];
 
-export function AppSidebar({ role = "leader", userEmail }: AppSidebarProps) {
+const patrimonioItems = [
+  { title: "Dashboard", url: "/dashboard", icon: Home },
+  { title: "Patrimônio", url: "/dashboard/patrimonio", icon: Package },
+  { title: "Chat", url: "/dashboard/chat", icon: MessageSquare },
+  { title: "Configurações", url: "/dashboard/settings", icon: Settings },
+];
+
+const tesourariaItems = [
+  { title: "Dashboard", url: "/dashboard", icon: Home },
+  { title: "Tesouraria", url: "/dashboard/tesouraria", icon: DollarSign },
+  { title: "Chat", url: "/dashboard/chat", icon: MessageSquare },
+  { title: "Configurações", url: "/dashboard/settings", icon: Settings },
+];
+
+export function AppSidebar({ role = "leader", department, userEmail }: AppSidebarProps) {
   const { state } = useSidebar();
   const collapsed = state === "collapsed";
-  const items = role === "pastor" ? pastorItems : leaderItems;
+  
+  const getMenuItems = () => {
+    if (role === "pastor") return pastorItems;
+    if (role === "leader") {
+      if (department === "patrimonio") return patrimonioItems;
+      if (department === "tesouraria") return tesourariaItems;
+      return leaderItems;
+    }
+    return leaderItems;
+  };
+  
+  const items = getMenuItems();
   const isSuperAdmin = userEmail === "lgtecserv@gmail.com";
 
   const handleLogout = async () => {
