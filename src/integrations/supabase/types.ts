@@ -19,6 +19,7 @@ export type Database = {
           asset_id: string
           created_at: string
           id: string
+          image_url: string | null
           purpose: string
           quantity: number
           requested_by: string
@@ -29,6 +30,7 @@ export type Database = {
           asset_id: string
           created_at?: string
           id?: string
+          image_url?: string | null
           purpose: string
           quantity: number
           requested_by: string
@@ -39,6 +41,7 @@ export type Database = {
           asset_id?: string
           created_at?: string
           id?: string
+          image_url?: string | null
           purpose?: string
           quantity?: number
           requested_by?: string
@@ -121,8 +124,10 @@ export type Database = {
           condition: string
           created_at: string
           id: string
+          image_url: string | null
           leader_id: string
           name: string
+          observations: string | null
           quantity: number
           updated_at: string
         }
@@ -130,8 +135,10 @@ export type Database = {
           condition: string
           created_at?: string
           id?: string
+          image_url?: string | null
           leader_id: string
           name: string
+          observations?: string | null
           quantity: number
           updated_at?: string
         }
@@ -139,8 +146,10 @@ export type Database = {
           condition?: string
           created_at?: string
           id?: string
+          image_url?: string | null
           leader_id?: string
           name?: string
+          observations?: string | null
           quantity?: number
           updated_at?: string
         }
@@ -395,6 +404,7 @@ export type Database = {
           notes: string | null
           recorded_by: string
           updated_at: string
+          verified_by_names: string[] | null
         }
         Insert: {
           amount: number
@@ -405,6 +415,7 @@ export type Database = {
           notes?: string | null
           recorded_by: string
           updated_at?: string
+          verified_by_names?: string[] | null
         }
         Update: {
           amount?: number
@@ -415,6 +426,7 @@ export type Database = {
           notes?: string | null
           recorded_by?: string
           updated_at?: string
+          verified_by_names?: string[] | null
         }
         Relationships: []
       }
@@ -477,6 +489,7 @@ export type Database = {
           member_id: string
           recorded_by: string
           tithe_date: string
+          tithe_month: number
           updated_at: string
         }
         Insert: {
@@ -486,6 +499,7 @@ export type Database = {
           member_id: string
           recorded_by: string
           tithe_date: string
+          tithe_month?: number
           updated_at?: string
         }
         Update: {
@@ -495,6 +509,7 @@ export type Database = {
           member_id?: string
           recorded_by?: string
           tithe_date?: string
+          tithe_month?: number
           updated_at?: string
         }
         Relationships: [

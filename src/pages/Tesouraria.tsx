@@ -5,6 +5,9 @@ import { User } from "@supabase/supabase-js";
 import { Loader2 } from "lucide-react";
 import AppLayout from "@/components/layout/AppLayout";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { OfferingsManagement } from "@/components/tesouraria/OfferingsManagement";
+import { TithesManagement } from "@/components/tesouraria/TithesManagement";
+import { ExpensesManagement } from "@/components/tesouraria/ExpensesManagement";
 
 const Tesouraria = () => {
   const navigate = useNavigate();
@@ -56,7 +59,7 @@ const Tesouraria = () => {
   }
 
   return (
-    <AppLayout userName={profile?.full_name} role="leader" userEmail={user?.email} user={user}>
+    <AppLayout userName={profile?.full_name} role="leader" department="tesouraria" userEmail={user?.email} user={user}>
       <div className="space-y-6 animate-fade-in">
         <div>
           <h2 className="text-2xl sm:text-3xl font-bold text-foreground mb-2">
@@ -76,21 +79,15 @@ const Tesouraria = () => {
           </TabsList>
 
           <TabsContent value="offerings" className="space-y-4">
-            <p className="text-center text-muted-foreground py-8">
-              Funcionalidade de ofertas será implementada em breve
-            </p>
+            <OfferingsManagement />
           </TabsContent>
 
           <TabsContent value="tithes" className="space-y-4">
-            <p className="text-center text-muted-foreground py-8">
-              Funcionalidade de dízimos será implementada em breve
-            </p>
+            <TithesManagement />
           </TabsContent>
 
           <TabsContent value="expenses" className="space-y-4">
-            <p className="text-center text-muted-foreground py-8">
-              Funcionalidade de gastos será implementada em breve
-            </p>
+            <ExpensesManagement />
           </TabsContent>
 
           <TabsContent value="report" className="space-y-4">

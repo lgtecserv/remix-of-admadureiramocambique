@@ -5,6 +5,8 @@ import { User } from "@supabase/supabase-js";
 import { Loader2 } from "lucide-react";
 import AppLayout from "@/components/layout/AppLayout";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { AssetManagement } from "@/components/patrimonio/AssetManagement";
+import { RequestManagement } from "@/components/patrimonio/RequestManagement";
 
 const Patrimonio = () => {
   const navigate = useNavigate();
@@ -56,7 +58,7 @@ const Patrimonio = () => {
   }
 
   return (
-    <AppLayout userName={profile?.full_name} role="leader" userEmail={user?.email} user={user}>
+    <AppLayout userName={profile?.full_name} role="leader" department="patrimonio" userEmail={user?.email} user={user}>
       <div className="space-y-6 animate-fade-in">
         <div>
           <h2 className="text-2xl sm:text-3xl font-bold text-foreground mb-2">
@@ -74,15 +76,11 @@ const Patrimonio = () => {
           </TabsList>
 
           <TabsContent value="materials" className="space-y-4">
-            <p className="text-center text-muted-foreground py-8">
-              Funcionalidade de gestão de materiais será implementada em breve
-            </p>
+            <AssetManagement />
           </TabsContent>
 
           <TabsContent value="requests" className="space-y-4">
-            <p className="text-center text-muted-foreground py-8">
-              Funcionalidade de solicitações será implementada em breve
-            </p>
+            <RequestManagement />
           </TabsContent>
         </Tabs>
       </div>
