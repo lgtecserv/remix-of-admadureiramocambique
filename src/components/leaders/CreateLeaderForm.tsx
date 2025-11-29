@@ -26,7 +26,7 @@ interface CreateLeaderFormProps {
   onSuccess: () => void;
 }
 
-const departments = ["jovens", "irmas", "varoes", "adolescentes", "criancas"];
+const departments = ["jovens", "irmas", "varoes", "adolescentes", "criancas", "patrimonio", "tesouraria"];
 
 const CreateLeaderForm = ({ onSuccess }: CreateLeaderFormProps) => {
   const [loading, setLoading] = useState(false);
