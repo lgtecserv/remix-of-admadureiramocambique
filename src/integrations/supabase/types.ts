@@ -16,6 +16,7 @@ export type Database = {
     Tables: {
       asset_requests: {
         Row: {
+          approval_comment: string | null
           asset_id: string
           created_at: string
           id: string
@@ -27,6 +28,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          approval_comment?: string | null
           asset_id: string
           created_at?: string
           id?: string
@@ -38,6 +40,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          approval_comment?: string | null
           asset_id?: string
           created_at?: string
           id?: string
@@ -118,6 +121,36 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      balance_adjustments: {
+        Row: {
+          adjustment_date: string
+          amount: number
+          created_at: string
+          description: string
+          id: string
+          recorded_by: string
+          updated_at: string
+        }
+        Insert: {
+          adjustment_date?: string
+          amount: number
+          created_at?: string
+          description: string
+          id?: string
+          recorded_by: string
+          updated_at?: string
+        }
+        Update: {
+          adjustment_date?: string
+          amount?: number
+          created_at?: string
+          description?: string
+          id?: string
+          recorded_by?: string
+          updated_at?: string
+        }
+        Relationships: []
       }
       church_assets: {
         Row: {

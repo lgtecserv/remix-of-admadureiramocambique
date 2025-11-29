@@ -2,14 +2,16 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Plus, Trash2 } from "lucide-react";
+import { Plus, Trash2, Pencil } from "lucide-react";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { CreateTitheDialog } from "./CreateTitheDialog";
+import { EditTitheDialog } from "./EditTitheDialog";
 
 interface Tithe {
   id: string;
+  member_id: string;
   amount: number;
   tithe_date: string;
   tithe_month: number;
@@ -23,6 +25,8 @@ export const TithesManagement = () => {
   const [tithes, setTithes] = useState<Tithe[]>([]);
   const [loading, setLoading] = useState(true);
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [selectedTithe, setSelectedTithe] = useState<Tithe | null>(null);
   const [stats, setStats] = useState({
     currentMonthTotal: 0,
     currentMonthCount: 0,
@@ -197,6 +201,17 @@ export const TithesManagement = () => {
               <div className="flex gap-2 pt-2">
                 <Button
                   size="sm"
+                  variant="outline"
+                  onClick={() => {
+                    setSelectedTithe(tithe);
+                    setEditDialogOpen(true);
+                  }}
+                >
+                  <Pencil className="h-3 w-3 mr-2" />
+                  Editar
+                </Button>
+                <Button
+                  size="sm"
                   variant="destructive"
                   onClick={() => handleDelete(tithe.id)}
                 >
@@ -223,6 +238,18 @@ export const TithesManagement = () => {
           loadTithes();
         }}
       />
+
+      {selectedTithe && (
+        <EditTitheDialog
+          open={editDialogOpen}
+          onOpenChange={setEditDialogOpen}
+          tithe={selectedTithe}
+          onSuccess={() => {
+            setEditDialogOpen(false);
+            loadTithes();
+          }}
+        />
+      )}
     </div>
   );
 };

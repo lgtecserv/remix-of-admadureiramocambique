@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { CreateOfferingDialog } from "./CreateOfferingDialog";
+import { EditOfferingDialog } from "./EditOfferingDialog";
 
 interface Offering {
   id: string;
@@ -22,6 +23,8 @@ export const OfferingsManagement = () => {
   const [offerings, setOfferings] = useState<Offering[]>([]);
   const [loading, setLoading] = useState(true);
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [selectedOffering, setSelectedOffering] = useState<Offering | null>(null);
 
   const loadOfferings = async () => {
     const { data, error } = await supabase
@@ -122,6 +125,17 @@ export const OfferingsManagement = () => {
               <div className="flex gap-2 pt-2">
                 <Button
                   size="sm"
+                  variant="outline"
+                  onClick={() => {
+                    setSelectedOffering(offering);
+                    setEditDialogOpen(true);
+                  }}
+                >
+                  <Pencil className="h-3 w-3 mr-2" />
+                  Editar
+                </Button>
+                <Button
+                  size="sm"
                   variant="destructive"
                   onClick={() => handleDelete(offering.id)}
                 >
@@ -148,6 +162,18 @@ export const OfferingsManagement = () => {
           loadOfferings();
         }}
       />
+
+      {selectedOffering && (
+        <EditOfferingDialog
+          open={editDialogOpen}
+          onOpenChange={setEditDialogOpen}
+          offering={selectedOffering}
+          onSuccess={() => {
+            setEditDialogOpen(false);
+            loadOfferings();
+          }}
+        />
+      )}
     </div>
   );
 };

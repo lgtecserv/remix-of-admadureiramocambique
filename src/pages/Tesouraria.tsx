@@ -8,6 +8,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { OfferingsManagement } from "@/components/tesouraria/OfferingsManagement";
 import { TithesManagement } from "@/components/tesouraria/TithesManagement";
 import { ExpensesManagement } from "@/components/tesouraria/ExpensesManagement";
+import { FinancialReport } from "@/components/tesouraria/FinancialReport";
+import { BalanceAdjustment } from "@/components/tesouraria/BalanceAdjustment";
 
 const Tesouraria = () => {
   const navigate = useNavigate();
@@ -71,10 +73,11 @@ const Tesouraria = () => {
         </div>
 
         <Tabs defaultValue="offerings" className="w-full">
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="offerings">Ofertas</TabsTrigger>
             <TabsTrigger value="tithes">Dízimos</TabsTrigger>
             <TabsTrigger value="expenses">Gastos</TabsTrigger>
+            <TabsTrigger value="adjustments">Ajustes</TabsTrigger>
             <TabsTrigger value="report">Relatório</TabsTrigger>
           </TabsList>
 
@@ -90,10 +93,12 @@ const Tesouraria = () => {
             <ExpensesManagement />
           </TabsContent>
 
+          <TabsContent value="adjustments" className="space-y-4">
+            <BalanceAdjustment />
+          </TabsContent>
+
           <TabsContent value="report" className="space-y-4">
-            <p className="text-center text-muted-foreground py-8">
-              Funcionalidade de relatórios será implementada em breve
-            </p>
+            <FinancialReport />
           </TabsContent>
         </Tabs>
       </div>

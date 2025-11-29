@@ -7,6 +7,7 @@ import DepartmentChart from "./DepartmentChart";
 import StatusChart from "./StatusChart";
 import GrowthChart from "./GrowthChart";
 import { DepartmentStatsCard } from "./DepartmentStatsCard";
+import { PendingRequestsWidget } from "./PendingRequestsWidget";
 import AppLayout from "@/components/layout/AppLayout";
 
 interface PastorDashboardProps {
@@ -149,6 +150,8 @@ const PastorDashboard = ({ user, userEmail }: PastorDashboardProps) => {
             <GrowthChart />
           </CardContent>
         </Card>
+
+        <PendingRequestsWidget />
       </div>
     </AppLayout>
   );
