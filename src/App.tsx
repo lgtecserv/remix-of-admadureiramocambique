@@ -14,6 +14,8 @@ import Statistics from "./pages/Statistics";
 import Reports from "./pages/Reports";
 import Settings from "./pages/Settings";
 import SuperAdmin from "./pages/SuperAdmin";
+import Patrimonio from "./pages/Patrimonio";
+import Tesouraria from "./pages/Tesouraria";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -36,6 +38,8 @@ const App = () => (
           <Route path="/dashboard/statistics" element={<Statistics />} />
           <Route path="/dashboard/reports" element={<Reports />} />
           <Route path="/dashboard/settings" element={<Settings />} />
+          <Route path="/dashboard/patrimonio" element={<Patrimonio />} />
+          <Route path="/dashboard/tesouraria" element={<Tesouraria />} />
           <Route path="/super-admin" element={<SuperAdmin />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />

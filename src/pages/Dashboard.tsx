@@ -5,11 +5,14 @@ import { User } from "@supabase/supabase-js";
 import { Loader2 } from "lucide-react";
 import PastorDashboard from "@/components/dashboard/PastorDashboard";
 import LeaderDashboard from "@/components/dashboard/LeaderDashboard";
+import PatrimonioDashboard from "@/components/dashboard/PatrimonioDashboard";
+import TesourariaDashboard from "@/components/dashboard/TesourariaDashboard";
 
 const Dashboard = () => {
   const navigate = useNavigate();
   const [user, setUser] = useState<User | null>(null);
   const [role, setRole] = useState<string | null>(null);
+  const [department, setDepartment] = useState<string | null>(null);
   const [userEmail, setUserEmail] = useState<string>("");
   const [loading, setLoading] = useState(true);
 
@@ -38,6 +41,7 @@ const Dashboard = () => {
 
       if (roleData) {
         setRole(roleData.role);
+        setDepartment(roleData.department);
       }
 
       // Update member statuses (novo -> ativo after 3 months)
@@ -92,6 +96,12 @@ const Dashboard = () => {
   }
 
   if (role === "leader" && user) {
+    if (department === "patrimonio") {
+      return <PatrimonioDashboard user={user} userEmail={userEmail} />;
+    }
+    if (department === "tesouraria") {
+      return <TesourariaDashboard user={user} userEmail={userEmail} />;
+    }
     return <LeaderDashboard user={user} userEmail={userEmail} />;
   }
 
