@@ -122,14 +122,14 @@ const TesourariaDashboard = ({ user, userEmail }: TesourariaDashboardProps) => {
   }, [user.id]);
 
   const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat("pt-BR", {
+    return new Intl.NumberFormat("pt-MZ", {
       style: "currency",
-      currency: "BRL",
+      currency: "MZN",
     }).format(value);
   };
 
   return (
-    <AppLayout userName={profile?.full_name} role="leader" userEmail={userEmail} user={user}>
+    <AppLayout userName={profile?.full_name} role="leader" department="tesouraria" userEmail={userEmail} user={user}>
       <div className="space-y-8 animate-fade-in">
         <div>
           <h2 className="text-2xl sm:text-3xl font-bold text-foreground mb-2">
