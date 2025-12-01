@@ -1,4 +1,4 @@
-import { Home, Users, BarChart3, Settings, LogOut, UserCog, Shield, FileText, MessageSquare, Package, DollarSign, UserPlus } from "lucide-react";
+import { Home, Users, BarChart3, Settings, LogOut, UserCog, Shield, FileText, MessageSquare, Package, DollarSign, UserPlus, ClipboardList } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import {
   Sidebar,
@@ -52,6 +52,9 @@ const patrimonioItems = [
 const tesourariaItems = [
   { title: "Dashboard", url: "/dashboard", icon: Home },
   { title: "Tesouraria", url: "/dashboard/tesouraria", icon: DollarSign },
+  { title: "Relatórios", url: "/dashboard/tesouraria/relatorios", icon: FileText },
+  { title: "Solicitações", url: "/dashboard/tesouraria/solicitacoes", icon: ClipboardList },
+  { title: "Inventário", url: "/dashboard/tesouraria/inventario", icon: Package },
   { title: "Chat", url: "/dashboard/chat", icon: MessageSquare },
   { title: "Configurações", url: "/dashboard/settings", icon: Settings },
 ];

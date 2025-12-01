@@ -4,13 +4,9 @@ import { supabase } from "@/lib/supabase";
 import { User } from "@supabase/supabase-js";
 import { Loader2 } from "lucide-react";
 import AppLayout from "@/components/layout/AppLayout";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { OfferingsManagement } from "@/components/tesouraria/OfferingsManagement";
-import { TithesManagement } from "@/components/tesouraria/TithesManagement";
-import { ExpensesManagement } from "@/components/tesouraria/ExpensesManagement";
-import { BalanceAdjustment } from "@/components/tesouraria/BalanceAdjustment";
+import { PatrimonioOverview } from "@/components/tesouraria/PatrimonioOverview";
 
-const Tesouraria = () => {
+const Inventory = () => {
   const navigate = useNavigate();
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<any>(null);
@@ -64,40 +60,17 @@ const Tesouraria = () => {
       <div className="space-y-6 animate-fade-in">
         <div>
           <h2 className="text-2xl sm:text-3xl font-bold text-foreground mb-2">
-            Gestão de Tesouraria
+            Inventário do Patrimônio
           </h2>
           <p className="text-muted-foreground">
-            Gerencie as finanças da igreja
+            Visualize todos os itens do patrimônio da igreja
           </p>
         </div>
 
-        <Tabs defaultValue="offerings" className="w-full">
-          <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger value="offerings">Ofertas</TabsTrigger>
-            <TabsTrigger value="tithes">Dízimos</TabsTrigger>
-            <TabsTrigger value="expenses">Gastos</TabsTrigger>
-            <TabsTrigger value="adjustments">Ajustes</TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="offerings" className="space-y-4">
-            <OfferingsManagement />
-          </TabsContent>
-
-          <TabsContent value="tithes" className="space-y-4">
-            <TithesManagement />
-          </TabsContent>
-
-          <TabsContent value="expenses" className="space-y-4">
-            <ExpensesManagement />
-          </TabsContent>
-
-          <TabsContent value="adjustments" className="space-y-4">
-            <BalanceAdjustment />
-          </TabsContent>
-        </Tabs>
+        <PatrimonioOverview />
       </div>
     </AppLayout>
   );
 };
 
-export default Tesouraria;
+export default Inventory;
