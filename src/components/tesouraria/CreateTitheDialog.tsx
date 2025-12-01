@@ -16,8 +16,22 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
 import { toast } from "sonner";
-import { Loader2 } from "lucide-react";
+import { Loader2, Check, ChevronsUpDown } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 interface Member {
   id: string;
@@ -37,6 +51,7 @@ export const CreateTitheDialog = ({
 }: CreateTitheDialogProps) => {
   const [loading, setLoading] = useState(false);
   const [members, setMembers] = useState<Member[]>([]);
+  const [memberOpen, setMemberOpen] = useState(false);
   const [formData, setFormData] = useState({
     member_id: "",
     amount: "",
@@ -112,24 +127,49 @@ export const CreateTitheDialog = ({
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="member">Quem Dizimou *</Label>
-            <Select
-              value={formData.member_id}
-              onValueChange={(value) =>
-                setFormData({ ...formData, member_id: value })
-              }
-              required
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Selecione o membro" />
-              </SelectTrigger>
-              <SelectContent>
-                {members.map((member) => (
-                  <SelectItem key={member.id} value={member.id}>
-                    {member.full_name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <Popover open={memberOpen} onOpenChange={setMemberOpen}>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  role="combobox"
+                  aria-expanded={memberOpen}
+                  className="w-full justify-between"
+                >
+                  {formData.member_id
+                    ? members.find((member) => member.id === formData.member_id)?.full_name
+                    : "Buscar membro..."}
+                  <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-full p-0" align="start">
+                <Command>
+                  <CommandInput placeholder="Buscar por nome..." />
+                  <CommandList>
+                    <CommandEmpty>Nenhum membro encontrado.</CommandEmpty>
+                    <CommandGroup>
+                      {members.map((member) => (
+                        <CommandItem
+                          key={member.id}
+                          value={member.full_name}
+                          onSelect={() => {
+                            setFormData({ ...formData, member_id: member.id });
+                            setMemberOpen(false);
+                          }}
+                        >
+                          <Check
+                            className={cn(
+                              "mr-2 h-4 w-4",
+                              formData.member_id === member.id ? "opacity-100" : "opacity-0"
+                            )}
+                          />
+                          {member.full_name}
+                        </CommandItem>
+                      ))}
+                    </CommandGroup>
+                  </CommandList>
+                </Command>
+              </PopoverContent>
+            </Popover>
           </div>
 
           <div className="space-y-2">
