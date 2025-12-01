@@ -21,7 +21,6 @@ interface Asset {
 export const AssetManagement = () => {
   const [assets, setAssets] = useState<Asset[]>([]);
   const [loading, setLoading] = useState(true);
-  const [filter, setFilter] = useState<string>("all");
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [editAsset, setEditAsset] = useState<Asset | null>(null);
 
@@ -70,11 +69,6 @@ export const AssetManagement = () => {
     toast.success("Material excluído com sucesso");
   };
 
-  const filteredAssets = assets.filter((asset) => {
-    if (filter === "all") return true;
-    return asset.condition === filter;
-  });
-
   const getConditionBadge = (condition: string) => {
     if (condition === "perfeito") {
       return <Badge className="bg-green-500">Perfeito</Badge>;
@@ -88,35 +82,15 @@ export const AssetManagement = () => {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <div className="flex gap-2">
-          <Button
-            variant={filter === "all" ? "default" : "outline"}
-            onClick={() => setFilter("all")}
-          >
-            Todos ({assets.length})
-          </Button>
-          <Button
-            variant={filter === "perfeito" ? "default" : "outline"}
-            onClick={() => setFilter("perfeito")}
-          >
-            Perfeito ({assets.filter((a) => a.condition === "perfeito").length})
-          </Button>
-          <Button
-            variant={filter === "danificado" ? "default" : "outline"}
-            onClick={() => setFilter("danificado")}
-          >
-            Danificado ({assets.filter((a) => a.condition === "danificado").length})
-          </Button>
-        </div>
-        <Button onClick={() => setCreateDialogOpen(true)}>
+      <div className="flex justify-end">
+        <Button onClick={() => setCreateDialogOpen(true)} className="w-full sm:w-auto">
           <Plus className="mr-2 h-4 w-4" />
           Cadastrar Item
         </Button>
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        {filteredAssets.map((asset) => (
+        {assets.map((asset) => (
           <Card key={asset.id}>
             <CardHeader className="pb-3">
               <div className="flex items-start justify-between">
@@ -168,9 +142,9 @@ export const AssetManagement = () => {
         ))}
       </div>
 
-      {filteredAssets.length === 0 && (
+      {assets.length === 0 && (
         <div className="text-center py-12 text-muted-foreground">
-          Nenhum material cadastrado nesta categoria
+          Nenhum material cadastrado
         </div>
       )}
 
