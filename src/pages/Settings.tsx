@@ -12,6 +12,7 @@ import { Loader2, KeyRound, Bell, Camera, X } from "lucide-react";
 import { toast } from "sonner";
 import ChangePasswordDialog from "@/components/auth/ChangePasswordDialog";
 import NotificationSettings from "@/components/settings/NotificationSettings";
+import PushNotificationSettings from "@/components/settings/PushNotificationSettings";
 import { UserAvatar } from "@/components/common/UserAvatar";
 
 const Settings = () => {
@@ -252,8 +253,15 @@ const Settings = () => {
             </CardTitle>
             <CardDescription>Configure os sons e alertas do sistema</CardDescription>
           </CardHeader>
-          <CardContent>
-            <NotificationSettings userId={user?.id} />
+          <CardContent className="space-y-6">
+            <div>
+              <h3 className="text-sm font-medium mb-4">Sons e Alertas</h3>
+              <NotificationSettings userId={user?.id} />
+            </div>
+            <div className="border-t pt-6">
+              <h3 className="text-sm font-medium mb-4">Notificações Push</h3>
+              <PushNotificationSettings userId={user?.id} />
+            </div>
           </CardContent>
         </Card>
 
