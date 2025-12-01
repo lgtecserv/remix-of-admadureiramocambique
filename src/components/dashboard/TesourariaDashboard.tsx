@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { User } from "@supabase/supabase-js";
 import { supabase } from "@/lib/supabase";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { DollarSign, TrendingUp, TrendingDown, Wallet } from "lucide-react";
+import { DollarSign, TrendingUp, TrendingDown, Wallet, Package } from "lucide-react";
 import AppLayout from "@/components/layout/AppLayout";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
 
@@ -17,6 +17,12 @@ const TesourariaDashboard = ({ user, userEmail }: TesourariaDashboardProps) => {
   const [balance, setBalance] = useState(0);
   const [profile, setProfile] = useState<any>(null);
   const [monthlyData, setMonthlyData] = useState<any[]>([]);
+  const [inventoryStats, setInventoryStats] = useState({
+    totalItems: 0,
+    totalQuantity: 0,
+    perfectCondition: 0,
+    damagedCondition: 0,
+  });
 
   const loadFinancialStats = async () => {
     const now = new Date();
@@ -93,9 +99,23 @@ const TesourariaDashboard = ({ user, userEmail }: TesourariaDashboardProps) => {
     setProfile(data);
   };
 
+  const loadInventoryStats = async () => {
+    const { data } = await supabase.from("church_assets").select("*");
+    
+    if (data) {
+      setInventoryStats({
+        totalItems: data.length,
+        totalQuantity: data.reduce((sum, item) => sum + item.quantity, 0),
+        perfectCondition: data.filter((item) => item.condition === "perfeito").length,
+        damagedCondition: data.filter((item) => item.condition === "danificado").length,
+      });
+    }
+  };
+
   useEffect(() => {
     loadFinancialStats();
     loadProfile();
+    loadInventoryStats();
 
     const channel = supabase
       .channel("tesouraria-changes")
@@ -113,6 +133,11 @@ const TesourariaDashboard = ({ user, userEmail }: TesourariaDashboardProps) => {
         "postgres_changes",
         { event: "*", schema: "public", table: "expenses" },
         () => loadFinancialStats()
+      )
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "church_assets" },
+        () => loadInventoryStats()
       )
       .subscribe();
 
@@ -138,7 +163,7 @@ const TesourariaDashboard = ({ user, userEmail }: TesourariaDashboardProps) => {
           <p className="text-muted-foreground">Gerencie as finanças da igreja</p>
         </div>
 
-        <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
           <Card className="border-2 hover:border-primary/50 transition-colors">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Total de Entradas</CardTitle>
@@ -171,6 +196,23 @@ const TesourariaDashboard = ({ user, userEmail }: TesourariaDashboardProps) => {
                 {formatCurrency(balance)}
               </div>
               <p className="text-xs text-muted-foreground mt-1">Entradas - Saídas</p>
+            </CardContent>
+          </Card>
+
+          <Card className="border-2 hover:border-primary/50 transition-colors">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Inventário</CardTitle>
+              <Package className="h-5 w-5 text-blue-500" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{inventoryStats.totalQuantity}</div>
+              <p className="text-xs text-muted-foreground mt-1">
+                {inventoryStats.totalItems} tipos de itens
+              </p>
+              <div className="flex gap-2 mt-2 text-xs">
+                <span className="text-green-500">✓ {inventoryStats.perfectCondition} OK</span>
+                <span className="text-yellow-500">⚠ {inventoryStats.damagedCondition} Danif.</span>
+              </div>
             </CardContent>
           </Card>
         </div>

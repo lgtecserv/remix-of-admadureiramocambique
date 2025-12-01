@@ -4,9 +4,24 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
 import { supabase } from "@/lib/supabase";
 import { toast } from "sonner";
 import { format } from "date-fns";
+import { Check, ChevronsUpDown } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 interface Tithe {
   id: string;
@@ -33,6 +48,7 @@ interface EditTitheDialogProps {
 
 export const EditTitheDialog = ({ open, onOpenChange, tithe, onSuccess }: EditTitheDialogProps) => {
   const [members, setMembers] = useState<Member[]>([]);
+  const [memberOpen, setMemberOpen] = useState(false);
   const [memberId, setMemberId] = useState(tithe.member_id || "");
   const [amount, setAmount] = useState(tithe.amount.toString());
   const [titheDate, setTitheDate] = useState(format(new Date(tithe.tithe_date), "yyyy-MM-dd"));
@@ -98,18 +114,49 @@ export const EditTitheDialog = ({ open, onOpenChange, tithe, onSuccess }: EditTi
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="member">Membro</Label>
-            <Select value={memberId} onValueChange={setMemberId}>
-              <SelectTrigger>
-                <SelectValue placeholder="Selecione o membro" />
-              </SelectTrigger>
-              <SelectContent>
-                {members.map((member) => (
-                  <SelectItem key={member.id} value={member.id}>
-                    {member.full_name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <Popover open={memberOpen} onOpenChange={setMemberOpen}>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  role="combobox"
+                  aria-expanded={memberOpen}
+                  className="w-full justify-between"
+                >
+                  {memberId
+                    ? members.find((member) => member.id === memberId)?.full_name
+                    : "Buscar membro..."}
+                  <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-full p-0" align="start">
+                <Command>
+                  <CommandInput placeholder="Buscar por nome..." />
+                  <CommandList>
+                    <CommandEmpty>Nenhum membro encontrado.</CommandEmpty>
+                    <CommandGroup>
+                      {members.map((member) => (
+                        <CommandItem
+                          key={member.id}
+                          value={member.full_name}
+                          onSelect={() => {
+                            setMemberId(member.id);
+                            setMemberOpen(false);
+                          }}
+                        >
+                          <Check
+                            className={cn(
+                              "mr-2 h-4 w-4",
+                              memberId === member.id ? "opacity-100" : "opacity-0"
+                            )}
+                          />
+                          {member.full_name}
+                        </CommandItem>
+                      ))}
+                    </CommandGroup>
+                  </CommandList>
+                </Command>
+              </PopoverContent>
+            </Popover>
           </div>
 
           <div className="grid grid-cols-2 gap-4">
