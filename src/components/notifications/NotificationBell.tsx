@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { Bell } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -23,36 +23,54 @@ interface Notification {
 const NotificationBell = ({ userId }: { userId: string }) => {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
-  const [notifiedIds, setNotifiedIds] = useState<Set<string>>(new Set());
+  const notifiedIdsRef = useRef<Set<string>>(new Set());
   const { settings } = useNotificationSettings(userId);
   const { playNotificationSound } = useNotificationSound(settings);
 
+  // Carregar notificações existentes ao montar
   useEffect(() => {
     loadNotifications();
+  }, [userId]);
+
+  // Subscription realtime separada com dependências mínimas
+  useEffect(() => {
+    if (!userId) return;
+
+    console.log("[NotificationBell] Setting up realtime subscription for user:", userId);
 
     const channel = supabase
-      .channel("notifications-changes")
+      .channel(`notifications-${userId}`)
       .on(
         "postgres_changes",
-        { event: "INSERT", schema: "public", table: "notifications", filter: `user_id=eq.${userId}` },
+        { 
+          event: "INSERT", 
+          schema: "public", 
+          table: "notifications", 
+          filter: `user_id=eq.${userId}` 
+        },
         (payload) => {
           const newNotification = payload.new as Notification;
           
-          // Só toca se não foi notificado ainda
-          if (!notifiedIds.has(newNotification.id)) {
-            playNotificationSound();
-            setNotifiedIds(prev => new Set([...prev, newNotification.id]));
-          }
+          console.log("[NotificationBell] New notification received:", newNotification);
           
-          loadNotifications();
+          // Só toca som se não foi notificado ainda
+          if (!notifiedIdsRef.current.has(newNotification.id)) {
+            console.log("[NotificationBell] Playing notification sound");
+            notifiedIdsRef.current.add(newNotification.id);
+            playNotificationSound();
+            loadNotifications();
+          } else {
+            console.log("[NotificationBell] Notification already handled:", newNotification.id);
+          }
         }
       )
       .subscribe();
 
     return () => {
+      console.log("[NotificationBell] Cleaning up subscription");
       supabase.removeChannel(channel);
     };
-  }, [userId, playNotificationSound, notifiedIds]);
+  }, [userId, playNotificationSound]);
 
   const loadNotifications = async () => {
     const { data, error } = await supabase

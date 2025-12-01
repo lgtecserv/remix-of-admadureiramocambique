@@ -5,6 +5,7 @@ import AppLayout from "@/components/layout/AppLayout";
 import ConversationList from "@/components/chat/ConversationList";
 import ChatWindow from "@/components/chat/ChatWindow";
 import { useConversations } from "@/hooks/useConversations";
+import { useGlobalMessageNotifications } from "@/hooks/useGlobalMessageNotifications";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
@@ -24,6 +25,9 @@ const Chat = () => {
     createPrivateConversation,
     markAsRead,
   } = useConversations(user?.id);
+
+  // Hook global para notificações de mensagens (só toca quando não está na conversa)
+  useGlobalMessageNotifications(user?.id);
 
   useEffect(() => {
     const checkAuth = async () => {
