@@ -117,28 +117,34 @@ export const RequestManagement = () => {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <div className="flex gap-2">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex gap-2 overflow-x-auto pb-2 -mb-2 scrollbar-hide">
           <Button
+            size="sm"
             variant={filter === "all" ? "default" : "outline"}
             onClick={() => setFilter("all")}
+            className="whitespace-nowrap"
           >
             Todas ({requests.length})
           </Button>
           <Button
+            size="sm"
             variant={filter === "pendente" ? "default" : "outline"}
             onClick={() => setFilter("pendente")}
+            className="whitespace-nowrap"
           >
             Pendentes ({requests.filter((r) => r.status === "pendente").length})
           </Button>
           <Button
+            size="sm"
             variant={filter === "aprovado" ? "default" : "outline"}
             onClick={() => setFilter("aprovado")}
+            className="whitespace-nowrap"
           >
             Aprovadas ({requests.filter((r) => r.status === "aprovado").length})
           </Button>
         </div>
-        <Button onClick={() => setCreateDialogOpen(true)}>
+        <Button onClick={() => setCreateDialogOpen(true)} className="w-full sm:w-auto shrink-0">
           <Plus className="mr-2 h-4 w-4" />
           Nova Solicitação
         </Button>
