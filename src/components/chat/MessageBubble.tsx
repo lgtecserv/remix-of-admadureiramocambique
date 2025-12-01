@@ -13,6 +13,7 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { MoreVertical, Pencil, Trash, Check, X } from "lucide-react";
 import ReadReceipt from "./ReadReceipt";
+import { UserAvatar } from "@/components/common/UserAvatar";
 
 interface MessageBubbleProps {
   message: Message;
@@ -50,86 +51,98 @@ const MessageBubble = ({ message, isOwn, participants, onEdit, onDelete }: Messa
 
   return (
     <div className={cn("flex flex-col gap-0.5 mb-3 sm:mb-4 group", isOwn ? "items-end" : "items-start")}>
-      {!isOwn && (
-        <span className="text-xs text-muted-foreground px-2 sm:px-3 truncate max-w-[200px]">
-          {message.profiles?.full_name || "Usuário"}
-        </span>
-      )}
-      <div className="flex items-start gap-1 sm:gap-2 max-w-[85%] sm:max-w-[70%]">
-        {isOwn && onEdit && onDelete && !isEditing && (
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-6 w-6 sm:h-7 sm:w-7 opacity-0 group-hover:opacity-100 transition-opacity shrink-0"
-              >
-                <MoreVertical className="h-3 w-3 sm:h-4 sm:w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align={isOwn ? "end" : "start"}>
-              <DropdownMenuItem onClick={() => setIsEditing(true)}>
-                <Pencil className="h-4 w-4 mr-2" /> Editar
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={handleDelete} className="text-destructive">
-                <Trash className="h-4 w-4 mr-2" /> Excluir
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+      <div className={cn("flex items-start gap-2 max-w-[85%] sm:max-w-[70%]", isOwn && "flex-row-reverse")}>
+        {!isOwn && (
+          <UserAvatar
+            avatarUrl={message.profiles?.avatar_url}
+            fullName={message.profiles?.full_name}
+            size="sm"
+            className="shrink-0"
+          />
         )}
         <div className="flex flex-col gap-0.5 flex-1">
-          {isEditing ? (
-            <div className="flex flex-col gap-2 w-full">
-              <Textarea
-                value={editContent}
-                onChange={(e) => setEditContent(e.target.value)}
-                className="min-h-[60px] text-sm"
-                autoFocus
-              />
-              <div className="flex gap-2 justify-end">
-                <Button size="sm" variant="ghost" onClick={() => setIsEditing(false)}>
-                  <X className="h-4 w-4 mr-1" /> Cancelar
-                </Button>
-                <Button size="sm" onClick={handleEdit}>
-                  <Check className="h-4 w-4 mr-1" /> Salvar
-                </Button>
-              </div>
-            </div>
-          ) : isOnlyEmoji(message.content) ? (
-            // Sticker - exibir grande sem background
-            <>
-              <div className="text-5xl py-1">{message.content}</div>
-              <div className="flex items-center gap-1 px-2 sm:px-3">
-                <span className="text-[10px] sm:text-xs text-muted-foreground">
-                  {format(new Date(message.created_at), "HH:mm", { locale: ptBR })}
-                </span>
-                {isOwn && <ReadReceipt message={message} isOwn={isOwn} participants={participants} />}
-              </div>
-            </>
-          ) : (
-            // Mensagem normal com bubble
-            <>
-              <div
-                className={cn(
-                  "rounded-2xl px-3 sm:px-4 py-2 break-words",
-                  isOwn
-                    ? "bg-primary text-primary-foreground"
-                    : "bg-muted text-foreground"
-                )}
-              >
-                <p className="text-sm whitespace-pre-wrap">{message.content}</p>
-                {message.edited_at && (
-                  <span className="text-[10px] italic opacity-70 ml-1">(editado)</span>
-                )}
-              </div>
-              <div className="flex items-center gap-1 px-2 sm:px-3">
-                <span className="text-[10px] sm:text-xs text-muted-foreground">
-                  {format(new Date(message.created_at), "HH:mm", { locale: ptBR })}
-                </span>
-                {isOwn && <ReadReceipt message={message} isOwn={isOwn} participants={participants} />}
-              </div>
-            </>
+          {!isOwn && (
+            <span className="text-xs text-muted-foreground px-2 sm:px-3 truncate">
+              {message.profiles?.full_name || "Usuário"}
+            </span>
           )}
+          <div className="flex items-start gap-1 sm:gap-2">
+            {isOwn && onEdit && onDelete && !isEditing && (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-6 w-6 sm:h-7 sm:w-7 opacity-0 group-hover:opacity-100 transition-opacity shrink-0"
+                  >
+                    <MoreVertical className="h-3 w-3 sm:h-4 sm:w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align={isOwn ? "end" : "start"}>
+                  <DropdownMenuItem onClick={() => setIsEditing(true)}>
+                    <Pencil className="h-4 w-4 mr-2" /> Editar
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={handleDelete} className="text-destructive">
+                    <Trash className="h-4 w-4 mr-2" /> Excluir
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            )}
+            <div className="flex flex-col gap-0.5 flex-1">
+              {isEditing ? (
+                <div className="flex flex-col gap-2 w-full">
+                  <Textarea
+                    value={editContent}
+                    onChange={(e) => setEditContent(e.target.value)}
+                    className="min-h-[60px] text-sm"
+                    autoFocus
+                  />
+                  <div className="flex gap-2 justify-end">
+                    <Button size="sm" variant="ghost" onClick={() => setIsEditing(false)}>
+                      <X className="h-4 w-4 mr-1" /> Cancelar
+                    </Button>
+                    <Button size="sm" onClick={handleEdit}>
+                      <Check className="h-4 w-4 mr-1" /> Salvar
+                    </Button>
+                  </div>
+                </div>
+              ) : isOnlyEmoji(message.content) ? (
+                // Sticker - exibir grande sem background
+                <>
+                  <div className="text-5xl py-1">{message.content}</div>
+                  <div className="flex items-center gap-1 px-2 sm:px-3">
+                    <span className="text-[10px] sm:text-xs text-muted-foreground">
+                      {format(new Date(message.created_at), "HH:mm", { locale: ptBR })}
+                    </span>
+                    {isOwn && <ReadReceipt message={message} isOwn={isOwn} participants={participants} />}
+                  </div>
+                </>
+              ) : (
+                // Mensagem normal com bubble
+                <>
+                  <div
+                    className={cn(
+                      "rounded-2xl px-3 sm:px-4 py-2 break-words",
+                      isOwn
+                        ? "bg-primary text-primary-foreground"
+                        : "bg-muted text-foreground"
+                    )}
+                  >
+                    <p className="text-sm whitespace-pre-wrap">{message.content}</p>
+                    {message.edited_at && (
+                      <span className="text-[10px] italic opacity-70 ml-1">(editado)</span>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-1 px-2 sm:px-3">
+                    <span className="text-[10px] sm:text-xs text-muted-foreground">
+                      {format(new Date(message.created_at), "HH:mm", { locale: ptBR })}
+                    </span>
+                    {isOwn && <ReadReceipt message={message} isOwn={isOwn} participants={participants} />}
+                  </div>
+                </>
+              )}
+            </div>
+          </div>
         </div>
       </div>
     </div>

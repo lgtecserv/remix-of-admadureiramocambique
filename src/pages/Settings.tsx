@@ -8,20 +8,22 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, KeyRound, Bell } from "lucide-react";
+import { Loader2, KeyRound, Bell, Camera, X } from "lucide-react";
 import { toast } from "sonner";
 import ChangePasswordDialog from "@/components/auth/ChangePasswordDialog";
 import NotificationSettings from "@/components/settings/NotificationSettings";
+import { UserAvatar } from "@/components/common/UserAvatar";
 
 const Settings = () => {
   const navigate = useNavigate();
   const [user, setUser] = useState<User | null>(null);
-  const [profile, setProfile] = useState<{ full_name: string } | null>(null);
+  const [profile, setProfile] = useState<{ full_name: string; avatar_url?: string | null } | null>(null);
   const [role, setRole] = useState<string | null>(null);
   const [department, setDepartment] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [fullName, setFullName] = useState("");
   const [saving, setSaving] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const [changePasswordOpen, setChangePasswordOpen] = useState(false);
 
   useEffect(() => {
@@ -48,7 +50,7 @@ const Settings = () => {
 
       const { data: profileData } = await supabase
         .from("profiles")
-        .select("full_name")
+        .select("full_name, avatar_url")
         .eq("id", session.user.id)
         .single();
 
@@ -76,9 +78,68 @@ const Settings = () => {
       toast.error("Erro ao salvar perfil");
     } else {
       toast.success("Perfil atualizado com sucesso");
-      setProfile({ full_name: fullName });
+      setProfile(prev => prev ? { ...prev, full_name: fullName } : null);
     }
     setSaving(false);
+  };
+
+  const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files || !e.target.files[0] || !user) return;
+
+    const file = e.target.files[0];
+    const fileExt = file.name.split('.').pop();
+    const fileName = `${user.id}/${Date.now()}.${fileExt}`;
+
+    setUploading(true);
+
+    try {
+      // Upload to storage
+      const { error: uploadError } = await supabase.storage
+        .from('avatars')
+        .upload(fileName, file, { upsert: true });
+
+      if (uploadError) throw uploadError;
+
+      // Get public URL
+      const { data: { publicUrl } } = supabase.storage
+        .from('avatars')
+        .getPublicUrl(fileName);
+
+      // Update profile
+      const { error: updateError } = await supabase
+        .from('profiles')
+        .update({ avatar_url: publicUrl })
+        .eq('id', user.id);
+
+      if (updateError) throw updateError;
+
+      setProfile(prev => prev ? { ...prev, avatar_url: publicUrl } : null);
+      toast.success("Foto de perfil atualizada com sucesso");
+    } catch (error: any) {
+      toast.error("Erro ao fazer upload da foto");
+      console.error(error);
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const handleRemoveAvatar = async () => {
+    if (!user || !profile?.avatar_url) return;
+
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update({ avatar_url: null })
+        .eq('id', user.id);
+
+      if (error) throw error;
+
+      setProfile(prev => prev ? { ...prev, avatar_url: null } : null);
+      toast.success("Foto de perfil removida");
+    } catch (error: any) {
+      toast.error("Erro ao remover foto");
+      console.error(error);
+    }
   };
 
   if (loading) {
@@ -102,7 +163,51 @@ const Settings = () => {
             <CardTitle>Perfil</CardTitle>
             <CardDescription>Atualize suas informações pessoais</CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="space-y-6">
+            {/* Avatar Section */}
+            <div className="space-y-3">
+              <Label>Foto de Perfil</Label>
+              <div className="flex items-center gap-4">
+                <UserAvatar
+                  avatarUrl={profile?.avatar_url}
+                  fullName={profile?.full_name}
+                  size="lg"
+                />
+                <div className="flex flex-col sm:flex-row gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    disabled={uploading}
+                    onClick={() => document.getElementById('avatar-upload')?.click()}
+                  >
+                    {uploading ? (
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    ) : (
+                      <Camera className="h-4 w-4 mr-2" />
+                    )}
+                    Alterar Foto
+                  </Button>
+                  {profile?.avatar_url && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={handleRemoveAvatar}
+                    >
+                      <X className="h-4 w-4 mr-2" />
+                      Remover
+                    </Button>
+                  )}
+                </div>
+                <input
+                  id="avatar-upload"
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={handleAvatarUpload}
+                />
+              </div>
+            </div>
+
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
               <Input id="email" value={user?.email || ""} disabled className="bg-muted" />

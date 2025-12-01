@@ -23,6 +23,7 @@ export interface ConversationParticipant {
   profiles: {
     full_name: string;
     email: string;
+    avatar_url?: string | null;
   };
 }
 
@@ -81,7 +82,8 @@ export const useConversations = (userId: string | undefined) => {
               last_read_at,
               profiles (
                 full_name,
-                email
+                email,
+                avatar_url
               )
             `)
             .eq("conversation_id", conv.id);

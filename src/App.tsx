@@ -15,6 +15,8 @@ import Reports from "./pages/Reports";
 import Settings from "./pages/Settings";
 import SuperAdmin from "./pages/SuperAdmin";
 import Patrimonio from "./pages/Patrimonio";
+import PatrimonioMateriais from "./pages/PatrimonioMateriais";
+import PatrimonioSolicitacoes from "./pages/PatrimonioSolicitacoes";
 import Tesouraria from "./pages/Tesouraria";
 import FinancialReports from "./pages/FinancialReports";
 import AssetRequests from "./pages/AssetRequests";
@@ -42,6 +44,8 @@ const App = () => (
           <Route path="/dashboard/reports" element={<Reports />} />
           <Route path="/dashboard/settings" element={<Settings />} />
           <Route path="/dashboard/patrimonio" element={<Patrimonio />} />
+          <Route path="/dashboard/patrimonio/materiais" element={<PatrimonioMateriais />} />
+          <Route path="/dashboard/patrimonio/solicitacoes" element={<PatrimonioSolicitacoes />} />
           <Route path="/dashboard/tesouraria" element={<Tesouraria />} />
           <Route path="/dashboard/tesouraria/relatorios" element={<FinancialReports />} />
           <Route path="/dashboard/tesouraria/solicitacoes" element={<AssetRequests />} />

@@ -15,6 +15,7 @@ export interface Message {
   profiles: {
     full_name: string;
     email: string;
+    avatar_url?: string | null;
   };
 }
 
@@ -36,7 +37,8 @@ export const useMessages = (conversationId: string | null, userId: string | unde
           *,
           profiles (
             full_name,
-            email
+            email,
+            avatar_url
           )
         `)
         .eq("conversation_id", conversationId)

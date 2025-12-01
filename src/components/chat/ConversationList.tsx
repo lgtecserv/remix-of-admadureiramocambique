@@ -19,6 +19,7 @@ import {
 } from "@/components/ui/dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { UserAvatar } from "@/components/common/UserAvatar";
 
 interface ConversationListProps {
   conversations: Conversation[];
@@ -54,7 +55,8 @@ const ConversationList = ({
           profiles (
             id,
             full_name,
-            email
+            email,
+            avatar_url
           )
         `)
         .in("role", ["leader", "pastor"])
@@ -145,11 +147,11 @@ const ConversationList = ({
                         onClick={() => handleCreatePrivate(user.user_id)}
                       >
                         <div className="flex items-center gap-3">
-                          <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
-                            <span className="text-sm font-medium">
-                              {user.profiles?.full_name.charAt(0).toUpperCase()}
-                            </span>
-                          </div>
+                          <UserAvatar
+                            avatarUrl={user.profiles?.avatar_url}
+                            fullName={user.profiles?.full_name}
+                            size="md"
+                          />
                           <div className="text-left">
                             <p className="font-medium">{user.profiles?.full_name}</p>
                             <p className="text-xs text-muted-foreground capitalize">{user.role}</p>
@@ -198,15 +200,13 @@ const ConversationList = ({
                 >
                   <div className="flex items-start gap-2 sm:gap-3">
                     <div className="relative shrink-0">
-                      <div className="h-8 w-8 sm:h-10 sm:w-10 rounded-full bg-primary/10 flex items-center justify-center">
-                        <span className="text-xs sm:text-sm font-medium">
-                          {getConversationName(conv).charAt(0).toUpperCase()}
-                        </span>
-                      </div>
-                      {conv.type === "private" && conv.participants && conv.participants.length > 0 && 
-                       isOnline(conv.participants.find(p => p.user_id !== currentUserId)?.user_id || "") && (
-                        <span className="absolute bottom-0 right-0 w-2 h-2 sm:w-2.5 sm:h-2.5 bg-green-500 rounded-full border-2 border-background" />
-                      )}
+                      <UserAvatar
+                        avatarUrl={conv.type === "private" ? conv.participants?.find(p => p.user_id !== currentUserId)?.profiles?.avatar_url : null}
+                        fullName={getConversationName(conv)}
+                        size="sm"
+                        showOnline={conv.type === "private"}
+                        isOnline={conv.type === "private" && conv.participants ? isOnline(conv.participants.find(p => p.user_id !== currentUserId)?.user_id || "") : false}
+                      />
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between mb-1">

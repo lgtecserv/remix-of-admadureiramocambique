@@ -6,6 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import MessageBubble from "./MessageBubble";
 import MessageInput from "./MessageInput";
 import TypingIndicator from "./TypingIndicator";
+import { UserAvatar } from "@/components/common/UserAvatar";
 import { Loader2 } from "lucide-react";
 import { format, isSameDay } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -23,23 +24,31 @@ const ChatWindow = ({ conversationId, conversationName, userId, onMarkAsRead, sh
   const { typingUsers, setTyping } = useTypingIndicator(conversationId, userId);
   const { notifyNewMessage } = useChatNotificationSound(userId);
   const [participants, setParticipants] = useState<Array<{ user_id: string }>>([]);
+  const [conversationAvatar, setConversationAvatar] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
   const hasScrolledRef = useRef(false);
   const prevMessagesLengthRef = useRef(messages.length);
 
-  // Buscar participantes da conversa
+  // Buscar participantes e avatar da conversa
   useEffect(() => {
-    const loadParticipants = async () => {
+    const loadConversationData = async () => {
       if (!conversationId) return;
-      const { data } = await supabase
+      
+      const { data: participantsData } = await supabase
         .from('conversation_participants')
-        .select('user_id')
-        .eq('conversation_id', conversationId);
-      setParticipants(data || []);
+        .select('user_id, profiles(avatar_url)')
+        .eq('conversation_id', conversationId)
+        .neq('user_id', userId!);
+      
+      setParticipants(participantsData || []);
+      
+      if (participantsData && participantsData.length > 0) {
+        setConversationAvatar(participantsData[0]?.profiles?.avatar_url || null);
+      }
     };
-    loadParticipants();
-  }, [conversationId]);
+    loadConversationData();
+  }, [conversationId, userId]);
 
   // Verificar se usuário está próximo ao final da lista
   const isNearBottom = () => {
@@ -104,7 +113,14 @@ const ChatWindow = ({ conversationId, conversationName, userId, onMarkAsRead, sh
       {/* Header */}
       {showHeader && (
         <div className="border-b bg-card p-3 sm:p-4 shrink-0">
-          <h2 className="text-base sm:text-lg font-semibold truncate">{conversationName}</h2>
+          <div className="flex items-center gap-3">
+            <UserAvatar
+              avatarUrl={conversationAvatar}
+              fullName={conversationName}
+              size="sm"
+            />
+            <h2 className="text-base sm:text-lg font-semibold truncate">{conversationName}</h2>
+          </div>
         </div>
       )}
 

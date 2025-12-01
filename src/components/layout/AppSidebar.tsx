@@ -1,4 +1,4 @@
-import { Home, Users, BarChart3, Settings, LogOut, UserCog, Shield, FileText, MessageSquare, Package, DollarSign, UserPlus, ClipboardList } from "lucide-react";
+import { Home, Users, BarChart3, Settings, LogOut, UserCog, Shield, FileText, MessageSquare, Package, DollarSign, UserPlus, ClipboardList, Images } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import {
   Sidebar,
@@ -44,7 +44,9 @@ const leaderItems = [
 
 const patrimonioItems = [
   { title: "Dashboard", url: "/dashboard", icon: Home },
-  { title: "Patrimônio", url: "/dashboard/patrimonio", icon: Package },
+  { title: "Galeria", url: "/dashboard/patrimonio", icon: Images },
+  { title: "Materiais", url: "/dashboard/patrimonio/materiais", icon: Package },
+  { title: "Solicitações", url: "/dashboard/patrimonio/solicitacoes", icon: ClipboardList },
   { title: "Chat", url: "/dashboard/chat", icon: MessageSquare },
   { title: "Configurações", url: "/dashboard/settings", icon: Settings },
 ];

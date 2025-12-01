@@ -1,7 +1,10 @@
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "./AppSidebar";
 import NotificationBell from "@/components/notifications/NotificationBell";
+import { UserAvatar } from "@/components/common/UserAvatar";
 import { User } from "@supabase/supabase-js";
+import { useState, useEffect } from "react";
+import { supabase } from "@/lib/supabase";
 
 interface AppLayoutProps {
   children: React.ReactNode;
@@ -13,6 +16,21 @@ interface AppLayoutProps {
 }
 
 const AppLayout = ({ children, userName, role, department, userEmail, user }: AppLayoutProps) => {
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+
+  useEffect(() => {
+    const loadAvatar = async () => {
+      if (!user) return;
+      const { data } = await supabase
+        .from("profiles")
+        .select("avatar_url")
+        .eq("id", user.id)
+        .single();
+      if (data) setAvatarUrl(data.avatar_url);
+    };
+    loadAvatar();
+  }, [user]);
+
   return (
     <SidebarProvider>
       <div className="min-h-screen flex w-full bg-gradient-to-br from-background via-muted/20 to-secondary/10">
@@ -25,11 +43,11 @@ const AppLayout = ({ children, userName, role, department, userEmail, user }: Ap
               {user && <NotificationBell userId={user.id} />}
               {userName && (
                 <div className="flex items-center gap-2">
-                  <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center">
-                    <span className="text-sm font-medium text-primary">
-                      {userName.charAt(0).toUpperCase()}
-                    </span>
-                  </div>
+                  <UserAvatar
+                    avatarUrl={avatarUrl}
+                    fullName={userName}
+                    size="sm"
+                  />
                   <span className="text-sm font-medium text-foreground hidden sm:inline">
                     {userName}
                   </span>
