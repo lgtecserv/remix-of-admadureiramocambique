@@ -16,6 +16,9 @@ import Settings from "./pages/Settings";
 import SuperAdmin from "./pages/SuperAdmin";
 import Patrimonio from "./pages/Patrimonio";
 import Tesouraria from "./pages/Tesouraria";
+import FinancialReports from "./pages/FinancialReports";
+import AssetRequests from "./pages/AssetRequests";
+import Inventory from "./pages/Inventory";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -40,6 +43,9 @@ const App = () => (
           <Route path="/dashboard/settings" element={<Settings />} />
           <Route path="/dashboard/patrimonio" element={<Patrimonio />} />
           <Route path="/dashboard/tesouraria" element={<Tesouraria />} />
+          <Route path="/dashboard/tesouraria/relatorios" element={<FinancialReports />} />
+          <Route path="/dashboard/tesouraria/solicitacoes" element={<AssetRequests />} />
+          <Route path="/dashboard/tesouraria/inventario" element={<Inventory />} />
           <Route path="/super-admin" element={<SuperAdmin />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
