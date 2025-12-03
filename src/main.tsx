@@ -12,20 +12,12 @@ if ('serviceWorker' in navigator) {
       (registration) => {
         console.log('ServiceWorker registration successful');
         
-        // Check for updates periodically
-        setInterval(() => {
-          registration.update();
-        }, 60000); // Check every minute
-
         registration.addEventListener('updatefound', () => {
           const newWorker = registration.installing;
           if (newWorker) {
             newWorker.addEventListener('statechange', () => {
               if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                // New service worker available, reload to activate
-                if (confirm('Nova versão disponível! Recarregar agora?')) {
-                  window.location.reload();
-                }
+                console.log('Nova versão disponível. Será aplicada no próximo reload.');
               }
             });
           }
