@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { supabase } from "@/lib/supabase";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Search, User } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Search, User, Users } from "lucide-react";
 import MemberIdCard from "./MemberIdCard";
 
 interface Member {
@@ -28,6 +29,7 @@ interface MemberSearchWidgetProps {
 }
 
 const MemberSearchWidget = ({ department, leaderId }: MemberSearchWidgetProps) => {
+  const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState("");
   const [members, setMembers] = useState<Member[]>([]);
   const [filteredMembers, setFilteredMembers] = useState<Member[]>([]);
@@ -71,60 +73,69 @@ const MemberSearchWidget = ({ department, leaderId }: MemberSearchWidgetProps) =
 
   return (
     <>
-      <Card className="shadow-lg">
-        <CardHeader className="pb-3">
-          <CardTitle className="text-base sm:text-lg flex items-center gap-2">
-            <Search className="h-5 w-5 text-primary" />
-            Pesquisar Membros
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="relative">
+      <div className="w-full">
+        <div className="flex flex-col sm:flex-row gap-2">
+          {/* Campo de pesquisa */}
+          <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
               type="text"
-              placeholder="Digite o nome do membro..."
+              placeholder="Pesquisar membro pelo nome..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="pl-10"
             />
+
+            {/* Resultados da pesquisa (dropdown) */}
+            {filteredMembers.length > 0 && (
+              <div className="absolute top-full left-0 right-0 mt-1 border rounded-lg bg-background shadow-lg z-50 max-h-64 overflow-y-auto">
+                {filteredMembers.map((member) => (
+                  <button
+                    key={member.id}
+                    onClick={() => handleMemberClick(member)}
+                    className="w-full flex items-center gap-3 p-3 hover:bg-muted/50 transition-colors text-left border-b last:border-b-0"
+                  >
+                    <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-primary/20 bg-muted flex items-center justify-center shrink-0">
+                      {member.photo_url ? (
+                        <img
+                          src={member.photo_url}
+                          alt={member.full_name}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <User className="h-5 w-5 text-muted-foreground" />
+                      )}
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="font-medium text-foreground truncate">{member.full_name}</p>
+                      <p className="text-xs text-muted-foreground">{member.phone_number}</p>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            )}
+
+            {/* Mensagem de nenhum resultado */}
+            {searchTerm.trim() !== "" && filteredMembers.length === 0 && (
+              <div className="absolute top-full left-0 right-0 mt-1 border rounded-lg bg-background shadow-lg z-50 p-4">
+                <p className="text-sm text-muted-foreground text-center">
+                  Nenhum membro encontrado
+                </p>
+              </div>
+            )}
           </div>
 
-          {filteredMembers.length > 0 && (
-            <div className="mt-3 border rounded-lg divide-y max-h-64 overflow-y-auto">
-              {filteredMembers.map((member) => (
-                <button
-                  key={member.id}
-                  onClick={() => handleMemberClick(member)}
-                  className="w-full flex items-center gap-3 p-3 hover:bg-muted/50 transition-colors text-left"
-                >
-                  <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-primary/20 bg-muted flex items-center justify-center shrink-0">
-                    {member.photo_url ? (
-                      <img
-                        src={member.photo_url}
-                        alt={member.full_name}
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <User className="h-5 w-5 text-muted-foreground" />
-                    )}
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <p className="font-medium text-foreground truncate">{member.full_name}</p>
-                    <p className="text-xs text-muted-foreground">{member.phone_number}</p>
-                  </div>
-                </button>
-              ))}
-            </div>
-          )}
-
-          {searchTerm.trim() !== "" && filteredMembers.length === 0 && (
-            <p className="mt-3 text-sm text-muted-foreground text-center py-4">
-              Nenhum membro encontrado
-            </p>
-          )}
-        </CardContent>
-      </Card>
+          {/* Botão Ver Membros */}
+          <Button
+            onClick={() => navigate("/dashboard/members")}
+            variant="outline"
+            className="w-full sm:w-auto shrink-0"
+          >
+            <Users className="h-4 w-4 mr-2" />
+            Ver Membros
+          </Button>
+        </div>
+      </div>
 
       <MemberIdCard
         member={selectedMember}

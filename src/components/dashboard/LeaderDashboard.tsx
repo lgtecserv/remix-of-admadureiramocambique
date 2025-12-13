@@ -80,13 +80,18 @@ const LeaderDashboard = ({ user, userEmail }: LeaderDashboardProps) => {
 
   return (
     <AppLayout userName={profile?.full_name} role="leader" department={department} userEmail={userEmail} user={user}>
-      <div className="space-y-8 animate-fade-in">
+      <div className="space-y-6 animate-fade-in">
         <div>
           <h2 className="text-2xl sm:text-3xl font-bold text-foreground mb-2">
             Painel de {getDepartmentLabel(department)}
           </h2>
           <p className="text-muted-foreground">Gerencie os membros do seu departamento</p>
         </div>
+
+        {/* Widget de Pesquisa no topo - apenas para departamentos que não são patrimonio/tesouraria */}
+        {department && !["patrimonio", "tesouraria"].includes(department) && (
+          <MemberSearchWidget department={department} leaderId={user.id} />
+        )}
 
         <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
           <Card className="border-2 hover:border-primary/50 transition-colors">
@@ -119,11 +124,6 @@ const LeaderDashboard = ({ user, userEmail }: LeaderDashboardProps) => {
             </CardContent>
           </Card>
         </div>
-
-        {/* Widget de Pesquisa - apenas para departamentos que não são patrimonio/tesouraria */}
-        {department && !["patrimonio", "tesouraria"].includes(department) && (
-          <MemberSearchWidget department={department} leaderId={user.id} />
-        )}
 
         <div className="grid gap-4 grid-cols-1 lg:grid-cols-2">
           <Card className="shadow-lg">
