@@ -1,9 +1,8 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
 import { supabase } from "@/lib/supabase";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Search, User, Users } from "lucide-react";
+import { Search, User, Users, X } from "lucide-react";
 import MemberIdCard from "./MemberIdCard";
 
 interface Member {
@@ -29,12 +28,12 @@ interface MemberSearchWidgetProps {
 }
 
 const MemberSearchWidget = ({ department, leaderId }: MemberSearchWidgetProps) => {
-  const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState("");
   const [members, setMembers] = useState<Member[]>([]);
   const [filteredMembers, setFilteredMembers] = useState<Member[]>([]);
   const [selectedMember, setSelectedMember] = useState<Member | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [showAllMembers, setShowAllMembers] = useState(false);
 
   useEffect(() => {
     loadMembers();
@@ -69,7 +68,17 @@ const MemberSearchWidget = ({ department, leaderId }: MemberSearchWidgetProps) =
     setDialogOpen(true);
     setSearchTerm("");
     setFilteredMembers([]);
+    setShowAllMembers(false);
   };
+
+  const toggleShowAllMembers = () => {
+    setShowAllMembers(!showAllMembers);
+    setSearchTerm("");
+    setFilteredMembers([]);
+  };
+
+  const displayedMembers = showAllMembers ? members.slice(0, 20) : filteredMembers;
+  const showDropdown = showAllMembers || filteredMembers.length > 0 || (searchTerm.trim() !== "" && filteredMembers.length === 0);
 
   return (
     <>
@@ -82,57 +91,68 @@ const MemberSearchWidget = ({ department, leaderId }: MemberSearchWidgetProps) =
               type="text"
               placeholder="Pesquisar membro pelo nome..."
               value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+              onChange={(e) => {
+                setSearchTerm(e.target.value);
+                setShowAllMembers(false);
+              }}
               className="pl-10"
             />
 
-            {/* Resultados da pesquisa (dropdown) */}
-            {filteredMembers.length > 0 && (
+            {/* Dropdown de membros */}
+            {showDropdown && (
               <div className="absolute top-full left-0 right-0 mt-1 border rounded-lg bg-background shadow-lg z-50 max-h-64 overflow-y-auto">
-                {filteredMembers.map((member) => (
-                  <button
-                    key={member.id}
-                    onClick={() => handleMemberClick(member)}
-                    className="w-full flex items-center gap-3 p-3 hover:bg-muted/50 transition-colors text-left border-b last:border-b-0"
-                  >
-                    <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-primary/20 bg-muted flex items-center justify-center shrink-0">
-                      {member.photo_url ? (
-                        <img
-                          src={member.photo_url}
-                          alt={member.full_name}
-                          className="w-full h-full object-cover"
-                        />
-                      ) : (
-                        <User className="h-5 w-5 text-muted-foreground" />
-                      )}
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <p className="font-medium text-foreground truncate">{member.full_name}</p>
-                      <p className="text-xs text-muted-foreground">{member.phone_number}</p>
-                    </div>
-                  </button>
-                ))}
-              </div>
-            )}
-
-            {/* Mensagem de nenhum resultado */}
-            {searchTerm.trim() !== "" && filteredMembers.length === 0 && (
-              <div className="absolute top-full left-0 right-0 mt-1 border rounded-lg bg-background shadow-lg z-50 p-4">
-                <p className="text-sm text-muted-foreground text-center">
-                  Nenhum membro encontrado
-                </p>
+                {displayedMembers.length > 0 ? (
+                  displayedMembers.map((member) => (
+                    <button
+                      key={member.id}
+                      onClick={() => handleMemberClick(member)}
+                      className="w-full flex items-center gap-3 p-3 hover:bg-muted/50 transition-colors text-left border-b last:border-b-0"
+                    >
+                      <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-primary/20 bg-muted flex items-center justify-center shrink-0">
+                        {member.photo_url ? (
+                          <img
+                            src={member.photo_url}
+                            alt={member.full_name}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <User className="h-5 w-5 text-muted-foreground" />
+                        )}
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <p className="font-medium text-foreground truncate">{member.full_name}</p>
+                        <p className="text-xs text-muted-foreground">{member.phone_number}</p>
+                      </div>
+                    </button>
+                  ))
+                ) : (
+                  <div className="p-4">
+                    <p className="text-sm text-muted-foreground text-center">
+                      Nenhum membro encontrado
+                    </p>
+                  </div>
+                )}
               </div>
             )}
           </div>
 
-          {/* Botão Ver Membros */}
+          {/* Botão Ver/Ocultar Membros */}
           <Button
-            onClick={() => navigate("/dashboard/members")}
-            variant="outline"
+            onClick={toggleShowAllMembers}
+            variant={showAllMembers ? "default" : "outline"}
             className="w-full sm:w-auto shrink-0"
           >
-            <Users className="h-4 w-4 mr-2" />
-            Ver Membros
+            {showAllMembers ? (
+              <>
+                <X className="h-4 w-4 mr-2" />
+                Ocultar
+              </>
+            ) : (
+              <>
+                <Users className="h-4 w-4 mr-2" />
+                Ver Membros
+              </>
+            )}
           </Button>
         </div>
       </div>

@@ -66,19 +66,19 @@ const MemberIdCard = ({ member, open, onOpenChange }: MemberIdCardProps) => {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-sm w-[calc(100%-2rem)] p-0 overflow-hidden">
-        <div className="bg-gradient-to-br from-primary/90 to-primary p-4 text-primary-foreground">
+      <DialogContent className="max-w-xs w-[calc(100%-2rem)] p-0 overflow-hidden">
+        <div className="bg-gradient-to-br from-primary/90 to-primary p-2.5 text-primary-foreground">
           <DialogHeader>
-            <DialogTitle className="text-center text-lg font-bold text-primary-foreground">
+            <DialogTitle className="text-center text-sm font-bold text-primary-foreground">
               Cartão de Identificação
             </DialogTitle>
           </DialogHeader>
         </div>
 
-        <div className="p-4 space-y-4">
+        <div className="p-3 space-y-2">
           {/* Foto e Nome */}
-          <div className="flex flex-col items-center gap-3">
-            <div className="w-24 h-24 rounded-full overflow-hidden border-4 border-primary/20 bg-muted flex items-center justify-center">
+          <div className="flex flex-col items-center gap-1.5">
+            <div className="w-14 h-14 rounded-full overflow-hidden border-2 border-primary/20 bg-muted flex items-center justify-center">
               {member.photo_url ? (
                 <img
                   src={member.photo_url}
@@ -86,82 +86,82 @@ const MemberIdCard = ({ member, open, onOpenChange }: MemberIdCardProps) => {
                   className="w-full h-full object-cover"
                 />
               ) : (
-                <span className="text-2xl font-bold text-muted-foreground">
+                <span className="text-lg font-bold text-muted-foreground">
                   {getInitials(member.full_name)}
                 </span>
               )}
             </div>
             <div className="text-center">
-              <h3 className="text-lg font-bold text-foreground">{member.full_name}</h3>
-              <Badge variant="secondary" className="mt-1">
+              <h3 className="text-sm font-bold text-foreground">{member.full_name}</h3>
+              <Badge variant="secondary" className="mt-0.5 text-xs">
                 {getDepartmentLabel(member.department)}
               </Badge>
             </div>
           </div>
 
           {/* Informações em Grid */}
-          <div className="grid grid-cols-2 gap-3 text-sm">
+          <div className="grid grid-cols-2 gap-1.5 text-xs">
             {/* Sexo */}
-            <div className="flex items-center gap-2 p-2 bg-muted/50 rounded-lg">
-              <User className="h-4 w-4 text-primary shrink-0" />
+            <div className="flex items-center gap-1.5 p-1.5 bg-muted/50 rounded-md">
+              <User className="h-3 w-3 text-primary shrink-0" />
               <div>
-                <p className="text-xs text-muted-foreground">Sexo</p>
-                <p className="font-medium text-foreground">{getGenderLabel(member.gender)}</p>
+                <p className="text-[10px] text-muted-foreground">Sexo</p>
+                <p className="font-medium text-foreground text-xs">{getGenderLabel(member.gender)}</p>
               </div>
             </div>
 
             {/* Idade */}
-            <div className="flex items-center gap-2 p-2 bg-muted/50 rounded-lg">
-              <Calendar className="h-4 w-4 text-primary shrink-0" />
+            <div className="flex items-center gap-1.5 p-1.5 bg-muted/50 rounded-md">
+              <Calendar className="h-3 w-3 text-primary shrink-0" />
               <div>
-                <p className="text-xs text-muted-foreground">Idade</p>
-                <p className="font-medium text-foreground">
-                  {age !== null ? `${age} anos` : "Não informada"}
+                <p className="text-[10px] text-muted-foreground">Idade</p>
+                <p className="font-medium text-foreground text-xs">
+                  {age !== null ? `${age} anos` : "N/I"}
                 </p>
               </div>
             </div>
 
             {/* Data de Nascimento */}
-            <div className="flex items-center gap-2 p-2 bg-muted/50 rounded-lg">
-              <Calendar className="h-4 w-4 text-chart-1 shrink-0" />
+            <div className="flex items-center gap-1.5 p-1.5 bg-muted/50 rounded-md">
+              <Calendar className="h-3 w-3 text-chart-1 shrink-0" />
               <div>
-                <p className="text-xs text-muted-foreground">Nascimento</p>
-                <p className="font-medium text-foreground">
+                <p className="text-[10px] text-muted-foreground">Nascimento</p>
+                <p className="font-medium text-foreground text-xs">
                   {member.birth_date
                     ? format(new Date(member.birth_date), "dd/MM/yyyy", { locale: ptBR })
-                    : "Não informada"}
+                    : "N/I"}
                 </p>
               </div>
             </div>
 
             {/* Tipo de Membro */}
-            <div className="flex items-center gap-2 p-2 bg-muted/50 rounded-lg">
-              <Users className="h-4 w-4 text-chart-2 shrink-0" />
+            <div className="flex items-center gap-1.5 p-1.5 bg-muted/50 rounded-md">
+              <Users className="h-3 w-3 text-chart-2 shrink-0" />
               <div>
-                <p className="text-xs text-muted-foreground">Classificação</p>
-                <p className="font-medium text-foreground">{getMemberTypeLabel(member.member_type)}</p>
+                <p className="text-[10px] text-muted-foreground">Classificação</p>
+                <p className="font-medium text-foreground text-xs">{getMemberTypeLabel(member.member_type)}</p>
               </div>
             </div>
 
             {/* Membro desde */}
-            <div className="flex items-center gap-2 p-2 bg-muted/50 rounded-lg col-span-2">
-              <Church className="h-4 w-4 text-chart-3 shrink-0" />
+            <div className="flex items-center gap-1.5 p-1.5 bg-muted/50 rounded-md col-span-2">
+              <Church className="h-3 w-3 text-chart-3 shrink-0" />
               <div>
-                <p className="text-xs text-muted-foreground">Membro desde</p>
-                <p className="font-medium text-foreground">
-                  {format(new Date(member.created_at), "dd 'de' MMMM 'de' yyyy", { locale: ptBR })}
+                <p className="text-[10px] text-muted-foreground">Membro desde</p>
+                <p className="font-medium text-foreground text-xs">
+                  {format(new Date(member.created_at), "dd/MM/yyyy", { locale: ptBR })}
                 </p>
               </div>
             </div>
 
             {/* Data de Batismo */}
             {member.baptism_date && (
-              <div className="flex items-center gap-2 p-2 bg-muted/50 rounded-lg col-span-2">
-                <Church className="h-4 w-4 text-chart-4 shrink-0" />
+              <div className="flex items-center gap-1.5 p-1.5 bg-muted/50 rounded-md col-span-2">
+                <Church className="h-3 w-3 text-chart-4 shrink-0" />
                 <div>
-                  <p className="text-xs text-muted-foreground">Data de Batismo</p>
-                  <p className="font-medium text-foreground">
-                    {format(new Date(member.baptism_date), "dd 'de' MMMM 'de' yyyy", { locale: ptBR })}
+                  <p className="text-[10px] text-muted-foreground">Data de Batismo</p>
+                  <p className="font-medium text-foreground text-xs">
+                    {format(new Date(member.baptism_date), "dd/MM/yyyy", { locale: ptBR })}
                   </p>
                 </div>
               </div>
@@ -169,8 +169,9 @@ const MemberIdCard = ({ member, open, onOpenChange }: MemberIdCardProps) => {
           </div>
 
           {/* Status */}
-          <div className="flex justify-center pt-2 border-t">
+          <div className="flex justify-center pt-1.5 border-t">
             <Badge
+              className="text-xs"
               variant={member.status === "ativo" ? "default" : member.status === "novo" ? "secondary" : "outline"}
             >
               {member.status === "ativo" ? "Ativo" : member.status === "novo" ? "Novo" : "Inativo"}
