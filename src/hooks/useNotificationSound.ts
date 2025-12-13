@@ -1,4 +1,4 @@
-import { useCallback, useRef } from "react";
+import { useCallback, useRef, useEffect } from "react";
 import { NotificationSettings } from "./useNotificationSettings";
 
 const SOUNDS: Record<string, string> = {
@@ -8,34 +8,123 @@ const SOUNDS: Record<string, string> = {
   "notify-soft": "/sounds/notify-soft.mp3",
 };
 
+// Global audio context to handle autoplay policy
+let globalAudioContext: AudioContext | null = null;
+let audioUnlocked = false;
+
+// Unlock audio context on first user interaction
+const unlockAudio = () => {
+  if (audioUnlocked) return;
+  
+  try {
+    const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
+    if (!AudioContextClass) return;
+    
+    if (!globalAudioContext) {
+      globalAudioContext = new AudioContextClass();
+    }
+    
+    if (globalAudioContext.state === 'suspended') {
+      globalAudioContext.resume().then(() => {
+        audioUnlocked = true;
+        console.log('[AudioContext] Unlocked successfully');
+      });
+    } else {
+      audioUnlocked = true;
+    }
+  } catch (error) {
+    console.error('[AudioContext] Unlock failed:', error);
+  }
+};
+
+// Add event listeners to unlock audio on first interaction
+if (typeof window !== 'undefined') {
+  const events = ['click', 'touchstart', 'keydown'];
+  const unlockHandler = () => {
+    unlockAudio();
+    events.forEach(event => {
+      document.removeEventListener(event, unlockHandler);
+    });
+  };
+  events.forEach(event => {
+    document.addEventListener(event, unlockHandler, { once: true, passive: true });
+  });
+}
+
 export const useNotificationSound = (settings: NotificationSettings | null) => {
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
+  // Preload audio files for faster playback
+  useEffect(() => {
+    if (settings?.sound_name) {
+      const audio = new Audio(SOUNDS[settings.sound_name] || SOUNDS["notify-default"]);
+      audio.preload = 'auto';
+      audio.load();
+    }
+  }, [settings?.sound_name]);
+
   const playMessageSound = useCallback(() => {
-    if (!settings?.sound_enabled || !settings?.message_sound_enabled) return;
+    if (!settings?.sound_enabled || !settings?.message_sound_enabled) {
+      console.log('[Sound] Message sound disabled in settings');
+      return;
+    }
 
     try {
       const audio = new Audio(SOUNDS[settings.sound_name] || SOUNDS["notify-default"]);
       audio.volume = settings.volume;
-      audio.play().catch((error) => {
-        console.error("Error playing message sound:", error);
-      });
+      
+      // Try to resume audio context if suspended
+      if (globalAudioContext?.state === 'suspended') {
+        globalAudioContext.resume();
+      }
+      
+      const playPromise = audio.play();
+      
+      if (playPromise !== undefined) {
+        playPromise
+          .then(() => {
+            console.log('[Sound] Message sound played successfully');
+          })
+          .catch((error) => {
+            console.error('[Sound] Error playing message sound:', error);
+            // Try fallback with user gesture context
+            unlockAudio();
+          });
+      }
     } catch (error) {
-      console.error("Error creating audio:", error);
+      console.error('[Sound] Error creating audio:', error);
     }
   }, [settings]);
 
   const playNotificationSound = useCallback(() => {
-    if (!settings?.sound_enabled || !settings?.notification_sound_enabled) return;
+    if (!settings?.sound_enabled || !settings?.notification_sound_enabled) {
+      console.log('[Sound] Notification sound disabled in settings');
+      return;
+    }
 
     try {
       const audio = new Audio(SOUNDS[settings.sound_name] || SOUNDS["notify-default"]);
       audio.volume = settings.volume;
-      audio.play().catch((error) => {
-        console.error("Error playing notification sound:", error);
-      });
+      
+      // Try to resume audio context if suspended
+      if (globalAudioContext?.state === 'suspended') {
+        globalAudioContext.resume();
+      }
+      
+      const playPromise = audio.play();
+      
+      if (playPromise !== undefined) {
+        playPromise
+          .then(() => {
+            console.log('[Sound] Notification sound played successfully');
+          })
+          .catch((error) => {
+            console.error('[Sound] Error playing notification sound:', error);
+            unlockAudio();
+          });
+      }
     } catch (error) {
-      console.error("Error creating audio:", error);
+      console.error('[Sound] Error creating audio:', error);
     }
   }, [settings]);
 
@@ -52,21 +141,29 @@ export const useNotificationSound = (settings: NotificationSettings | null) => {
       audioRef.current = audio;
       
       audio.play().catch((error) => {
-        console.error("Error playing preview sound:", error);
+        console.error('[Sound] Error playing preview sound:', error);
       });
     } catch (error) {
-      console.error("Error creating preview audio:", error);
+      console.error('[Sound] Error creating preview audio:', error);
     }
   }, [settings?.volume]);
 
   const playBirthdaySound = useCallback(() => {
-    if (!settings?.sound_enabled) return;
+    if (!settings?.sound_enabled) {
+      console.log('[Sound] Birthday sound disabled in settings');
+      return;
+    }
 
     try {
       const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
       if (!AudioContextClass) return;
 
       const audioContext = new AudioContextClass();
+      
+      // Resume if suspended
+      if (audioContext.state === 'suspended') {
+        audioContext.resume();
+      }
       
       // Happy Birthday melody (first phrase)
       const notes = [
@@ -98,8 +195,10 @@ export const useNotificationSound = (settings: NotificationSettings | null) => {
         oscillator.stop(time + note.duration);
         time += note.duration;
       });
+      
+      console.log('[Sound] Birthday sound played successfully');
     } catch (error) {
-      console.error("Error playing birthday sound:", error);
+      console.error('[Sound] Error playing birthday sound:', error);
     }
   }, [settings?.sound_enabled, settings?.volume]);
 

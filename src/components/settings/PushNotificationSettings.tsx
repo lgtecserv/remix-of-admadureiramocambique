@@ -1,10 +1,10 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { usePushNotifications } from "@/hooks/usePushNotifications";
-import { Bell, BellOff, Loader2 } from "lucide-react";
+import { Bell, BellOff, Loader2, RefreshCw, ExternalLink } from "lucide-react";
 import { toast } from "sonner";
 
 interface PushNotificationSettingsProps {
@@ -12,8 +12,8 @@ interface PushNotificationSettingsProps {
 }
 
 const PushNotificationSettings = ({ userId }: PushNotificationSettingsProps) => {
-  const { permission, isSubscribed, requestPermission, unsubscribe } = usePushNotifications(userId);
-  const [loading, setLoading] = useState(false);
+  const { permission, isSubscribed, loading, requestPermission, unsubscribe, retryPermission } = usePushNotifications(userId);
+  const [isToggling, setIsToggling] = useState(false);
 
   const handleToggle = async () => {
     if (!userId) {
@@ -21,21 +21,24 @@ const PushNotificationSettings = ({ userId }: PushNotificationSettingsProps) => 
       return;
     }
 
-    setLoading(true);
+    setIsToggling(true);
     try {
       if (isSubscribed) {
         await unsubscribe();
-        toast.success("Notificações push desativadas");
       } else {
         await requestPermission();
-        toast.success("Notificações push ativadas");
       }
     } catch (error) {
       console.error("Error toggling push notifications:", error);
       toast.error("Erro ao configurar notificações push");
     } finally {
-      setLoading(false);
+      setIsToggling(false);
     }
+  };
+
+  const handleRetry = () => {
+    retryPermission();
+    toast.info("Verificando permissões...");
   };
 
   const getPermissionBadge = () => {
@@ -47,6 +50,8 @@ const PushNotificationSettings = ({ userId }: PushNotificationSettingsProps) => 
       return <Badge variant="outline">Não solicitado</Badge>;
     }
   };
+
+  const isLoading = loading || isToggling;
 
   return (
     <div className="space-y-4">
@@ -60,31 +65,49 @@ const PushNotificationSettings = ({ userId }: PushNotificationSettingsProps) => 
         {getPermissionBadge()}
       </div>
 
-      <div className="flex items-center justify-between py-2">
-        <div className="flex items-center gap-2">
-          {isSubscribed ? (
-            <Bell className="h-4 w-4 text-green-500" />
-          ) : (
-            <BellOff className="h-4 w-4 text-muted-foreground" />
-          )}
-          <span className="text-sm">
-            {isSubscribed ? "Ativado" : "Desativado"}
-          </span>
+      {permission !== "denied" && (
+        <div className="flex items-center justify-between py-2">
+          <div className="flex items-center gap-2">
+            {isSubscribed ? (
+              <Bell className="h-4 w-4 text-green-500" />
+            ) : (
+              <BellOff className="h-4 w-4 text-muted-foreground" />
+            )}
+            <span className="text-sm">
+              {isSubscribed ? "Ativado" : "Desativado"}
+            </span>
+          </div>
+          <Switch
+            checked={isSubscribed}
+            onCheckedChange={handleToggle}
+            disabled={isLoading}
+          />
         </div>
-        <Switch
-          checked={isSubscribed}
-          onCheckedChange={handleToggle}
-          disabled={loading || permission === "denied"}
-        />
-      </div>
+      )}
 
       {permission === "denied" && (
-        <div className="text-sm text-muted-foreground bg-muted p-3 rounded-md">
-          <p className="font-medium mb-1">Notificações bloqueadas</p>
-          <p>
-            Você bloqueou as notificações. Para habilitar, acesse as configurações do seu navegador e 
-            permita notificações para este site.
+        <div className="text-sm bg-destructive/10 border border-destructive/30 p-4 rounded-md space-y-3">
+          <p className="font-medium text-destructive">Notificações bloqueadas pelo navegador</p>
+          <p className="text-muted-foreground">
+            Para receber notificações, você precisa desbloquear manualmente nas configurações do navegador:
           </p>
+          <ol className="list-decimal list-inside text-muted-foreground space-y-1 text-xs">
+            <li>Clique no ícone de cadeado 🔒 na barra de endereço</li>
+            <li>Encontre "Notificações" nas permissões do site</li>
+            <li>Altere de "Bloqueado" para "Permitir"</li>
+            <li>Recarregue a página</li>
+          </ol>
+          <div className="flex gap-2 pt-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleRetry}
+              className="flex-1"
+            >
+              <RefreshCw className="h-4 w-4 mr-2" />
+              Verificar novamente
+            </Button>
+          </div>
         </div>
       )}
 
@@ -92,13 +115,19 @@ const PushNotificationSettings = ({ userId }: PushNotificationSettingsProps) => 
         <Button
           variant="outline"
           onClick={handleToggle}
-          disabled={loading}
+          disabled={isLoading}
           className="w-full"
         >
-          {loading && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+          {isLoading && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
           <Bell className="h-4 w-4 mr-2" />
           Ativar Notificações Push
         </Button>
+      )}
+
+      {permission === "granted" && isSubscribed && (
+        <p className="text-xs text-muted-foreground text-center">
+          ✅ Você receberá alertas mesmo quando o aplicativo estiver fechado
+        </p>
       )}
     </div>
   );
