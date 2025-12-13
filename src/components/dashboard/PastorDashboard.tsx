@@ -10,6 +10,7 @@ import { DepartmentStatsCard } from "./DepartmentStatsCard";
 import { PendingRequestsWidget } from "./PendingRequestsWidget";
 import AppLayout from "@/components/layout/AppLayout";
 import MemberSearchWidget from "@/components/members/MemberSearchWidget";
+import BirthdayAlert from "./BirthdayAlert";
 
 interface PastorDashboardProps {
   user: User;
@@ -91,6 +92,9 @@ const PastorDashboard = ({ user, userEmail }: PastorDashboardProps) => {
 
         {/* Widget de Pesquisa de Membros no topo */}
         <MemberSearchWidget />
+
+        {/* Alerta de Aniversariantes */}
+        <BirthdayAlert />
 
         <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
           <Card className="border-2 hover:border-primary/50 transition-colors">

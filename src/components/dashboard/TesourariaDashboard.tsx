@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { DollarSign, TrendingUp, TrendingDown, Wallet, Package } from "lucide-react";
 import AppLayout from "@/components/layout/AppLayout";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
+import BirthdayAlert from "./BirthdayAlert";
 
 interface TesourariaDashboardProps {
   user: User;
@@ -162,6 +163,9 @@ const TesourariaDashboard = ({ user, userEmail }: TesourariaDashboardProps) => {
           </h2>
           <p className="text-muted-foreground">Gerencie as finanças da igreja</p>
         </div>
+
+        {/* Alerta de Aniversariantes */}
+        <BirthdayAlert />
 
         <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
           <Card className="border-2 hover:border-primary/50 transition-colors">

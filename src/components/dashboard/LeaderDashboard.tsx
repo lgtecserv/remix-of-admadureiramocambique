@@ -7,6 +7,7 @@ import StatusChart from "./StatusChart";
 import GrowthChart from "./GrowthChart";
 import AppLayout from "@/components/layout/AppLayout";
 import MemberSearchWidget from "@/components/members/MemberSearchWidget";
+import BirthdayAlert from "./BirthdayAlert";
 
 interface LeaderDashboardProps {
   user: User;
@@ -91,6 +92,11 @@ const LeaderDashboard = ({ user, userEmail }: LeaderDashboardProps) => {
         {/* Widget de Pesquisa no topo - apenas para departamentos que não são patrimonio/tesouraria */}
         {department && !["patrimonio", "tesouraria"].includes(department) && (
           <MemberSearchWidget department={department} leaderId={user.id} />
+        )}
+
+        {/* Alerta de Aniversariantes - apenas para departamentos que não são patrimonio/tesouraria */}
+        {department && !["patrimonio", "tesouraria"].includes(department) && (
+          <BirthdayAlert department={department} leaderId={user.id} />
         )}
 
         <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
