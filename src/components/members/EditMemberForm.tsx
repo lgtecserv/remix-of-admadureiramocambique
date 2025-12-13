@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
 import { z } from "zod";
+import MemberPhotoUpload from "./MemberPhotoUpload";
 
 const editMemberSchema = z.object({
   fullName: z.string()
@@ -18,6 +19,9 @@ const editMemberSchema = z.object({
     .max(20, "Telefone deve ter no máximo 20 caracteres")
     .regex(/^\+?[0-9\s\-()]+$/, "Formato de telefone inválido"),
   status: z.enum(["novo", "ativo", "inativo"]),
+  gender: z.string().optional(),
+  memberType: z.string().optional(),
+  photoUrl: z.string().optional(),
 });
 
 interface EditMemberFormProps {
@@ -26,11 +30,23 @@ interface EditMemberFormProps {
     full_name: string;
     phone_number: string;
     status: string;
+    gender?: string | null;
+    member_type?: string | null;
+    photo_url?: string | null;
   };
   onSuccess: () => void;
 }
 
 const statuses = ["novo", "ativo", "inativo"];
+const genders = [
+  { value: "masculino", label: "Masculino" },
+  { value: "feminino", label: "Feminino" },
+];
+const memberTypes = [
+  { value: "obreiro", label: "Obreiro" },
+  { value: "congregado", label: "Congregado" },
+  { value: "membro", label: "Membro da Igreja" },
+];
 
 const EditMemberForm = ({ member, onSuccess }: EditMemberFormProps) => {
   const [loading, setLoading] = useState(false);
@@ -38,6 +54,9 @@ const EditMemberForm = ({ member, onSuccess }: EditMemberFormProps) => {
     fullName: member.full_name,
     phoneNumber: member.phone_number,
     status: member.status,
+    gender: member.gender || "",
+    memberType: member.member_type || "membro",
+    photoUrl: member.photo_url || "",
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -45,7 +64,6 @@ const EditMemberForm = ({ member, onSuccess }: EditMemberFormProps) => {
     setLoading(true);
 
     try {
-      // Validate input
       const validatedData = editMemberSchema.parse(formData);
 
       const { error } = await supabase
@@ -54,6 +72,9 @@ const EditMemberForm = ({ member, onSuccess }: EditMemberFormProps) => {
           full_name: validatedData.fullName,
           phone_number: validatedData.phoneNumber,
           status: validatedData.status as any,
+          gender: validatedData.gender || null,
+          member_type: validatedData.memberType || null,
+          photo_url: validatedData.photoUrl || null,
         })
         .eq("id", member.id);
 
@@ -74,6 +95,12 @@ const EditMemberForm = ({ member, onSuccess }: EditMemberFormProps) => {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
+      <MemberPhotoUpload
+        photoUrl={formData.photoUrl}
+        onPhotoChange={(url) => setFormData({ ...formData, photoUrl: url })}
+        memberName={formData.fullName}
+      />
+
       <div className="space-y-2">
         <Label htmlFor="fullName">Nome Completo</Label>
         <Input
@@ -96,6 +123,46 @@ const EditMemberForm = ({ member, onSuccess }: EditMemberFormProps) => {
           maxLength={20}
           required
         />
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div className="space-y-2">
+          <Label htmlFor="gender">Sexo</Label>
+          <Select
+            value={formData.gender}
+            onValueChange={(value) => setFormData({ ...formData, gender: value })}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Selecione" />
+            </SelectTrigger>
+            <SelectContent>
+              {genders.map((gender) => (
+                <SelectItem key={gender.value} value={gender.value}>
+                  {gender.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="memberType">Tipo de Membro</Label>
+          <Select
+            value={formData.memberType}
+            onValueChange={(value) => setFormData({ ...formData, memberType: value })}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Selecione" />
+            </SelectTrigger>
+            <SelectContent>
+              {memberTypes.map((type) => (
+                <SelectItem key={type.value} value={type.value}>
+                  {type.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
       </div>
 
       <div className="space-y-2">
