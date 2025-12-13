@@ -400,6 +400,7 @@ export type Database = {
           id: string
           link: string | null
           message: string
+          metadata: Json | null
           read: boolean
           title: string
           type: string
@@ -410,6 +411,7 @@ export type Database = {
           id?: string
           link?: string | null
           message: string
+          metadata?: Json | null
           read?: boolean
           title: string
           type: string
@@ -420,6 +422,7 @@ export type Database = {
           id?: string
           link?: string | null
           message?: string
+          metadata?: Json | null
           read?: boolean
           title?: string
           type?: string

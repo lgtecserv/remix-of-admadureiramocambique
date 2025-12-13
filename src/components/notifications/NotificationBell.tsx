@@ -9,6 +9,12 @@ import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { useNotificationSettings } from "@/hooks/useNotificationSettings";
 import { useNotificationSound } from "@/hooks/useNotificationSound";
+import { useActiveConversation } from "@/contexts/ActiveConversationContext";
+
+interface NotificationMetadata {
+  conversation_id?: string;
+  [key: string]: unknown;
+}
 
 interface Notification {
   id: string;
@@ -18,6 +24,7 @@ interface Notification {
   read: boolean;
   created_at: string;
   link: string | null;
+  metadata?: NotificationMetadata | null;
 }
 
 const NotificationBell = ({ userId }: { userId: string }) => {
@@ -26,6 +33,13 @@ const NotificationBell = ({ userId }: { userId: string }) => {
   const notifiedIdsRef = useRef<Set<string>>(new Set());
   const { settings } = useNotificationSettings(userId);
   const { playNotificationSound } = useNotificationSound(settings);
+  const { activeConversationId } = useActiveConversation();
+  
+  // Ref para acessar valor atual sem recriar subscription
+  const activeConversationIdRef = useRef(activeConversationId);
+  useEffect(() => {
+    activeConversationIdRef.current = activeConversationId;
+  }, [activeConversationId]);
 
   // Carregar notificações existentes ao montar
   useEffect(() => {
@@ -55,9 +69,21 @@ const NotificationBell = ({ userId }: { userId: string }) => {
           
           // Só toca som se não foi notificado ainda
           if (!notifiedIdsRef.current.has(newNotification.id)) {
-            console.log("[NotificationBell] Playing notification sound");
             notifiedIdsRef.current.add(newNotification.id);
-            playNotificationSound();
+            
+            // Verificar se é notificação de mensagem e se está na conversa ativa
+            const isMessageNotification = newNotification.type === "message";
+            const notificationConversationId = newNotification.metadata?.conversation_id;
+            const isActiveConversation = notificationConversationId === activeConversationIdRef.current;
+            
+            // Só toca som se NÃO for mensagem da conversa ativa
+            if (!isMessageNotification || !isActiveConversation) {
+              console.log("[NotificationBell] Playing notification sound");
+              playNotificationSound();
+            } else {
+              console.log("[NotificationBell] Skipping sound - user is in active conversation");
+            }
+            
             loadNotifications();
           } else {
             console.log("[NotificationBell] Notification already handled:", newNotification.id);
@@ -81,7 +107,7 @@ const NotificationBell = ({ userId }: { userId: string }) => {
       .limit(10);
 
     if (!error && data) {
-      setNotifications(data);
+      setNotifications(data as unknown as Notification[]);
       setUnreadCount(data.filter((n) => !n.read).length);
     }
   };

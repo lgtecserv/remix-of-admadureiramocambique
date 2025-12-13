@@ -5,7 +5,7 @@ import AppLayout from "@/components/layout/AppLayout";
 import ConversationList from "@/components/chat/ConversationList";
 import ChatWindow from "@/components/chat/ChatWindow";
 import { useConversations } from "@/hooks/useConversations";
-import { useGlobalMessageNotifications } from "@/hooks/useGlobalMessageNotifications";
+import { useActiveConversation } from "@/contexts/ActiveConversationContext";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
@@ -18,6 +18,7 @@ const Chat = () => {
   const [role, setRole] = useState<string>("");
   const [selectedConversationId, setSelectedConversationId] = useState<string | null>(null);
   const [showChat, setShowChat] = useState(false);
+  const { setActiveConversationId } = useActiveConversation();
 
   const {
     conversations,
@@ -25,9 +26,6 @@ const Chat = () => {
     createPrivateConversation,
     markAsRead,
   } = useConversations(user?.id);
-
-  // Hook global para notificações de mensagens (só toca quando não está na conversa)
-  useGlobalMessageNotifications(user?.id);
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -83,6 +81,7 @@ const Chat = () => {
 
   const handleSelectConversation = (id: string) => {
     setSelectedConversationId(id);
+    setActiveConversationId(id);
     if (isMobile) {
       setShowChat(true);
     }
@@ -91,6 +90,7 @@ const Chat = () => {
   const handleBack = () => {
     setShowChat(false);
     setSelectedConversationId(null);
+    setActiveConversationId(null);
   };
 
   const handleCreatePrivate = async (userId: string) => {
