@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Package, AlertCircle, Clock } from "lucide-react";
 import AppLayout from "@/components/layout/AppLayout";
 import { Badge } from "@/components/ui/badge";
+import BirthdayAlert from "./BirthdayAlert";
 
 interface PatrimonioDashboardProps {
   user: User;
@@ -114,6 +115,9 @@ const PatrimonioDashboard = ({ user, userEmail }: PatrimonioDashboardProps) => {
           </h2>
           <p className="text-muted-foreground">Gerencie os materiais e recursos da igreja</p>
         </div>
+
+        {/* Alerta de Aniversariantes */}
+        <BirthdayAlert />
 
         <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
           <Card className="border-2 hover:border-primary/50 transition-colors">
