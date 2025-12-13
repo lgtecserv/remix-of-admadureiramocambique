@@ -16,6 +16,40 @@ serve(async (req) => {
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
+    // Verify authorization - only pastors and super_admins can create leaders
+    const authHeader = req.headers.get("Authorization");
+    if (!authHeader) {
+      return new Response(
+        JSON.stringify({ error: "Não autorizado", success: false }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 401 }
+      );
+    }
+
+    const token = authHeader.replace("Bearer ", "");
+    const { data: { user }, error: authError } = await supabase.auth.getUser(token);
+
+    if (authError || !user) {
+      console.error("Auth error:", authError);
+      return new Response(
+        JSON.stringify({ error: "Token inválido", success: false }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 401 }
+      );
+    }
+
+    // Check if the caller is a pastor or super_admin
+    const { data: isPastor } = await supabase.rpc("has_role", { _user_id: user.id, _role: "pastor" });
+    const { data: isSuperAdmin } = await supabase.rpc("has_role", { _user_id: user.id, _role: "super_admin" });
+
+    if (!isPastor && !isSuperAdmin) {
+      console.error("Unauthorized: user is not pastor or super_admin:", user.id);
+      return new Response(
+        JSON.stringify({ error: "Apenas pastores podem cadastrar líderes", success: false }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 403 }
+      );
+    }
+
+    console.log("Authorized user:", user.id, "isPastor:", isPastor, "isSuperAdmin:", isSuperAdmin);
+
     // Get request body
     const { email, password, fullName, department } = await req.json();
 
