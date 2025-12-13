@@ -97,7 +97,7 @@ const ChangePasswordDialog = ({ open, onOpenChange }: ChangePasswordDialogProps)
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[450px]">
+      <DialogContent className="max-w-md w-[calc(100%-2rem)]">
         <DialogHeader>
           <DialogTitle>Alterar Senha</DialogTitle>
           <DialogDescription>

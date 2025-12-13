@@ -66,7 +66,7 @@ export const EditOfferingDialog = ({ open, onOpenChange, offering, onSuccess }: 
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[500px]">
+      <DialogContent className="max-w-md w-[calc(100%-2rem)]">
         <DialogHeader>
           <DialogTitle>Editar Oferta</DialogTitle>
         </DialogHeader>

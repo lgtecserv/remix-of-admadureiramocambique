@@ -106,7 +106,7 @@ export const CreateAssetDialog = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md">
+      <DialogContent className="max-w-md w-[calc(100%-2rem)]">
         <DialogHeader>
           <DialogTitle>Cadastrar Material</DialogTitle>
         </DialogHeader>

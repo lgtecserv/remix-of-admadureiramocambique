@@ -60,7 +60,7 @@ export const EditExpenseDialog = ({ open, onOpenChange, expense, onSuccess }: Ed
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[500px]">
+      <DialogContent className="max-w-md w-[calc(100%-2rem)]">
         <DialogHeader>
           <DialogTitle>Editar Gasto</DialogTitle>
         </DialogHeader>
