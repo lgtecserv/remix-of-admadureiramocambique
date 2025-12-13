@@ -9,6 +9,7 @@ import GrowthChart from "./GrowthChart";
 import { DepartmentStatsCard } from "./DepartmentStatsCard";
 import { PendingRequestsWidget } from "./PendingRequestsWidget";
 import AppLayout from "@/components/layout/AppLayout";
+import MemberSearchWidget from "@/components/members/MemberSearchWidget";
 
 interface PastorDashboardProps {
   user: User;
@@ -121,6 +122,9 @@ const PastorDashboard = ({ user, userEmail }: PastorDashboardProps) => {
         </div>
 
         <DepartmentStatsCard />
+
+        {/* Widget de Pesquisa de Membros */}
+        <MemberSearchWidget />
 
         <div className="grid gap-4 grid-cols-1 lg:grid-cols-2">
           <Card className="shadow-lg">

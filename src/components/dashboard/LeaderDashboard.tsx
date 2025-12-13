@@ -6,6 +6,7 @@ import { Users, TrendingUp } from "lucide-react";
 import StatusChart from "./StatusChart";
 import GrowthChart from "./GrowthChart";
 import AppLayout from "@/components/layout/AppLayout";
+import MemberSearchWidget from "@/components/members/MemberSearchWidget";
 
 interface LeaderDashboardProps {
   user: User;
@@ -118,6 +119,11 @@ const LeaderDashboard = ({ user, userEmail }: LeaderDashboardProps) => {
             </CardContent>
           </Card>
         </div>
+
+        {/* Widget de Pesquisa - apenas para departamentos que não são patrimonio/tesouraria */}
+        {department && !["patrimonio", "tesouraria"].includes(department) && (
+          <MemberSearchWidget department={department} leaderId={user.id} />
+        )}
 
         <div className="grid gap-4 grid-cols-1 lg:grid-cols-2">
           <Card className="shadow-lg">
