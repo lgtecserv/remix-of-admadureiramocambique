@@ -32,7 +32,7 @@ const NotificationBell = ({ userId }: { userId: string }) => {
   const [unreadCount, setUnreadCount] = useState(0);
   const notifiedIdsRef = useRef<Set<string>>(new Set());
   const { settings } = useNotificationSettings(userId);
-  const { playNotificationSound } = useNotificationSound(settings);
+  const { playNotificationSound, playMessageSound } = useNotificationSound(settings);
   const { activeConversationId } = useActiveConversation();
   
   // Ref para acessar valor atual sem recriar subscription
@@ -76,12 +76,19 @@ const NotificationBell = ({ userId }: { userId: string }) => {
             const notificationConversationId = newNotification.metadata?.conversation_id;
             const isActiveConversation = notificationConversationId === activeConversationIdRef.current;
             
-            // Só toca som se NÃO for mensagem da conversa ativa
-            if (!isMessageNotification || !isActiveConversation) {
-              console.log("[NotificationBell] Playing notification sound");
-              playNotificationSound();
+            // Lógica correta de som baseada no tipo de notificação
+            if (isMessageNotification) {
+              // Para mensagens: toca som apenas se NÃO estiver na conversa ativa
+              if (!isActiveConversation) {
+                console.log("[NotificationBell] Playing message sound");
+                playMessageSound();
+              } else {
+                console.log("[NotificationBell] Skipping sound - user is in active conversation");
+              }
             } else {
-              console.log("[NotificationBell] Skipping sound - user is in active conversation");
+              // Para outras notificações (warning, info, etc.): sempre toca som
+              console.log("[NotificationBell] Playing notification sound for type:", newNotification.type);
+              playNotificationSound();
             }
             
             loadNotifications();
@@ -128,6 +135,7 @@ const NotificationBell = ({ userId }: { userId: string }) => {
       success: "bg-green-500",
       warning: "bg-yellow-500",
       error: "bg-red-500",
+      message: "bg-purple-500",
     };
     return colors[type] || colors.info;
   };
