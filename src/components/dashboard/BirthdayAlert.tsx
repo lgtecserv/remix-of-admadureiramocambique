@@ -1,10 +1,11 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { supabase, getDepartmentLabel } from "@/lib/supabase";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Cake } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { UserAvatar } from "@/components/common/UserAvatar";
-
+import { useNotificationSound } from "@/hooks/useNotificationSound";
+import { useNotificationSettings } from "@/hooks/useNotificationSettings";
 interface BirthdayAlertProps {
   department?: string;
   leaderId?: string;
@@ -21,7 +22,18 @@ interface BirthdayMember {
 
 const BirthdayAlert = ({ department, leaderId }: BirthdayAlertProps) => {
   const [birthdays, setBirthdays] = useState<BirthdayMember[]>([]);
+  const [userId, setUserId] = useState<string | null>(null);
+  const birthdaySoundPlayedRef = useRef(false);
 
+  // Get user ID for notification settings
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data }) => {
+      if (data.user) setUserId(data.user.id);
+    });
+  }, []);
+
+  const { settings } = useNotificationSettings(userId || "");
+  const { playBirthdaySound } = useNotificationSound(settings);
   const loadBirthdays = async () => {
     const now = new Date();
     const currentMonth = now.getMonth() + 1;
@@ -88,6 +100,23 @@ const BirthdayAlert = ({ department, leaderId }: BirthdayAlertProps) => {
       supabase.removeChannel(channel);
     };
   }, [department, leaderId]);
+
+  // Play birthday sound once per day when there are birthdays today
+  useEffect(() => {
+    const todayBirthdays = birthdays.filter((m) => m.daysUntil === 0);
+    
+    if (todayBirthdays.length > 0 && !birthdaySoundPlayedRef.current) {
+      const today = new Date().toDateString();
+      const storageKey = `birthday-sound-${today}`;
+      
+      if (!localStorage.getItem(storageKey)) {
+        playBirthdaySound();
+        localStorage.setItem(storageKey, "true");
+        birthdaySoundPlayedRef.current = true;
+      }
+    }
+  }, [birthdays, playBirthdaySound]);
+
 
   if (birthdays.length === 0) {
     return null;

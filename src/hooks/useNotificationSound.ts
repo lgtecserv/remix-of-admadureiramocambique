@@ -59,7 +59,51 @@ export const useNotificationSound = (settings: NotificationSettings | null) => {
     }
   }, [settings?.volume]);
 
-  return { playMessageSound, playNotificationSound, playPreview };
+  const playBirthdaySound = useCallback(() => {
+    if (!settings?.sound_enabled) return;
+
+    try {
+      const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
+      if (!AudioContextClass) return;
+
+      const audioContext = new AudioContextClass();
+      
+      // Happy Birthday melody (first phrase)
+      const notes = [
+        { freq: 264, duration: 0.2 },  // C
+        { freq: 264, duration: 0.2 },  // C
+        { freq: 297, duration: 0.4 },  // D
+        { freq: 264, duration: 0.4 },  // C
+        { freq: 352, duration: 0.4 },  // F
+        { freq: 330, duration: 0.6 },  // E
+      ];
+
+      let time = audioContext.currentTime;
+      notes.forEach((note) => {
+        const oscillator = audioContext.createOscillator();
+        const gainNode = audioContext.createGain();
+        
+        oscillator.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+        
+        oscillator.type = "sine";
+        oscillator.frequency.value = note.freq;
+        gainNode.gain.value = (settings?.volume || 0.7) * 0.3;
+        
+        // Fade out to avoid clicks
+        gainNode.gain.setValueAtTime((settings?.volume || 0.7) * 0.3, time);
+        gainNode.gain.exponentialRampToValueAtTime(0.001, time + note.duration);
+        
+        oscillator.start(time);
+        oscillator.stop(time + note.duration);
+        time += note.duration;
+      });
+    } catch (error) {
+      console.error("Error playing birthday sound:", error);
+    }
+  }, [settings?.sound_enabled, settings?.volume]);
+
+  return { playMessageSound, playNotificationSound, playPreview, playBirthdaySound };
 };
 
 export const SOUND_OPTIONS = [
