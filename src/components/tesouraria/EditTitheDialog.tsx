@@ -107,7 +107,7 @@ export const EditTitheDialog = ({ open, onOpenChange, tithe, onSuccess }: EditTi
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[500px]">
+      <DialogContent className="max-w-md w-[calc(100%-2rem)]">
         <DialogHeader>
           <DialogTitle>Editar Dízimo</DialogTitle>
         </DialogHeader>

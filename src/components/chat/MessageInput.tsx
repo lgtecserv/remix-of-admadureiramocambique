@@ -55,7 +55,7 @@ const MessageInput = ({ onSend, disabled, onTyping }: MessageInputProps) => {
   };
 
   return (
-    <div className="border-t bg-card p-2 sm:p-4">
+    <div className="border-t bg-card p-2 sm:p-4 pb-safe shrink-0">
       <div className="flex gap-2 items-end">
         <Textarea
           value={content}

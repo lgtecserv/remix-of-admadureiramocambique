@@ -123,7 +123,7 @@ export const EditAssetDialog = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md">
+      <DialogContent className="max-w-md w-[calc(100%-2rem)]">
         <DialogHeader>
           <DialogTitle>Editar Material</DialogTitle>
         </DialogHeader>

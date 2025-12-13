@@ -108,7 +108,7 @@ export const CreateOfferingDialog = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-md w-[calc(100%-2rem)]">
         <DialogHeader>
           <DialogTitle>Registrar Oferta</DialogTitle>
         </DialogHeader>

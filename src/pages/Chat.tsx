@@ -111,7 +111,7 @@ const Chat = () => {
 
   return (
     <AppLayout userName={profile?.full_name} role={role} userEmail={user?.email} user={user}>
-      <div className="h-[calc(100vh-80px)] sm:h-[calc(100vh-120px)] flex flex-col overflow-hidden">
+      <div className="flex flex-col h-[calc(100dvh-80px)] sm:h-[calc(100dvh-120px)] overflow-hidden">
         {/* Mobile: Show either list or chat */}
         {isMobile ? (
           <div className="flex-1 flex flex-col min-h-0 overflow-hidden">
