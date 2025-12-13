@@ -23,6 +23,9 @@ const memberSchema = z.object({
   occupation: z.string().trim().max(100).optional(),
   baptismDate: z.string().optional(),
   observations: z.string().trim().max(500).optional(),
+  gender: z.enum(["masculino", "feminino"]).optional(),
+  memberType: z.enum(["obreiro", "congregado", "membro"]).optional(),
+  photoUrl: z.string().optional(),
 });
 
 interface CreateMemberFormProps {
@@ -42,6 +45,9 @@ const CreateMemberForm = ({ department, leaderId, onSuccess }: CreateMemberFormP
     occupation: "",
     baptismDate: "",
     observations: "",
+    gender: "",
+    memberType: "membro",
+    photoUrl: "",
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -64,6 +70,9 @@ const CreateMemberForm = ({ department, leaderId, onSuccess }: CreateMemberFormP
         occupation: validatedData.occupation || null,
         baptism_date: validatedData.baptismDate || null,
         observations: validatedData.observations || null,
+        gender: validatedData.gender || null,
+        member_type: validatedData.memberType || "membro",
+        photo_url: validatedData.photoUrl || null,
       });
 
       if (error) throw error;
@@ -108,7 +117,7 @@ const CreateMemberForm = ({ department, leaderId, onSuccess }: CreateMemberFormP
         />
       </div>
 
-      <AdditionalMemberFields formData={formData} setFormData={setFormData} />
+      <AdditionalMemberFields formData={formData} setFormData={setFormData} memberName={formData.fullName} />
 
       <Button type="submit" className="w-full" disabled={loading}>
         {loading ? "Cadastrando..." : "Cadastrar Membro"}

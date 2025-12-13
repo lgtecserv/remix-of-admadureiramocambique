@@ -292,12 +292,15 @@ export type Database = {
           created_at: string
           department: Database["public"]["Enums"]["department_type"]
           full_name: string
+          gender: string | null
           id: string
           leader_id: string
           marital_status: string | null
+          member_type: string | null
           observations: string | null
           occupation: string | null
           phone_number: string
+          photo_url: string | null
           status: Database["public"]["Enums"]["member_status"]
           updated_at: string
         }
@@ -308,12 +311,15 @@ export type Database = {
           created_at?: string
           department: Database["public"]["Enums"]["department_type"]
           full_name: string
+          gender?: string | null
           id?: string
           leader_id: string
           marital_status?: string | null
+          member_type?: string | null
           observations?: string | null
           occupation?: string | null
           phone_number: string
+          photo_url?: string | null
           status?: Database["public"]["Enums"]["member_status"]
           updated_at?: string
         }
@@ -324,12 +330,15 @@ export type Database = {
           created_at?: string
           department?: Database["public"]["Enums"]["department_type"]
           full_name?: string
+          gender?: string | null
           id?: string
           leader_id?: string
           marital_status?: string | null
+          member_type?: string | null
           observations?: string | null
           occupation?: string | null
           phone_number?: string
+          photo_url?: string | null
           status?: Database["public"]["Enums"]["member_status"]
           updated_at?: string
         }
