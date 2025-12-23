@@ -13,8 +13,6 @@ export const useGlobalMessageNotifications = (userId: string | undefined) => {
   useEffect(() => {
     if (!userId) return;
 
-    console.log("[Global Message Notifications] Setting up listener for user:", userId);
-
     const channel = supabase
       .channel(`global-messages-${userId}`)
       .on(
@@ -27,40 +25,28 @@ export const useGlobalMessageNotifications = (userId: string | undefined) => {
         (payload) => {
           const newMessage = payload.new as any;
           
-          console.log("[Global Message Notifications] New message received:", {
-            messageId: newMessage.id,
-            senderId: newMessage.sender_id,
-            conversationId: newMessage.conversation_id,
-            currentUserId: userId,
-            activeConversationId,
-          });
-
-          // Só toca som se:
-          // 1. A mensagem não é do próprio usuário
-          // 2. A conversa NÃO está atualmente aberta/ativa
-          // 3. Ainda não foi notificado sobre esta mensagem
-          const shouldPlaySound = 
-            newMessage.sender_id !== userId && 
-            newMessage.conversation_id !== activeConversationId &&
-            !notifiedMessageIds.current.has(newMessage.id);
-
-          if (shouldPlaySound) {
-            console.log("[Global Message Notifications] Playing sound for message:", newMessage.id);
-            notifiedMessageIds.current.add(newMessage.id);
-            playMessageSound();
-          } else {
-            console.log("[Global Message Notifications] Skipping sound:", {
-              isOwnMessage: newMessage.sender_id === userId,
-              isActiveConversation: newMessage.conversation_id === activeConversationId,
-              alreadyNotified: notifiedMessageIds.current.has(newMessage.id),
-            });
+          // Não toca som para mensagens do próprio usuário
+          if (newMessage.sender_id === userId) {
+            return;
           }
+          
+          // Verifica se já notificou essa mensagem
+          if (notifiedMessageIds.current.has(newMessage.id)) {
+            return;
+          }
+          
+          notifiedMessageIds.current.add(newMessage.id);
+          
+          // Se a conversa está ativa, toca som suave e baixo
+          // Se não está ativa, toca som normal de mensagem
+          const isInActiveConversation = newMessage.conversation_id === activeConversationId;
+          
+          playMessageSound(isInActiveConversation);
         }
       )
       .subscribe();
 
     return () => {
-      console.log("[Global Message Notifications] Cleaning up listener");
       supabase.removeChannel(channel);
     };
   }, [userId, activeConversationId, playMessageSound]);

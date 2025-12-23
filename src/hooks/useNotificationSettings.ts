@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
 export interface NotificationSettings {
@@ -9,13 +9,18 @@ export interface NotificationSettings {
   message_sound_enabled: boolean;
   notification_sound_enabled: boolean;
   volume: number;
+  // Novos campos para separação de sons
+  message_sound_name: string;
+  in_conversation_sound_name: string;
+  in_conversation_volume: number;
+  alert_sound_name: string;
 }
 
 export const useNotificationSettings = (userId: string | undefined) => {
   const [settings, setSettings] = useState<NotificationSettings | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const loadSettings = async () => {
+  const loadSettings = useCallback(async () => {
     if (!userId) {
       setLoading(false);
       return;
@@ -34,7 +39,7 @@ export const useNotificationSettings = (userId: string | undefined) => {
       }
 
       if (data) {
-        setSettings(data);
+        setSettings(data as NotificationSettings);
       } else {
         // Create default settings if none exist
         await createDefaultSettings();
@@ -44,7 +49,7 @@ export const useNotificationSettings = (userId: string | undefined) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [userId]);
 
   const createDefaultSettings = async () => {
     if (!userId) return;
@@ -59,6 +64,10 @@ export const useNotificationSettings = (userId: string | undefined) => {
           message_sound_enabled: true,
           notification_sound_enabled: true,
           volume: 0.7,
+          message_sound_name: "msg-short-1",
+          in_conversation_sound_name: "in-conv-soft",
+          in_conversation_volume: 0.3,
+          alert_sound_name: "alert-long-1",
         })
         .select()
         .single();
@@ -68,14 +77,14 @@ export const useNotificationSettings = (userId: string | undefined) => {
         return;
       }
 
-      setSettings(data);
+      setSettings(data as NotificationSettings);
     } catch (error) {
       console.error("Error in createDefaultSettings:", error);
     }
   };
 
   const updateSettings = async (updates: Partial<NotificationSettings>) => {
-    if (!userId || !settings) return;
+    if (!userId || !settings) return false;
 
     try {
       const { data, error } = await supabase
@@ -87,18 +96,25 @@ export const useNotificationSettings = (userId: string | undefined) => {
 
       if (error) {
         console.error("Error updating settings:", error);
-        return;
+        return false;
       }
 
-      setSettings(data);
+      setSettings(data as NotificationSettings);
+      return true;
     } catch (error) {
       console.error("Error in updateSettings:", error);
+      return false;
     }
   };
 
+  // Atualiza estado local sem salvar no banco (para uso com botão salvar)
+  const setLocalSettings = useCallback((updates: Partial<NotificationSettings>) => {
+    setSettings(prev => prev ? { ...prev, ...updates } : null);
+  }, []);
+
   useEffect(() => {
     loadSettings();
-  }, [userId]);
+  }, [loadSettings]);
 
-  return { settings, updateSettings, loading };
+  return { settings, updateSettings, setLocalSettings, loading, reloadSettings: loadSettings };
 };
