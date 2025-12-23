@@ -12,42 +12,71 @@ const SOUNDS: Record<string, string> = {
 let globalAudioContext: AudioContext | null = null;
 let audioUnlocked = false;
 
+// Function to check and log audio status
+const getAudioStatus = () => ({
+  unlocked: audioUnlocked,
+  contextState: globalAudioContext?.state || 'not-created',
+});
+
 // Unlock audio context on first user interaction
 const unlockAudio = () => {
-  if (audioUnlocked) return;
+  if (audioUnlocked) {
+    console.log('[AudioContext] Already unlocked');
+    return true;
+  }
   
   try {
     const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
-    if (!AudioContextClass) return;
+    if (!AudioContextClass) {
+      console.warn('[AudioContext] AudioContext not supported');
+      return false;
+    }
     
     if (!globalAudioContext) {
       globalAudioContext = new AudioContextClass();
+      console.log('[AudioContext] Created new context, state:', globalAudioContext.state);
     }
     
     if (globalAudioContext.state === 'suspended') {
       globalAudioContext.resume().then(() => {
         audioUnlocked = true;
-        console.log('[AudioContext] Unlocked successfully');
+        console.log('[AudioContext] ✅ Unlocked successfully after resume');
+      }).catch((err) => {
+        console.error('[AudioContext] Failed to resume:', err);
       });
-    } else {
+    } else if (globalAudioContext.state === 'running') {
       audioUnlocked = true;
+      console.log('[AudioContext] ✅ Already running, marked as unlocked');
     }
+    
+    return audioUnlocked;
   } catch (error) {
     console.error('[AudioContext] Unlock failed:', error);
+    return false;
   }
 };
 
 // Add event listeners to unlock audio on first interaction
 if (typeof window !== 'undefined') {
-  const events = ['click', 'touchstart', 'keydown'];
+  const events = ['click', 'touchstart', 'keydown', 'touchend', 'mousedown'];
   const unlockHandler = () => {
-    unlockAudio();
-    events.forEach(event => {
-      document.removeEventListener(event, unlockHandler);
-    });
+    const result = unlockAudio();
+    console.log('[AudioContext] Unlock attempt on user interaction, result:', result);
+    if (result) {
+      events.forEach(event => {
+        document.removeEventListener(event, unlockHandler);
+      });
+    }
   };
   events.forEach(event => {
-    document.addEventListener(event, unlockHandler, { once: true, passive: true });
+    document.addEventListener(event, unlockHandler, { passive: true });
+  });
+  
+  // Also try to unlock when page becomes visible
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible') {
+      console.log('[AudioContext] Page visible, audio status:', getAudioStatus());
+    }
   });
 }
 
@@ -64,18 +93,34 @@ export const useNotificationSound = (settings: NotificationSettings | null) => {
   }, [settings?.sound_name]);
 
   const playMessageSound = useCallback(() => {
+    console.log('[Sound] playMessageSound called, settings:', {
+      sound_enabled: settings?.sound_enabled,
+      message_sound_enabled: settings?.message_sound_enabled,
+      sound_name: settings?.sound_name,
+      volume: settings?.volume,
+      audioStatus: getAudioStatus()
+    });
+
     if (!settings?.sound_enabled || !settings?.message_sound_enabled) {
-      console.log('[Sound] Message sound disabled in settings');
+      console.log('[Sound] ⏸️ Message sound disabled in settings');
       return;
     }
 
     try {
-      const audio = new Audio(SOUNDS[settings.sound_name] || SOUNDS["notify-default"]);
+      // Try to unlock first
+      unlockAudio();
+      
+      const soundFile = SOUNDS[settings.sound_name] || SOUNDS["notify-default"];
+      console.log('[Sound] Loading sound file:', soundFile);
+      
+      const audio = new Audio(soundFile);
       audio.volume = settings.volume;
       
       // Try to resume audio context if suspended
       if (globalAudioContext?.state === 'suspended') {
-        globalAudioContext.resume();
+        globalAudioContext.resume().then(() => {
+          console.log('[Sound] AudioContext resumed before playing');
+        });
       }
       
       const playPromise = audio.play();
@@ -83,12 +128,12 @@ export const useNotificationSound = (settings: NotificationSettings | null) => {
       if (playPromise !== undefined) {
         playPromise
           .then(() => {
-            console.log('[Sound] Message sound played successfully');
+            console.log('[Sound] ✅ Message sound played successfully');
           })
           .catch((error) => {
-            console.error('[Sound] Error playing message sound:', error);
-            // Try fallback with user gesture context
-            unlockAudio();
+            console.error('[Sound] ❌ Error playing message sound:', error.message);
+            // Provide visual feedback when sound fails
+            console.warn('[Sound] Sound blocked by browser policy. User interaction required.');
           });
       }
     } catch (error) {
@@ -97,18 +142,34 @@ export const useNotificationSound = (settings: NotificationSettings | null) => {
   }, [settings]);
 
   const playNotificationSound = useCallback(() => {
+    console.log('[Sound] playNotificationSound called, settings:', {
+      sound_enabled: settings?.sound_enabled,
+      notification_sound_enabled: settings?.notification_sound_enabled,
+      sound_name: settings?.sound_name,
+      volume: settings?.volume,
+      audioStatus: getAudioStatus()
+    });
+
     if (!settings?.sound_enabled || !settings?.notification_sound_enabled) {
-      console.log('[Sound] Notification sound disabled in settings');
+      console.log('[Sound] ⏸️ Notification sound disabled in settings');
       return;
     }
 
     try {
-      const audio = new Audio(SOUNDS[settings.sound_name] || SOUNDS["notify-default"]);
+      // Try to unlock first
+      unlockAudio();
+      
+      const soundFile = SOUNDS[settings.sound_name] || SOUNDS["notify-default"];
+      console.log('[Sound] Loading sound file:', soundFile);
+      
+      const audio = new Audio(soundFile);
       audio.volume = settings.volume;
       
       // Try to resume audio context if suspended
       if (globalAudioContext?.state === 'suspended') {
-        globalAudioContext.resume();
+        globalAudioContext.resume().then(() => {
+          console.log('[Sound] AudioContext resumed before playing');
+        });
       }
       
       const playPromise = audio.play();
@@ -116,11 +177,11 @@ export const useNotificationSound = (settings: NotificationSettings | null) => {
       if (playPromise !== undefined) {
         playPromise
           .then(() => {
-            console.log('[Sound] Notification sound played successfully');
+            console.log('[Sound] ✅ Notification sound played successfully');
           })
           .catch((error) => {
-            console.error('[Sound] Error playing notification sound:', error);
-            unlockAudio();
+            console.error('[Sound] ❌ Error playing notification sound:', error.message);
+            console.warn('[Sound] Sound blocked by browser policy. User interaction required.');
           });
       }
     } catch (error) {
