@@ -611,9 +611,13 @@ export type Database = {
       }
       user_notification_settings: {
         Row: {
+          alert_sound_name: string | null
           created_at: string
           id: string
+          in_conversation_sound_name: string | null
+          in_conversation_volume: number | null
           message_sound_enabled: boolean
+          message_sound_name: string | null
           notification_sound_enabled: boolean
           sound_enabled: boolean
           sound_name: string
@@ -622,9 +626,13 @@ export type Database = {
           volume: number
         }
         Insert: {
+          alert_sound_name?: string | null
           created_at?: string
           id?: string
+          in_conversation_sound_name?: string | null
+          in_conversation_volume?: number | null
           message_sound_enabled?: boolean
+          message_sound_name?: string | null
           notification_sound_enabled?: boolean
           sound_enabled?: boolean
           sound_name?: string
@@ -633,9 +641,13 @@ export type Database = {
           volume?: number
         }
         Update: {
+          alert_sound_name?: string | null
           created_at?: string
           id?: string
+          in_conversation_sound_name?: string | null
+          in_conversation_volume?: number | null
           message_sound_enabled?: boolean
+          message_sound_name?: string | null
           notification_sound_enabled?: boolean
           sound_enabled?: boolean
           sound_name?: string
