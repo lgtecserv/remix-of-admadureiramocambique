@@ -5,6 +5,7 @@ import { UserAvatar } from "@/components/common/UserAvatar";
 import { User } from "@supabase/supabase-js";
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
+import { useGlobalMessageNotifications } from "@/hooks/useGlobalMessageNotifications";
 
 interface AppLayoutProps {
   children: React.ReactNode;
@@ -17,6 +18,9 @@ interface AppLayoutProps {
 
 const AppLayout = ({ children, userName, role, department, userEmail, user }: AppLayoutProps) => {
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+
+  // Ativar listener global de som para mensagens
+  useGlobalMessageNotifications(user?.id);
 
   useEffect(() => {
     const loadAvatar = async () => {

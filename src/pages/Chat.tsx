@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import AppLayout from "@/components/layout/AppLayout";
 import ConversationList from "@/components/chat/ConversationList";
@@ -12,6 +12,7 @@ import { ArrowLeft } from "lucide-react";
 
 const Chat = () => {
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const isMobile = useIsMobile();
   const [user, setUser] = useState<any>(null);
   const [profile, setProfile] = useState<any>(null);
@@ -63,6 +64,23 @@ const Chat = () => {
 
     checkAuth();
   }, [navigate]);
+
+  // Selecionar conversa automaticamente via query param
+  useEffect(() => {
+    const conversationFromUrl = searchParams.get("conversation");
+    if (conversationFromUrl && conversations.length > 0) {
+      const conversationExists = conversations.some(c => c.id === conversationFromUrl);
+      if (conversationExists) {
+        setSelectedConversationId(conversationFromUrl);
+        setActiveConversationId(conversationFromUrl);
+        if (isMobile) {
+          setShowChat(true);
+        }
+        // Limpar o parâmetro da URL após selecionar
+        setSearchParams({});
+      }
+    }
+  }, [searchParams, conversations, isMobile, setActiveConversationId, setSearchParams]);
 
   const selectedConversation = conversations.find((c) => c.id === selectedConversationId);
 
