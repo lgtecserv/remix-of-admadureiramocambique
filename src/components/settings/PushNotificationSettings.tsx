@@ -4,8 +4,9 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { usePushNotifications } from "@/hooks/usePushNotifications";
-import { Bell, BellOff, Loader2, RefreshCw, ExternalLink } from "lucide-react";
+import { Bell, BellOff, Loader2, RefreshCw, Send } from "lucide-react";
 import { toast } from "sonner";
+import { supabase } from "@/lib/supabase";
 
 interface PushNotificationSettingsProps {
   userId: string | undefined;
@@ -14,6 +15,7 @@ interface PushNotificationSettingsProps {
 const PushNotificationSettings = ({ userId }: PushNotificationSettingsProps) => {
   const { permission, isSubscribed, loading, requestPermission, unsubscribe, retryPermission } = usePushNotifications(userId);
   const [isToggling, setIsToggling] = useState(false);
+  const [isTesting, setIsTesting] = useState(false);
 
   const handleToggle = async () => {
     if (!userId) {
@@ -33,6 +35,43 @@ const PushNotificationSettings = ({ userId }: PushNotificationSettingsProps) => 
       toast.error("Erro ao configurar notificações push");
     } finally {
       setIsToggling(false);
+    }
+  };
+
+  const handleTestPush = async () => {
+    if (!userId) {
+      toast.error("Usuário não encontrado");
+      return;
+    }
+
+    if (!isSubscribed) {
+      toast.error("Ative as notificações push primeiro");
+      return;
+    }
+
+    setIsTesting(true);
+    try {
+      // Create a test notification in the database
+      // This will trigger the push notification via the database trigger
+      const { error } = await supabase.from("notifications").insert({
+        user_id: userId,
+        title: "🔔 Teste de Push",
+        message: "Se você viu esta notificação, o push está funcionando!",
+        type: "info",
+        read: false,
+      });
+
+      if (error) {
+        console.error("Error creating test notification:", error);
+        toast.error("Erro ao criar notificação de teste");
+      } else {
+        toast.success("Notificação de teste enviada! Verifique se recebeu o push.");
+      }
+    } catch (error) {
+      console.error("Error testing push:", error);
+      toast.error("Erro ao testar notificação push");
+    } finally {
+      setIsTesting(false);
     }
   };
 
@@ -125,9 +164,24 @@ const PushNotificationSettings = ({ userId }: PushNotificationSettingsProps) => 
       )}
 
       {permission === "granted" && isSubscribed && (
-        <p className="text-xs text-muted-foreground text-center">
-          ✅ Você receberá alertas mesmo quando o aplicativo estiver fechado
-        </p>
+        <div className="space-y-3">
+          <Button
+            variant="outline"
+            onClick={handleTestPush}
+            disabled={isTesting}
+            className="w-full"
+          >
+            {isTesting ? (
+              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+            ) : (
+              <Send className="h-4 w-4 mr-2" />
+            )}
+            Testar Notificação Push
+          </Button>
+          <p className="text-xs text-muted-foreground text-center">
+            ✅ Você receberá alertas mesmo quando o aplicativo estiver fechado
+          </p>
+        </div>
       )}
     </div>
   );
