@@ -1,4 +1,5 @@
 import { useEffect, useState, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 import { Bell } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -28,8 +29,10 @@ interface Notification {
 }
 
 const NotificationBell = ({ userId }: { userId: string }) => {
+  const navigate = useNavigate();
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
+  const [popoverOpen, setPopoverOpen] = useState(false);
   const notifiedIdsRef = useRef<Set<string>>(new Set());
   const { settings } = useNotificationSettings(userId);
   const { playNotificationSound, playMessageSound } = useNotificationSound(settings);
@@ -119,9 +122,22 @@ const NotificationBell = ({ userId }: { userId: string }) => {
     }
   };
 
-  const markAsRead = async (id: string) => {
-    await supabase.from("notifications").update({ read: true }).eq("id", id);
+  const handleNotificationClick = async (notification: Notification) => {
+    // Marcar como lida
+    await supabase.from("notifications").update({ read: true }).eq("id", notification.id);
     loadNotifications();
+    
+    // Fechar o popover
+    setPopoverOpen(false);
+    
+    // Navegar para o destino correto
+    if (notification.type === "message" && notification.metadata?.conversation_id) {
+      // Para mensagens: navegar para o chat com a conversa específica
+      navigate(`/dashboard/chat?conversation=${notification.metadata.conversation_id}`);
+    } else if (notification.link) {
+      // Para outros tipos: usar o link da notificação
+      navigate(notification.link);
+    }
   };
 
   const markAllAsRead = async () => {
@@ -141,7 +157,7 @@ const NotificationBell = ({ userId }: { userId: string }) => {
   };
 
   return (
-    <Popover>
+    <Popover open={popoverOpen} onOpenChange={setPopoverOpen}>
       <PopoverTrigger asChild>
         <Button variant="ghost" size="icon" className="relative">
           <Bell className="h-5 w-5" />
@@ -173,7 +189,7 @@ const NotificationBell = ({ userId }: { userId: string }) => {
                     className={`p-3 rounded-lg border cursor-pointer hover:bg-accent ${
                       !notification.read ? "bg-accent/50" : ""
                     }`}
-                    onClick={() => markAsRead(notification.id)}
+                    onClick={() => handleNotificationClick(notification)}
                   >
                     <div className="flex items-start gap-2">
                       <div className={`w-2 h-2 rounded-full mt-1.5 ${getTypeColor(notification.type)}`} />
