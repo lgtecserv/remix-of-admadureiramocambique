@@ -8,6 +8,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import AttendanceManagement from "@/components/attendance/AttendanceManagement";
 import FollowupManagement from "@/components/visitors/FollowupManagement";
 import ExportData from "@/components/reports/ExportData";
+import MembersPDFReport from "@/components/reports/MembersPDFReport";
+import VisitorsPDFReport from "@/components/reports/VisitorsPDFReport";
+import AssetsPDFReport from "@/components/reports/AssetsPDFReport";
 
 const Reports = () => {
   const navigate = useNavigate();
@@ -78,15 +81,18 @@ const Reports = () => {
         </div>
 
         <Tabs defaultValue="attendance" className="w-full">
-          <TabsList className="grid w-full grid-cols-3 h-auto">
+          <TabsList className="grid w-full grid-cols-4 h-auto">
             <TabsTrigger value="attendance" className="text-xs sm:text-sm py-2">
               Presenças
             </TabsTrigger>
             <TabsTrigger value="followup" className="text-xs sm:text-sm py-2">
-              Acompanhamentos
+              Acompanhar
+            </TabsTrigger>
+            <TabsTrigger value="pdf" className="text-xs sm:text-sm py-2">
+              PDFs
             </TabsTrigger>
             <TabsTrigger value="export" className="text-xs sm:text-sm py-2">
-              Exportar
+              CSV
             </TabsTrigger>
           </TabsList>
 
@@ -104,6 +110,19 @@ const Reports = () => {
               department={department}
               leaderId={user.id}
             />
+          </TabsContent>
+
+          <TabsContent value="pdf" className="mt-6">
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold">Gerar Relatórios em PDF</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <MembersPDFReport role={role} department={department} />
+                <VisitorsPDFReport role={role} department={department} />
+                {(role === "pastor" || role === "super_admin" || department === "patrimonio" || department === "tesouraria") && (
+                  <AssetsPDFReport role={role} />
+                )}
+              </div>
+            </div>
           </TabsContent>
 
           <TabsContent value="export" className="mt-6">
