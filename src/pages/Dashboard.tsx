@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/lib/supabase";
 import { User } from "@supabase/supabase-js";
@@ -15,9 +15,33 @@ const Dashboard = () => {
   const [department, setDepartment] = useState<string | null>(null);
   const [userEmail, setUserEmail] = useState<string>("");
   const [loading, setLoading] = useState(true);
+  const [dataReady, setDataReady] = useState(false);
+
+  const fetchUserRole = useCallback(async (userId: string) => {
+    const { data: roleData, error: roleError } = await supabase
+      .from("user_roles")
+      .select("role, department")
+      .eq("user_id", userId)
+      .maybeSingle();
+
+    if (roleError) {
+      console.error("Error fetching role:", roleError);
+      return null;
+    }
+
+    return roleData;
+  }, []);
 
   useEffect(() => {
+    let isMounted = true;
+
     const checkAuth = async () => {
+      // Reset estados para evitar dados antigos
+      setRole(null);
+      setDepartment(null);
+      setDataReady(false);
+      setLoading(true);
+
       const { data: { session } } = await supabase.auth.getSession();
       
       if (!session) {
@@ -25,19 +49,14 @@ const Dashboard = () => {
         return;
       }
 
+      if (!isMounted) return;
+
       setUser(session.user);
       setUserEmail(session.user.email || "");
 
-      // Use maybeSingle to avoid errors if role not found yet
-      const { data: roleData, error: roleError } = await supabase
-        .from("user_roles")
-        .select("role, department")
-        .eq("user_id", session.user.id)
-        .maybeSingle();
+      const roleData = await fetchUserRole(session.user.id);
 
-      if (roleError) {
-        console.error("Error fetching role:", roleError);
-      }
+      if (!isMounted) return;
 
       if (roleData) {
         setRole(roleData.role);
@@ -51,21 +70,89 @@ const Dashboard = () => {
         console.error("Error updating member statuses:", error);
       }
 
+      setDataReady(true);
       setLoading(false);
     };
 
     checkAuth();
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
-      if (!session) {
-        navigate("/auth");
+    // Listener para mudanças de autenticação
+    const { data: { subscription: authSubscription } } = supabase.auth.onAuthStateChange(
+      async (event, session) => {
+        if (event === "SIGNED_OUT" || !session) {
+          setUser(null);
+          setRole(null);
+          setDepartment(null);
+          setDataReady(false);
+          navigate("/auth");
+          return;
+        }
+
+        if (event === "SIGNED_IN" || event === "TOKEN_REFRESHED") {
+          if (!isMounted) return;
+          
+          // Reset antes de buscar novos dados
+          setRole(null);
+          setDepartment(null);
+          setDataReady(false);
+          setLoading(true);
+          
+          setUser(session.user);
+          setUserEmail(session.user.email || "");
+          
+          const roleData = await fetchUserRole(session.user.id);
+          
+          if (roleData && isMounted) {
+            setRole(roleData.role);
+            setDepartment(roleData.department);
+          }
+          
+          setDataReady(true);
+          setLoading(false);
+        }
       }
-    });
+    );
 
-    return () => subscription.unsubscribe();
-  }, [navigate]);
+    return () => {
+      isMounted = false;
+      authSubscription.unsubscribe();
+    };
+  }, [navigate, fetchUserRole]);
 
-  if (loading) {
+  // Listener para mudanças em user_roles em tempo real
+  useEffect(() => {
+    if (!user) return;
+
+    const channel = supabase
+      .channel(`user-role-${user.id}`)
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "user_roles",
+          filter: `user_id=eq.${user.id}`,
+        },
+        async (payload) => {
+          if (payload.eventType === "UPDATE" || payload.eventType === "INSERT") {
+            const newData = payload.new as { role: string; department: string | null };
+            setRole(newData.role);
+            setDepartment(newData.department);
+          } else if (payload.eventType === "DELETE") {
+            setRole(null);
+            setDepartment(null);
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [user?.id]);
+
+  // Só renderiza quando loading terminou E dados estão prontos
+  if (loading || !dataReady) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
@@ -91,17 +178,20 @@ const Dashboard = () => {
     return null;
   }
 
+  // Renderização baseada em role e department - ordem importa!
   if (role === "pastor" && user) {
     return <PastorDashboard user={user} userEmail={userEmail} />;
   }
 
   if (role === "leader" && user) {
+    // Verificação explícita do department para evitar confusão
     if (department === "patrimonio") {
       return <PatrimonioDashboard user={user} userEmail={userEmail} />;
     }
     if (department === "tesouraria") {
       return <TesourariaDashboard user={user} userEmail={userEmail} />;
     }
+    // Outros departamentos usam o LeaderDashboard padrão
     return <LeaderDashboard user={user} userEmail={userEmail} />;
   }
 
