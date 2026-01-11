@@ -76,40 +76,17 @@ const Dashboard = () => {
 
     checkAuth();
 
-    // Listener para mudanças de autenticação
+    // Listener para mudanças de autenticação - apenas SIGNED_OUT
     const { data: { subscription: authSubscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
+      (event, session) => {
         if (event === "SIGNED_OUT" || !session) {
           setUser(null);
           setRole(null);
           setDepartment(null);
           setDataReady(false);
           navigate("/auth");
-          return;
         }
-
-        if (event === "SIGNED_IN" || event === "TOKEN_REFRESHED") {
-          if (!isMounted) return;
-          
-          // Reset antes de buscar novos dados
-          setRole(null);
-          setDepartment(null);
-          setDataReady(false);
-          setLoading(true);
-          
-          setUser(session.user);
-          setUserEmail(session.user.email || "");
-          
-          const roleData = await fetchUserRole(session.user.id);
-          
-          if (roleData && isMounted) {
-            setRole(roleData.role);
-            setDepartment(roleData.department);
-          }
-          
-          setDataReady(true);
-          setLoading(false);
-        }
+        // Ignorar TOKEN_REFRESHED para evitar loop infinito
       }
     );
 
