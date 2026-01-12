@@ -5,10 +5,11 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
-import { Pencil, Trash2, Loader2 } from "lucide-react";
+import { Pencil, Trash2 } from "lucide-react";
 import EditMemberForm from "./EditMemberForm";
 import { toast } from "sonner";
 import { getDepartmentLabel, getStatusLabel } from "@/lib/supabase";
+import { MemberListSkeleton, MemberTableSkeleton } from "@/components/ui/content-skeleton";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -149,8 +150,13 @@ const MemberManagement = ({
 
   if (loading) {
     return (
-      <div className="flex justify-center py-8">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      <div className="space-y-4">
+        <div className="block sm:hidden">
+          <MemberListSkeleton />
+        </div>
+        <div className="hidden sm:block">
+          <MemberTableSkeleton />
+        </div>
       </div>
     );
   }
@@ -168,8 +174,12 @@ const MemberManagement = ({
             </p>
           </Card>
         ) : (
-          filteredMembers.map((member) => (
-            <Card key={member.id} className="p-4">
+          filteredMembers.map((member, index) => (
+            <Card 
+              key={member.id} 
+              className="p-4 animate-fade-in card-hover"
+              style={{ animationDelay: `${index * 50}ms` }}
+            >
               <div className="flex items-start justify-between gap-3">
                 <div className="flex-1 min-w-0">
                   <p className="font-medium truncate text-sm">{member.full_name}</p>
@@ -254,8 +264,12 @@ const MemberManagement = ({
                   </TableCell>
                 </TableRow>
               ) : (
-                filteredMembers.map((member) => (
-                  <TableRow key={member.id}>
+                filteredMembers.map((member, index) => (
+                  <TableRow 
+                    key={member.id}
+                    className="animate-fade-in"
+                    style={{ animationDelay: `${index * 30}ms` }}
+                  >
                     <TableCell className="font-medium">{member.full_name}</TableCell>
                     <TableCell>{member.phone_number}</TableCell>
                     <TableCell>

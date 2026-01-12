@@ -2,7 +2,7 @@ import { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/lib/supabase";
 import { User } from "@supabase/supabase-js";
-import { Loader2 } from "lucide-react";
+import PageLoader from "@/components/ui/page-loader";
 import PastorDashboard from "@/components/dashboard/PastorDashboard";
 import LeaderDashboard from "@/components/dashboard/LeaderDashboard";
 import PatrimonioDashboard from "@/components/dashboard/PatrimonioDashboard";
@@ -54,20 +54,19 @@ const Dashboard = () => {
       setUser(session.user);
       setUserEmail(session.user.email || "");
 
-      const roleData = await fetchUserRole(session.user.id);
+      // Carregar role e atualizar status em paralelo
+      const [roleData] = await Promise.all([
+        fetchUserRole(session.user.id),
+        supabase.functions.invoke("update-member-status").catch((error) => {
+          console.error("Error updating member statuses:", error);
+        }),
+      ]);
 
       if (!isMounted) return;
 
       if (roleData) {
         setRole(roleData.role);
         setDepartment(roleData.department);
-      }
-
-      // Update member statuses (novo -> ativo after 3 months)
-      try {
-        await supabase.functions.invoke("update-member-status");
-      } catch (error) {
-        console.error("Error updating member statuses:", error);
       }
 
       setDataReady(true);
@@ -130,16 +129,12 @@ const Dashboard = () => {
 
   // Só renderiza quando loading terminou E dados estão prontos
   if (loading || !dataReady) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-      </div>
-    );
+    return <PageLoader message="Carregando painel..." />;
   }
 
   if (!role) {
     return (
-      <div className="min-h-screen flex items-center justify-center p-4">
+      <div className="min-h-screen flex items-center justify-center p-4 animate-fade-in">
         <div className="text-center space-y-4">
           <h1 className="text-2xl font-bold text-primary">Acesso Pendente</h1>
           <p className="text-muted-foreground">

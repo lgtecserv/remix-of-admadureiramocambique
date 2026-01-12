@@ -30,22 +30,23 @@ const LeaderDashboard = ({ user, userEmail }: LeaderDashboardProps) => {
     if (roleData?.department) {
       setDepartment(roleData.department);
 
-      const { count } = await supabase
-        .from("members")
-        .select("*", { count: "exact", head: true })
-        .eq("department", roleData.department)
-        .eq("leader_id", user.id);
+      // Carregar contagens em paralelo
+      const [totalResult, activeResult] = await Promise.all([
+        supabase
+          .from("members")
+          .select("*", { count: "exact", head: true })
+          .eq("department", roleData.department)
+          .eq("leader_id", user.id),
+        supabase
+          .from("members")
+          .select("*", { count: "exact", head: true })
+          .eq("department", roleData.department)
+          .eq("leader_id", user.id)
+          .eq("status", "ativo"),
+      ]);
 
-      setMemberCount(count || 0);
-
-      const { count: activeCount } = await supabase
-        .from("members")
-        .select("*", { count: "exact", head: true })
-        .eq("department", roleData.department)
-        .eq("leader_id", user.id)
-        .eq("status", "ativo");
-
-      setActiveMembers(activeCount || 0);
+      setMemberCount(totalResult.count || 0);
+      setActiveMembers(activeResult.count || 0);
     }
   };
 
@@ -60,8 +61,8 @@ const LeaderDashboard = ({ user, userEmail }: LeaderDashboardProps) => {
   };
 
   useEffect(() => {
-    loadDepartmentInfo();
-    loadProfile();
+    // Carregar dados em paralelo
+    Promise.all([loadDepartmentInfo(), loadProfile()]);
 
     const channel = supabase
       .channel("member-changes")
@@ -100,7 +101,7 @@ const LeaderDashboard = ({ user, userEmail }: LeaderDashboardProps) => {
         )}
 
         <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-          <Card className="border-2 hover:border-primary/50 transition-colors">
+          <Card className="border-2 card-hover animate-fade-in stagger-1">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Total de Membros</CardTitle>
               <Users className="h-5 w-5 text-primary" />
@@ -110,7 +111,7 @@ const LeaderDashboard = ({ user, userEmail }: LeaderDashboardProps) => {
             </CardContent>
           </Card>
 
-          <Card className="border-2 hover:border-primary/50 transition-colors">
+          <Card className="border-2 card-hover animate-fade-in stagger-2">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Membros Ativos</CardTitle>
               <TrendingUp className="h-5 w-5 text-chart-2" />
@@ -120,7 +121,7 @@ const LeaderDashboard = ({ user, userEmail }: LeaderDashboardProps) => {
             </CardContent>
           </Card>
 
-          <Card className="border-2 hover:border-primary/50 transition-colors">
+          <Card className="border-2 card-hover animate-fade-in stagger-3">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Departamento</CardTitle>
               <Users className="h-5 w-5 text-chart-1" />
@@ -132,7 +133,7 @@ const LeaderDashboard = ({ user, userEmail }: LeaderDashboardProps) => {
         </div>
 
         <div className="grid gap-4 grid-cols-1 lg:grid-cols-2">
-          <Card className="shadow-lg">
+          <Card className="shadow-lg animate-fade-in stagger-4">
             <CardHeader>
               <CardTitle>Status dos Membros</CardTitle>
             </CardHeader>
@@ -141,7 +142,7 @@ const LeaderDashboard = ({ user, userEmail }: LeaderDashboardProps) => {
             </CardContent>
           </Card>
 
-          <Card className="shadow-lg">
+          <Card className="shadow-lg animate-fade-in stagger-5">
             <CardHeader>
               <CardTitle>Crescimento do Departamento</CardTitle>
             </CardHeader>
