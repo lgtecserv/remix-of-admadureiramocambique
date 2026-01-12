@@ -1,5 +1,6 @@
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "./AppSidebar";
+import { BottomNavigation } from "./BottomNavigation";
 import NotificationBell from "@/components/notifications/NotificationBell";
 import { UserAvatar } from "@/components/common/UserAvatar";
 import { User } from "@supabase/supabase-js";
@@ -59,8 +60,9 @@ const AppLayout = ({ children, userName, role, department, userEmail, user }: Ap
               )}
             </div>
           </header>
-          <main className="flex-1 p-4 sm:p-6">{children}</main>
+          <main className="flex-1 p-4 sm:p-6 pb-20 md:pb-6">{children}</main>
         </div>
+        <BottomNavigation />
       </div>
     </SidebarProvider>
   );
