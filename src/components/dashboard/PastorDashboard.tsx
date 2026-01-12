@@ -28,28 +28,28 @@ const PastorDashboard = ({ user, userEmail }: PastorDashboardProps) => {
   const [leaderCount, setLeaderCount] = useState(0);
 
   const loadStats = async () => {
-    const { data: members } = await supabase
-      .from("members")
-      .select("department");
+    // Carregar membros e líderes em paralelo
+    const [membersResult, leadersResult] = await Promise.all([
+      supabase.from("members").select("department"),
+      supabase
+        .from("user_roles")
+        .select("*", { count: "exact", head: true })
+        .eq("role", "leader"),
+    ]);
 
-    if (members) {
+    if (membersResult.data) {
       const byDept: Record<string, number> = {};
-      members.forEach((m) => {
+      membersResult.data.forEach((m) => {
         byDept[m.department] = (byDept[m.department] || 0) + 1;
       });
 
       setStats({
-        total: members.length,
+        total: membersResult.data.length,
         byDepartment: byDept,
       });
     }
 
-    const { count } = await supabase
-      .from("user_roles")
-      .select("*", { count: "exact", head: true })
-      .eq("role", "leader");
-
-    setLeaderCount(count || 0);
+    setLeaderCount(leadersResult.count || 0);
   };
 
   const loadProfile = async () => {
@@ -63,8 +63,8 @@ const PastorDashboard = ({ user, userEmail }: PastorDashboardProps) => {
   };
 
   useEffect(() => {
-    loadStats();
-    loadProfile();
+    // Carregar stats e profile em paralelo
+    Promise.all([loadStats(), loadProfile()]);
 
     const channel = supabase
       .channel("members-changes")
@@ -97,7 +97,7 @@ const PastorDashboard = ({ user, userEmail }: PastorDashboardProps) => {
         <BirthdayAlert />
 
         <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-          <Card className="border-2 hover:border-primary/50 transition-colors">
+          <Card className="border-2 card-hover animate-fade-in stagger-1">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Total de Membros</CardTitle>
               <Users className="h-5 w-5 text-primary" />
@@ -107,7 +107,7 @@ const PastorDashboard = ({ user, userEmail }: PastorDashboardProps) => {
             </CardContent>
           </Card>
 
-          <Card className="border-2 hover:border-primary/50 transition-colors">
+          <Card className="border-2 card-hover animate-fade-in stagger-2">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Líderes Ativos</CardTitle>
               <UserCog className="h-5 w-5 text-chart-1" />
@@ -117,7 +117,7 @@ const PastorDashboard = ({ user, userEmail }: PastorDashboardProps) => {
             </CardContent>
           </Card>
 
-          <Card className="border-2 hover:border-primary/50 transition-colors">
+          <Card className="border-2 card-hover animate-fade-in stagger-3">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Departamentos</CardTitle>
               <TrendingUp className="h-5 w-5 text-chart-2" />
@@ -131,7 +131,7 @@ const PastorDashboard = ({ user, userEmail }: PastorDashboardProps) => {
         <DepartmentStatsCard />
 
         <div className="grid gap-4 grid-cols-1 lg:grid-cols-2">
-          <Card className="shadow-lg">
+          <Card className="shadow-lg animate-fade-in stagger-4">
             <CardHeader>
               <CardTitle>Membros por Departamento</CardTitle>
             </CardHeader>
@@ -140,7 +140,7 @@ const PastorDashboard = ({ user, userEmail }: PastorDashboardProps) => {
             </CardContent>
           </Card>
 
-          <Card className="shadow-lg">
+          <Card className="shadow-lg animate-fade-in stagger-5">
             <CardHeader>
               <CardTitle>Status dos Membros</CardTitle>
             </CardHeader>

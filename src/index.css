@@ -85,8 +85,37 @@ All colors MUST be HSL.
   }
 
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground antialiased;
   }
+}
+
+@layer utilities {
+  /* Smooth transitions */
+  .transition-smooth {
+    @apply transition-all duration-200 ease-out;
+  }
+  
+  /* Hover lift effect */
+  .hover-lift {
+    @apply hover:-translate-y-0.5 hover:shadow-md transition-all duration-200 ease-out;
+  }
+  
+  /* Press/click effect */
+  .press-effect {
+    @apply active:scale-[0.98] transition-transform duration-100;
+  }
+  
+  /* Card hover effect */
+  .card-hover {
+    @apply transition-all duration-200 ease-out hover:shadow-lg hover:border-primary/30;
+  }
+  
+  /* Stagger animation delay utilities */
+  .stagger-1 { animation-delay: 50ms; }
+  .stagger-2 { animation-delay: 100ms; }
+  .stagger-3 { animation-delay: 150ms; }
+  .stagger-4 { animation-delay: 200ms; }
+  .stagger-5 { animation-delay: 250ms; }
 }
 
 /* Hide Lovable badge */

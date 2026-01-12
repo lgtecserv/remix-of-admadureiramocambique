@@ -6,7 +6,7 @@ import AppLayout from "@/components/layout/AppLayout";
 import MemberManagement from "@/components/members/MemberManagement";
 import MembersFilter from "@/components/members/MembersFilter";
 import CreateMemberButton from "@/components/members/CreateMemberButton";
-import { Loader2 } from "lucide-react";
+import PageLoader from "@/components/ui/page-loader";
 
 const Members = () => {
   const navigate = useNavigate();
@@ -30,24 +30,26 @@ const Members = () => {
 
       setUser(session.user);
 
-      const { data: roleData } = await supabase
-        .from("user_roles")
-        .select("role")
-        .eq("user_id", session.user.id)
-        .single();
+      // Carregar role e profile em paralelo
+      const [roleResult, profileResult] = await Promise.all([
+        supabase
+          .from("user_roles")
+          .select("role")
+          .eq("user_id", session.user.id)
+          .single(),
+        supabase
+          .from("profiles")
+          .select("full_name")
+          .eq("id", session.user.id)
+          .single(),
+      ]);
 
-      if (roleData) {
-        setRole(roleData.role);
+      if (roleResult.data) {
+        setRole(roleResult.data.role);
       }
 
-      const { data: profileData } = await supabase
-        .from("profiles")
-        .select("full_name")
-        .eq("id", session.user.id)
-        .single();
-
-      if (profileData) {
-        setProfile(profileData);
+      if (profileResult.data) {
+        setProfile(profileResult.data);
       }
 
       setLoading(false);
@@ -57,11 +59,7 @@ const Members = () => {
   }, [navigate]);
 
   if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-      </div>
-    );
+    return <PageLoader message="Carregando membros..." />;
   }
 
   return (
