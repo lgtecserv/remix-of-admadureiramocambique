@@ -62,8 +62,14 @@ const tesourariaItems = [
 ];
 
 export function AppSidebar({ role = "leader", department, userEmail }: AppSidebarProps) {
-  const { state } = useSidebar();
+  const { state, setOpenMobile, isMobile } = useSidebar();
   const collapsed = state === "collapsed";
+
+  const handleNavClick = () => {
+    if (isMobile) {
+      setOpenMobile(false);
+    }
+  };
   
   const getMenuItems = () => {
     if (role === "pastor") return pastorItems;
@@ -108,6 +114,7 @@ export function AppSidebar({ role = "leader", department, userEmail }: AppSideba
                     <NavLink
                       to={item.url}
                       end={item.url === "/dashboard"}
+                      onClick={handleNavClick}
                       className={({ isActive }) =>
                         `flex items-center gap-3 ${
                           isActive
@@ -136,6 +143,7 @@ export function AppSidebar({ role = "leader", department, userEmail }: AppSideba
                   <SidebarMenuButton asChild tooltip="Super Admin">
                     <NavLink
                       to="/super-admin"
+                      onClick={handleNavClick}
                       className={({ isActive }) =>
                         `flex items-center gap-3 ${
                           isActive
