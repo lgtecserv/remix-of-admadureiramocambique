@@ -60,3 +60,35 @@ self.addEventListener('pushsubscriptionchange', (event) => {
   console.log('Push subscription changed:', event);
   // TODO: Re-subscribe e atualizar no servidor
 });
+
+// Background Sync para sincronizar dados offline
+self.addEventListener('sync', (event) => {
+  console.log('Background sync event:', event.tag);
+  
+  if (event.tag === 'sync-pending-actions') {
+    event.waitUntil(
+      clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clientList) => {
+        // Notificar todos os clientes para processar a fila
+        clientList.forEach((client) => {
+          client.postMessage({ type: 'SYNC_REQUIRED' });
+        });
+      })
+    );
+  }
+});
+
+// Listener para mensagens do cliente
+self.addEventListener('message', (event) => {
+  console.log('SW received message:', event.data);
+  
+  if (event.data && event.data.type === 'SKIP_WAITING') {
+    self.skipWaiting();
+  }
+  
+  if (event.data && event.data.type === 'TRIGGER_SYNC') {
+    // Registrar sync para quando a conexão voltar
+    self.registration.sync.register('sync-pending-actions').catch((err) => {
+      console.log('Background Sync not supported:', err);
+    });
+  }
+});
