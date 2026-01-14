@@ -3,10 +3,12 @@ import { AppSidebar } from "./AppSidebar";
 import { BottomNavigation } from "./BottomNavigation";
 import NotificationBell from "@/components/notifications/NotificationBell";
 import { UserAvatar } from "@/components/common/UserAvatar";
+import { OfflineIndicator, OfflineStatusBadge } from "@/components/common/OfflineIndicator";
 import { User } from "@supabase/supabase-js";
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
 import { useGlobalMessageNotifications } from "@/hooks/useGlobalMessageNotifications";
+import { processQueue } from "@/lib/syncQueue";
 
 interface AppLayoutProps {
   children: React.ReactNode;
@@ -36,8 +38,26 @@ const AppLayout = ({ children, userName, role, department, userEmail, user }: Ap
     loadAvatar();
   }, [user]);
 
+  // Listener para sincronização do Service Worker
+  useEffect(() => {
+    const handleSyncMessage = (event: MessageEvent) => {
+      if (event.data && event.data.type === 'SYNC_REQUIRED') {
+        console.log('Sync required from SW');
+        processQueue();
+      }
+    };
+
+    navigator.serviceWorker?.addEventListener('message', handleSyncMessage);
+    
+    return () => {
+      navigator.serviceWorker?.removeEventListener('message', handleSyncMessage);
+    };
+  }, []);
+
   return (
-    <SidebarProvider>
+    <>
+      <OfflineIndicator />
+      <SidebarProvider>
       <div className="min-h-screen flex w-full bg-gradient-to-br from-background via-muted/20 to-secondary/10">
         <AppSidebar role={role} department={department} userEmail={userEmail} />
         <div className="flex-1 flex flex-col">
@@ -65,6 +85,7 @@ const AppLayout = ({ children, userName, role, department, userEmail, user }: Ap
         <BottomNavigation />
       </div>
     </SidebarProvider>
+    </>
   );
 };
 
