@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { InstallPrompt } from "@/components/pwa/InstallPrompt";
 import { ActiveConversationProvider } from "@/contexts/ActiveConversationContext";
+import { ThemeProvider } from "next-themes";
 import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
 import Leaders from "./pages/Leaders";
@@ -27,39 +28,41 @@ import NotFound from "./pages/NotFound";
 const queryClient = new QueryClient();
 
 const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <ActiveConversationProvider>
-        <Toaster />
-        <Sonner />
-        <InstallPrompt />
-        <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Navigate to="/auth" replace />} />
-          <Route path="/auth" element={<Auth />} />
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/dashboard/leaders" element={<Leaders />} />
-          <Route path="/dashboard/members" element={<Members />} />
-          <Route path="/dashboard/visitors" element={<Visitors />} />
-          <Route path="/dashboard/chat" element={<Chat />} />
-          <Route path="/dashboard/statistics" element={<Statistics />} />
-          <Route path="/dashboard/reports" element={<Reports />} />
-          <Route path="/dashboard/settings" element={<Settings />} />
-          <Route path="/dashboard/patrimonio" element={<Patrimonio />} />
-          <Route path="/dashboard/patrimonio/materiais" element={<PatrimonioMateriais />} />
-          <Route path="/dashboard/patrimonio/solicitacoes" element={<PatrimonioSolicitacoes />} />
-          <Route path="/dashboard/tesouraria" element={<Tesouraria />} />
-          <Route path="/dashboard/tesouraria/relatorios" element={<FinancialReports />} />
-          <Route path="/dashboard/tesouraria/solicitacoes" element={<AssetRequests />} />
-          <Route path="/dashboard/tesouraria/inventario" element={<Inventory />} />
-          <Route path="/super-admin" element={<SuperAdmin />} />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-        </BrowserRouter>
-      </ActiveConversationProvider>
-    </TooltipProvider>
-  </QueryClientProvider>
+  <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false}>
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <ActiveConversationProvider>
+          <Toaster />
+          <Sonner />
+          <InstallPrompt />
+          <BrowserRouter>
+          <Routes>
+            <Route path="/" element={<Navigate to="/auth" replace />} />
+            <Route path="/auth" element={<Auth />} />
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/dashboard/leaders" element={<Leaders />} />
+            <Route path="/dashboard/members" element={<Members />} />
+            <Route path="/dashboard/visitors" element={<Visitors />} />
+            <Route path="/dashboard/chat" element={<Chat />} />
+            <Route path="/dashboard/statistics" element={<Statistics />} />
+            <Route path="/dashboard/reports" element={<Reports />} />
+            <Route path="/dashboard/settings" element={<Settings />} />
+            <Route path="/dashboard/patrimonio" element={<Patrimonio />} />
+            <Route path="/dashboard/patrimonio/materiais" element={<PatrimonioMateriais />} />
+            <Route path="/dashboard/patrimonio/solicitacoes" element={<PatrimonioSolicitacoes />} />
+            <Route path="/dashboard/tesouraria" element={<Tesouraria />} />
+            <Route path="/dashboard/tesouraria/relatorios" element={<FinancialReports />} />
+            <Route path="/dashboard/tesouraria/solicitacoes" element={<AssetRequests />} />
+            <Route path="/dashboard/tesouraria/inventario" element={<Inventory />} />
+            <Route path="/super-admin" element={<SuperAdmin />} />
+            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+          </BrowserRouter>
+        </ActiveConversationProvider>
+      </TooltipProvider>
+    </QueryClientProvider>
+  </ThemeProvider>
 );
 
 export default App;
