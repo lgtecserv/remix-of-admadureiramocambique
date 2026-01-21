@@ -3,7 +3,8 @@ import { AppSidebar } from "./AppSidebar";
 import { BottomNavigation } from "./BottomNavigation";
 import NotificationBell from "@/components/notifications/NotificationBell";
 import { UserAvatar } from "@/components/common/UserAvatar";
-import { OfflineIndicator, OfflineStatusBadge } from "@/components/common/OfflineIndicator";
+import { OfflineIndicator } from "@/components/common/OfflineIndicator";
+import { ThemeToggle } from "@/components/common/ThemeToggle";
 import { User } from "@supabase/supabase-js";
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
@@ -65,6 +66,7 @@ const AppLayout = ({ children, userName, role, department, userEmail, user }: Ap
             <div className="flex items-center gap-4 px-6 py-4">
               <SidebarTrigger />
               <div className="flex-1" />
+              <ThemeToggle />
               {user && <NotificationBell userId={user.id} />}
               {userName && (
                 <div className="flex items-center gap-2">
