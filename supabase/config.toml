@@ -1,16 +1,1 @@
-project_id = "ofplaocvnlwdnqvlqqka"
-
-[functions.update-member-status]
-verify_jwt = true
-
-[functions.create-leader]
-verify_jwt = true
-
-[functions.create-pastor]
-verify_jwt = true
-
-[functions.send-push-notification]
-verify_jwt = false
-
-[functions.get-vapid-public-key]
-verify_jwt = false
+project_id = "gbbuugklhymsgdlbrwyz"
