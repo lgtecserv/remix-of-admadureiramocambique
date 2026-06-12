@@ -79,6 +79,9 @@ export const CreateOfferingDialog = ({
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("Usuário não autenticado");
 
+      const congregation_id = await getCurrentUserCongregationId();
+      if (!congregation_id) throw new Error("Congregação não encontrada");
+
       const { error } = await supabase.from("offerings").insert({
         event_type: formData.event_type,
         event_date: formData.event_date,
@@ -86,6 +89,7 @@ export const CreateOfferingDialog = ({
         notes: formData.notes || null,
         verified_by_names: selectedVerifiers.length > 0 ? selectedVerifiers : null,
         recorded_by: user.id,
+        congregation_id,
       });
 
       if (error) throw error;
