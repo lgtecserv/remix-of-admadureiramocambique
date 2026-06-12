@@ -12,7 +12,7 @@ interface MessageInputProps {
 
 const MessageInput = ({ onSend, disabled, onTyping }: MessageInputProps) => {
   const [content, setContent] = useState("");
-  const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const typingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const handleSend = () => {
     if (content.trim() && !disabled) {
