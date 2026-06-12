@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { supabase } from "@/lib/supabase";
+import { supabase, getCurrentUserCongregationId } from "@/lib/supabase";
 import {
   Dialog,
   DialogContent,
@@ -78,12 +78,16 @@ export const CreateTitheDialog = ({
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("Usuário não autenticado");
 
+      const congregation_id = await getCurrentUserCongregationId();
+      if (!congregation_id) throw new Error("Congregação não encontrada");
+
       const { error } = await supabase.from("tithes").insert({
         member_id: formData.member_id,
         amount: parseFloat(formData.amount),
         tithe_month: formData.tithe_month,
         tithe_date: formData.tithe_date,
         recorded_by: user.id,
+        congregation_id,
       });
 
       if (error) throw error;

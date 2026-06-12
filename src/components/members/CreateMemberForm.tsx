@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { supabase } from "@/lib/supabase";
+import { supabase, getCurrentUserCongregationId } from "@/lib/supabase";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -58,12 +58,16 @@ const CreateMemberForm = ({ department, leaderId, onSuccess }: CreateMemberFormP
       // Validate input
       const validatedData = memberSchema.parse(formData);
 
+      const congregation_id = await getCurrentUserCongregationId();
+      if (!congregation_id) throw new Error("Congregação não encontrada");
+
       const { error } = await supabase.from("members").insert({
         full_name: validatedData.fullName,
         phone_number: validatedData.phoneNumber,
         department: department as any,
         leader_id: leaderId,
         status: "novo" as const,
+        congregation_id,
         address: validatedData.address || null,
         birth_date: validatedData.birthDate || null,
         marital_status: validatedData.maritalStatus || null,

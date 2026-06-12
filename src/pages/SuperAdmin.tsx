@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/lib/supabase";
 import AppLayout from "@/components/layout/AppLayout";
 import { CreatePastorForm } from "@/components/admin/CreatePastorForm";
+import { CongregationsManagement } from "@/components/admin/CongregationsManagement";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
@@ -98,6 +99,8 @@ const SuperAdmin = () => {
             <p className="text-muted-foreground">{userEmail}</p>
           </div>
         </div>
+
+        <CongregationsManagement onChange={loadPastors} />
 
         <div className="grid gap-6 md:grid-cols-2">
           <CreatePastorForm onSuccess={loadPastors} />

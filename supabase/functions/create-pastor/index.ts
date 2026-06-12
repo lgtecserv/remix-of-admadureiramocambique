@@ -9,6 +9,8 @@ interface CreatePastorRequest {
   email: string;
   password: string;
   fullName: string;
+  congregationId: string;
+  isTitular?: boolean;
 }
 
 Deno.serve(async (req) => {
@@ -49,24 +51,16 @@ Deno.serve(async (req) => {
       );
     }
 
-    // Verify super admin status
-    const { data: profileData, error: profileError } = await supabaseClient
-      .from('profiles')
-      .select('email')
-      .eq('id', user.id)
-      .single();
+    // Verify super admin status via user_roles
+    const { data: superCheck, error: superErr } = await supabaseClient
+      .from('user_roles')
+      .select('id')
+      .eq('user_id', user.id)
+      .eq('role', 'super_admin')
+      .maybeSingle();
 
-    if (profileError || !profileData) {
-      console.log('Profile error:', profileError);
-      return new Response(
-        JSON.stringify({ error: 'Profile not found' }),
-        { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
-
-    // Check if user is super admin
-    if (profileData.email !== 'lgtecserv@gmail.com') {
-      console.log('Not super admin:', profileData.email);
+    if (superErr || !superCheck) {
+      console.log('Not super admin:', user.id, superErr);
       return new Response(
         JSON.stringify({ error: 'Forbidden: Only super admin can create pastors' }),
         { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -74,12 +68,12 @@ Deno.serve(async (req) => {
     }
 
     // Parse request body
-    const { email, password, fullName }: CreatePastorRequest = await req.json();
+    const { email, password, fullName, congregationId, isTitular }: CreatePastorRequest = await req.json();
 
     // Validate input
-    if (!email || !password || !fullName) {
+    if (!email || !password || !fullName || !congregationId) {
       return new Response(
-        JSON.stringify({ error: 'Missing required fields' }),
+        JSON.stringify({ error: 'Missing required fields (email, password, fullName, congregationId)' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
@@ -105,22 +99,43 @@ Deno.serve(async (req) => {
     console.log('User created:', newUser.user.id);
     console.log('Profile created automatically by trigger');
 
-    // Assign pastor role
+    // Assign pastor role + vincular à congregação
     const { error: roleError } = await supabaseClient
       .from('user_roles')
       .insert({
         user_id: newUser.user.id,
-        role: 'pastor'
+        role: 'pastor',
+        congregation_id: congregationId,
       });
 
     if (roleError) {
       console.error('Error assigning role:', roleError);
-      // Clean up user (CASCADE will automatically delete profile)
       await supabaseClient.auth.admin.deleteUser(newUser.user.id);
       return new Response(
         JSON.stringify({ error: 'Failed to assign pastor role' }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
+    }
+
+    // Criar vínculo em congregation_pastors
+    const { error: cpError } = await supabaseClient
+      .from('congregation_pastors')
+      .insert({
+        congregation_id: congregationId,
+        pastor_id: newUser.user.id,
+        is_titular: !!isTitular,
+      });
+
+    if (cpError) {
+      console.error('Error linking pastor to congregation:', cpError);
+    }
+
+    // Se titular, atualizar congregations.pastor_responsavel_id
+    if (isTitular) {
+      await supabaseClient
+        .from('congregations')
+        .update({ pastor_responsavel_id: newUser.user.id })
+        .eq('id', congregationId);
     }
 
     console.log('Pastor role assigned successfully');

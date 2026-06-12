@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { supabase } from "@/lib/supabase";
+import { supabase, getCurrentUserCongregationId } from "@/lib/supabase";
 import {
   Dialog,
   DialogContent,
@@ -46,12 +46,16 @@ export const CreateExpenseDialog = ({
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("Usuário não autenticado");
 
+      const congregation_id = await getCurrentUserCongregationId();
+      if (!congregation_id) throw new Error("Congregação não encontrada");
+
       const { error } = await supabase.from("expenses").insert({
         category: formData.category,
         description: formData.description,
         amount: parseFloat(formData.amount),
         expense_date: formData.expense_date,
         recorded_by: user.id,
+        congregation_id,
       });
 
       if (error) throw error;

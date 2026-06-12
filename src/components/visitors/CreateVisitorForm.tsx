@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { supabase } from "@/lib/supabase";
+import { supabase, getCurrentUserCongregationId } from "@/lib/supabase";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -110,6 +110,9 @@ const CreateVisitorForm = ({ onSuccess, user, userDepartment }: CreateVisitorFor
   };
 
   const insertVisitor = async (validatedData: any) => {
+    const congregation_id = await getCurrentUserCongregationId();
+    if (!congregation_id) throw new Error("Congregação não encontrada");
+
     const { error } = await supabase.from("visitors").insert({
       full_name: validatedData.fullName,
       phone_number: validatedData.phoneNumber,
@@ -118,6 +121,7 @@ const CreateVisitorForm = ({ onSuccess, user, userDepartment }: CreateVisitorFor
       observations: validatedData.observations || "",
       department: department as any,
       leader_id: user.id,
+      congregation_id,
     });
 
     if (error) throw error;
