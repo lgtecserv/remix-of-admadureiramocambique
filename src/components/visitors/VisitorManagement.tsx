@@ -103,12 +103,18 @@ const VisitorManagement = ({ userRole, userDepartment, userId, dateRange }: Visi
   };
 
   const handleConvertToMember = async (visitor: Visitor) => {
+    const congregation_id = await getCurrentUserCongregationId();
+    if (!congregation_id) {
+      toast.error("Congregação não encontrada");
+      return;
+    }
     const { error } = await supabase.from("members").insert({
       full_name: visitor.full_name,
       phone_number: visitor.phone_number,
       department: visitor.department as any,
       leader_id: visitor.leader_id,
       status: "novo",
+      congregation_id,
     });
 
     if (error) {
