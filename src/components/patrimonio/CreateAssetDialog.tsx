@@ -81,6 +81,9 @@ export const CreateAssetDialog = ({
         imageUrl = publicUrl;
       }
 
+      const congregation_id = await getCurrentUserCongregationId();
+      if (!congregation_id) throw new Error("Congregação não encontrada");
+
       const { error } = await supabase.from("church_assets").insert({
         name: formData.name,
         quantity: formData.quantity,
@@ -88,6 +91,7 @@ export const CreateAssetDialog = ({
         observations: formData.observations || null,
         image_url: imageUrl,
         leader_id: user.id,
+        congregation_id,
       });
 
       if (error) throw error;
