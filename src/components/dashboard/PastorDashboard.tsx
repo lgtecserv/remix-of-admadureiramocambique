@@ -11,10 +11,12 @@ import { PendingRequestsWidget } from "./PendingRequestsWidget";
 import AppLayout from "@/components/layout/AppLayout";
 import MemberSearchWidget from "@/components/members/MemberSearchWidget";
 import BirthdayAlert from "./BirthdayAlert";
+import { useSelectedCongregation } from "@/contexts/SelectedCongregationContext";
 
 interface PastorDashboardProps {
   user: User;
   userEmail?: string;
+  explicitRole?: "super_admin" | "pastor";
 }
 
 interface Stats {
@@ -22,19 +24,33 @@ interface Stats {
   byDepartment: Record<string, number>;
 }
 
-const PastorDashboard = ({ user, userEmail }: PastorDashboardProps) => {
+const PastorDashboard = ({ user, userEmail, explicitRole }: PastorDashboardProps) => {
   const [stats, setStats] = useState<Stats>({ total: 0, byDepartment: {} });
   const [profile, setProfile] = useState<any>(null);
   const [leaderCount, setLeaderCount] = useState(0);
+  const { getEffectiveCongregationId } = useSelectedCongregation();
+
+  // Use explicitRole as the source of truth for layout (avoids race condition with context)
+  const effectiveRole = explicitRole || "pastor";
 
   const loadStats = async () => {
-    // Carregar membros e líderes em paralelo
+    const congId = getEffectiveCongregationId();
+
+    // Build queries with optional congregation filter
+    let membersQuery = supabase.from("members").select("department");
+    let leadersQuery = supabase
+      .from("user_roles")
+      .select("*", { count: "exact", head: true })
+      .eq("role", "leader");
+
+    if (congId) {
+      membersQuery = membersQuery.eq("congregation_id", congId);
+      leadersQuery = leadersQuery.eq("congregation_id", congId);
+    }
+
     const [membersResult, leadersResult] = await Promise.all([
-      supabase.from("members").select("department"),
-      supabase
-        .from("user_roles")
-        .select("*", { count: "exact", head: true })
-        .eq("role", "leader"),
+      membersQuery,
+      leadersQuery,
     ]);
 
     if (membersResult.data) {
@@ -62,8 +78,10 @@ const PastorDashboard = ({ user, userEmail }: PastorDashboardProps) => {
     setProfile(data);
   };
 
+  // Reload stats when congregation selection changes
+  const congId = getEffectiveCongregationId();
+
   useEffect(() => {
-    // Carregar stats e profile em paralelo
     Promise.all([loadStats(), loadProfile()]);
 
     const channel = supabase
@@ -80,14 +98,20 @@ const PastorDashboard = ({ user, userEmail }: PastorDashboardProps) => {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [user.id]);
+  }, [user.id, congId]);
+
+  const layoutRole = effectiveRole;
+  const dashboardTitle = effectiveRole === "super_admin" ? "Painel Super Admin" : "Painel do Pastor";
+  const dashboardSubtitle = effectiveRole === "super_admin"
+    ? "Visão geral de todas as congregações"
+    : "Visão geral completa da igreja";
 
   return (
-    <AppLayout userName={profile?.full_name} role="pastor" userEmail={userEmail} user={user}>
+    <AppLayout userName={profile?.full_name} role={layoutRole} userEmail={userEmail} user={user}>
       <div className="space-y-6 animate-fade-in">
         <div>
-          <h2 className="text-2xl sm:text-3xl font-bold text-foreground mb-2">Painel do Pastor</h2>
-          <p className="text-muted-foreground">Visão geral completa da igreja</p>
+          <h2 className="text-2xl sm:text-3xl font-bold text-foreground mb-2">{dashboardTitle}</h2>
+          <p className="text-muted-foreground">{dashboardSubtitle}</p>
         </div>
 
         {/* Widget de Pesquisa de Membros no topo */}
@@ -166,3 +190,4 @@ const PastorDashboard = ({ user, userEmail }: PastorDashboardProps) => {
 };
 
 export default PastorDashboard;
+

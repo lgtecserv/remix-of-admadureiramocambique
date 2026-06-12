@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { InstallPrompt } from "@/components/pwa/InstallPrompt";
 import { ActiveConversationProvider } from "@/contexts/ActiveConversationContext";
+import { SelectedCongregationProvider } from "@/contexts/SelectedCongregationContext";
 import { ThemeProvider } from "next-themes";
 import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
@@ -32,6 +33,7 @@ const App = () => (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <ActiveConversationProvider>
+          <SelectedCongregationProvider>
           <Toaster />
           <Sonner />
           <InstallPrompt />
@@ -59,6 +61,7 @@ const App = () => (
             <Route path="*" element={<NotFound />} />
           </Routes>
           </BrowserRouter>
+          </SelectedCongregationProvider>
         </ActiveConversationProvider>
       </TooltipProvider>
     </QueryClientProvider>

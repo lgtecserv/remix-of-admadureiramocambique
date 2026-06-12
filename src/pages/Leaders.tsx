@@ -45,7 +45,7 @@ const Leaders = () => {
         return;
       }
 
-      setRole(roleData?.role || "pastor");
+      setRole(isSuperAdmin ? "super_admin" : (roleData?.role || "pastor"));
 
       const { data: profileData } = await supabase
         .from("profiles")
@@ -73,7 +73,11 @@ const Leaders = () => {
       <div className="space-y-8 animate-fade-in">
         <div>
           <h2 className="text-3xl font-bold text-foreground mb-2">Gestão de Líderes</h2>
-          <p className="text-muted-foreground">Cadastre e gerencie os líderes de departamentos</p>
+          <p className="text-muted-foreground">
+            {role === "super_admin"
+              ? "Visualize os líderes de departamentos de todas as congregações"
+              : "Cadastre e gerencie os líderes de departamentos"}
+          </p>
         </div>
 
         <Card className="shadow-lg">
@@ -81,23 +85,25 @@ const Leaders = () => {
             <div>
               <CardTitle className="text-lg sm:text-xl">Líderes Cadastrados</CardTitle>
               <p className="text-sm text-muted-foreground mt-1">
-                Visualize e gerencie todos os líderes da igreja
+                Visualize {role !== "super_admin" ? "e gerencie " : ""}todos os líderes da igreja
               </p>
             </div>
-            <Dialog open={createDialogOpen} onOpenChange={setCreateDialogOpen}>
-              <DialogTrigger asChild>
-                <Button className="w-full sm:w-auto">
-                  <UserPlus className="h-4 w-4 mr-2" />
-                  Adicionar Líder
-                </Button>
-              </DialogTrigger>
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle>Cadastrar Novo Líder</DialogTitle>
-                </DialogHeader>
-                <CreateLeaderForm onSuccess={() => setCreateDialogOpen(false)} />
-              </DialogContent>
-            </Dialog>
+            {role !== "super_admin" && (
+              <Dialog open={createDialogOpen} onOpenChange={setCreateDialogOpen}>
+                <DialogTrigger asChild>
+                  <Button className="w-full sm:w-auto">
+                    <UserPlus className="h-4 w-4 mr-2" />
+                    Adicionar Líder
+                  </Button>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Cadastrar Novo Líder</DialogTitle>
+                  </DialogHeader>
+                  <CreateLeaderForm onSuccess={() => setCreateDialogOpen(false)} />
+                </DialogContent>
+              </Dialog>
+            )}
           </CardHeader>
           <CardContent>
             <LeaderManagement />

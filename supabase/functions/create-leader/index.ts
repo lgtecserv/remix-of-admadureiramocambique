@@ -51,7 +51,7 @@ serve(async (req) => {
     console.log("Authorized user:", user.id, "isPastor:", isPastor, "isSuperAdmin:", isSuperAdmin);
 
     // Get request body
-    const { email, password, fullName, department } = await req.json();
+    const { email, password, fullName, department, congregationId } = await req.json();
 
     console.log("Creating leader:", { email, fullName, department });
 
@@ -118,6 +118,7 @@ serve(async (req) => {
       user_id: userData.user.id,
       role: "leader",
       department: department,
+      congregation_id: congregationId || null,
     });
 
     if (roleError) {

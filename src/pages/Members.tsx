@@ -7,6 +7,7 @@ import MemberManagement from "@/components/members/MemberManagement";
 import MembersFilter from "@/components/members/MembersFilter";
 import CreateMemberButton from "@/components/members/CreateMemberButton";
 import PageLoader from "@/components/ui/page-loader";
+import { useSelectedCongregation } from "@/contexts/SelectedCongregationContext";
 
 const Members = () => {
   const navigate = useNavigate();
@@ -58,19 +59,29 @@ const Members = () => {
     checkAuth();
   }, [navigate]);
 
+  const { isSuperAdmin } = useSelectedCongregation();
+
   if (loading) {
     return <PageLoader message="Carregando membros..." />;
   }
 
+  const effectiveRole = isSuperAdmin ? "super_admin" : role;
+
   return (
-    <AppLayout userName={profile?.full_name} role={role || undefined}>
+    <AppLayout userName={profile?.full_name} role={effectiveRole || undefined}>
       <div className="space-y-6 animate-fade-in">
         <div className="flex items-start justify-between gap-3">
           <div className="flex-1 min-w-0">
             <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-foreground">Gestão de Membros</h1>
-            <p className="text-sm text-muted-foreground">Gerencie os membros {role === "leader" ? "do seu departamento" : "da igreja"}</p>
+            <p className="text-sm text-muted-foreground">
+              {isSuperAdmin
+                ? "Visualize os membros de todas as congregações"
+                : `Gerencie os membros ${role === "leader" ? "do seu departamento" : "da igreja"}`}
+            </p>
           </div>
-          <CreateMemberButton role={role} onSuccess={() => setCreateDialogOpen(false)} />
+          {!isSuperAdmin && (
+            <CreateMemberButton role={role} onSuccess={() => setCreateDialogOpen(false)} />
+          )}
         </div>
 
         <MembersFilter
@@ -80,7 +91,7 @@ const Members = () => {
           onStatusFilterChange={setStatusFilter}
           departmentFilter={departmentFilter}
           onDepartmentFilterChange={setDepartmentFilter}
-          showDepartmentFilter={role === "pastor"}
+          showDepartmentFilter={role === "pastor" || isSuperAdmin}
         />
 
         <MemberManagement 

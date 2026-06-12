@@ -21,6 +21,20 @@ interface AppSidebarProps {
   userEmail?: string;
 }
 
+const superAdminItems = [
+  { title: "Dashboard", url: "/dashboard", icon: Home },
+  { title: "Administração", url: "/super-admin", icon: Shield },
+  { title: "Líderes", url: "/dashboard/leaders", icon: UserCog },
+  { title: "Membros", url: "/dashboard/members", icon: Users },
+  { title: "Visitantes", url: "/dashboard/visitors", icon: UserPlus },
+  { title: "Tesouraria", url: "/dashboard/tesouraria", icon: DollarSign },
+  { title: "Patrimônio", url: "/dashboard/patrimonio", icon: Images },
+  { title: "Chat", url: "/dashboard/chat", icon: MessageSquare },
+  { title: "Relatórios", url: "/dashboard/reports", icon: FileText },
+  { title: "Estatísticas", url: "/dashboard/statistics", icon: BarChart3 },
+  { title: "Configurações", url: "/dashboard/settings", icon: Settings },
+];
+
 const pastorItems = [
   { title: "Dashboard", url: "/dashboard", icon: Home },
   { title: "Líderes", url: "/dashboard/leaders", icon: UserCog },
@@ -72,6 +86,7 @@ export function AppSidebar({ role = "leader", department, userEmail }: AppSideba
   };
   
   const getMenuItems = () => {
+    if (role === "super_admin" || role === "super-admin") return superAdminItems;
     if (role === "pastor") return pastorItems;
     if (role === "leader") {
       if (department === "patrimonio") return patrimonioItems;
@@ -82,7 +97,7 @@ export function AppSidebar({ role = "leader", department, userEmail }: AppSideba
   };
   
   const items = getMenuItems();
-  const isSuperAdmin = userEmail === "lgtecserv@gmail.com";
+  const isSuperAdmin = role === "super_admin" || role === "super-admin";
 
   const handleLogout = async () => {
     const { error } = await supabase.auth.signOut();
@@ -133,34 +148,6 @@ export function AppSidebar({ role = "leader", department, userEmail }: AppSideba
           </SidebarGroupContent>
         </SidebarGroup>
 
-
-        {isSuperAdmin && (
-          <SidebarGroup>
-            {!collapsed && <SidebarGroupLabel>Administração</SidebarGroupLabel>}
-            <SidebarGroupContent>
-              <SidebarMenu>
-                <SidebarMenuItem>
-                  <SidebarMenuButton asChild tooltip="Super Admin">
-                    <NavLink
-                      to="/super-admin"
-                      onClick={handleNavClick}
-                      className={({ isActive }) =>
-                        `flex items-center gap-3 ${
-                          isActive
-                            ? "bg-primary/10 text-primary font-medium"
-                            : "hover:bg-muted/50 text-foreground"
-                        }`
-                      }
-                    >
-                      <Shield className="h-5 w-5" />
-                      {!collapsed && <span>Super Admin</span>}
-                    </NavLink>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              </SidebarMenu>
-            </SidebarGroupContent>
-          </SidebarGroup>
-        )}
 
         <div className="mt-auto border-t border-border p-4">
           <button

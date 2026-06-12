@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Trash2, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import TransferMembersDialog from "./TransferMembersDialog";
+import { useSelectedCongregation } from "@/contexts/SelectedCongregationContext";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -32,6 +33,7 @@ const LeaderManagement = () => {
   const [loading, setLoading] = useState(true);
   const [transferDialogOpen, setTransferDialogOpen] = useState(false);
   const [leaderToDelete, setLeaderToDelete] = useState<Leader & { memberCount: number } | null>(null);
+  const { isSuperAdmin } = useSelectedCongregation();
 
   const loadLeaders = async () => {
     const { data: rolesData, error } = await supabase
@@ -147,6 +149,7 @@ const LeaderManagement = () => {
               <TableCell>{leader.email}</TableCell>
               <TableCell>{getDepartmentLabel(leader.department)}</TableCell>
               <TableCell className="text-right">
+                {!isSuperAdmin ? (
                 <AlertDialog>
                   <AlertDialogTrigger asChild>
                     <Button variant="destructive" size="sm">
@@ -168,6 +171,9 @@ const LeaderManagement = () => {
                     </AlertDialogFooter>
                   </AlertDialogContent>
                 </AlertDialog>
+                ) : (
+                  <span className="text-sm text-muted-foreground">—</span>
+                )}
               </TableCell>
             </TableRow>
           ))}

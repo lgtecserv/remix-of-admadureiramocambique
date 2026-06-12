@@ -4,6 +4,7 @@ import { BottomNavigation } from "./BottomNavigation";
 import NotificationBell from "@/components/notifications/NotificationBell";
 import { UserAvatar } from "@/components/common/UserAvatar";
 import { OfflineIndicator } from "@/components/common/OfflineIndicator";
+import { CongregationSelector } from "@/components/common/CongregationSelector";
 import { ThemeToggle } from "@/components/common/ThemeToggle";
 import { User } from "@supabase/supabase-js";
 import { useState, useEffect } from "react";
@@ -65,6 +66,7 @@ const AppLayout = ({ children, userName, role, department, userEmail, user }: Ap
           <header className="sticky top-0 z-40 bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/60 border-b border-border">
             <div className="flex items-center gap-4 px-6 py-4">
               <SidebarTrigger />
+              <CongregationSelector />
               <div className="flex-1" />
               <ThemeToggle />
               {user && <NotificationBell userId={user.id} />}

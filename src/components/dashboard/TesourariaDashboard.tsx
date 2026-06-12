@@ -6,6 +6,7 @@ import { DollarSign, TrendingUp, TrendingDown, Wallet, Package } from "lucide-re
 import AppLayout from "@/components/layout/AppLayout";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
 import BirthdayAlert from "./BirthdayAlert";
+import { useSelectedCongregation } from "@/contexts/SelectedCongregationContext";
 
 interface TesourariaDashboardProps {
   user: User;
@@ -24,34 +25,42 @@ const TesourariaDashboard = ({ user, userEmail }: TesourariaDashboardProps) => {
     perfectCondition: 0,
     damagedCondition: 0,
   });
+  const { getEffectiveCongregationId } = useSelectedCongregation();
+  const congId = getEffectiveCongregationId();
 
   const loadFinancialStats = async () => {
     const now = new Date();
     const startOfYear = new Date(now.getFullYear(), 0, 1);
 
     // Ofertas
-    const { data: offeringsData } = await supabase
+    let offeringsQuery = supabase
       .from("offerings")
       .select("amount, event_date")
       .gte("event_date", startOfYear.toISOString());
+    if (congId) offeringsQuery = offeringsQuery.eq("congregation_id", congId);
+    const { data: offeringsData } = await offeringsQuery;
 
     const totalOfferings = offeringsData?.reduce((sum, item) => sum + Number(item.amount), 0) || 0;
 
     // Dízimos
-    const { data: tithesData } = await supabase
+    let tithesQuery = supabase
       .from("tithes")
       .select("amount, tithe_date")
       .gte("tithe_date", startOfYear.toISOString());
+    if (congId) tithesQuery = tithesQuery.eq("congregation_id", congId);
+    const { data: tithesData } = await tithesQuery;
 
     const totalTithes = tithesData?.reduce((sum, item) => sum + Number(item.amount), 0) || 0;
 
     setTotalIncome(totalOfferings + totalTithes);
 
     // Gastos
-    const { data: expensesData } = await supabase
+    let expensesQuery = supabase
       .from("expenses")
       .select("amount, expense_date")
       .gte("expense_date", startOfYear.toISOString());
+    if (congId) expensesQuery = expensesQuery.eq("congregation_id", congId);
+    const { data: expensesData } = await expensesQuery;
 
     const expenses = expensesData?.reduce((sum, item) => sum + Number(item.amount), 0) || 0;
     setTotalExpenses(expenses);
@@ -101,7 +110,9 @@ const TesourariaDashboard = ({ user, userEmail }: TesourariaDashboardProps) => {
   };
 
   const loadInventoryStats = async () => {
-    const { data } = await supabase.from("church_assets").select("*");
+    let assetsQuery = supabase.from("church_assets").select("*");
+    if (congId) assetsQuery = assetsQuery.eq("congregation_id", congId);
+    const { data } = await assetsQuery;
     
     if (data) {
       setInventoryStats({
@@ -145,7 +156,7 @@ const TesourariaDashboard = ({ user, userEmail }: TesourariaDashboardProps) => {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [user.id]);
+  }, [user.id, congId]);
 
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat("pt-MZ", {

@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { supabase, getDepartmentLabel } from "@/lib/supabase";
+import { useSelectedCongregation } from "@/contexts/SelectedCongregationContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -37,6 +38,9 @@ const CreateLeaderForm = ({ onSuccess }: CreateLeaderFormProps) => {
     department: "",
   });
 
+  const { getEffectiveCongregationId } = useSelectedCongregation();
+  const congId = getEffectiveCongregationId();
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -52,6 +56,7 @@ const CreateLeaderForm = ({ onSuccess }: CreateLeaderFormProps) => {
           password: validatedData.password,
           fullName: validatedData.fullName,
           department: validatedData.department,
+          congregationId: congId,
         },
       });
 

@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from "recharts";
+import { useSelectedCongregation } from "@/contexts/SelectedCongregationContext";
 
 interface StatusChartProps {
   department?: string;
@@ -15,11 +16,14 @@ const STATUS_COLORS = {
 
 const StatusChart = ({ department, leaderId }: StatusChartProps = {}) => {
   const [data, setData] = useState<{ name: string; value: number }[]>([]);
+  const { getEffectiveCongregationId } = useSelectedCongregation();
+  const congId = getEffectiveCongregationId();
 
   useEffect(() => {
     const fetchData = async () => {
       let query = supabase.from("members").select("status");
       
+      if (congId) query = query.eq("congregation_id", congId);
       if (department && leaderId) {
         query = query.eq("department", department as any).eq("leader_id", leaderId);
       }
@@ -43,7 +47,7 @@ const StatusChart = ({ department, leaderId }: StatusChartProps = {}) => {
     };
 
     fetchData();
-  }, [department, leaderId]);
+  }, [department, leaderId, congId]);
 
   return (
     <ResponsiveContainer width="100%" height={300}>

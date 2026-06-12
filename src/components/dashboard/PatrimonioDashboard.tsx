@@ -6,6 +6,7 @@ import { Package, AlertCircle, Clock } from "lucide-react";
 import AppLayout from "@/components/layout/AppLayout";
 import { Badge } from "@/components/ui/badge";
 import BirthdayAlert from "./BirthdayAlert";
+import { useSelectedCongregation } from "@/contexts/SelectedCongregationContext";
 
 interface PatrimonioDashboardProps {
   user: User;
@@ -18,44 +19,54 @@ const PatrimonioDashboard = ({ user, userEmail }: PatrimonioDashboardProps) => {
   const [pendingRequests, setPendingRequests] = useState(0);
   const [profile, setProfile] = useState<any>(null);
   const [recentRequests, setRecentRequests] = useState<any[]>([]);
+  const { getEffectiveCongregationId, isSuperAdmin } = useSelectedCongregation();
+  const congId = getEffectiveCongregationId();
 
   const loadStats = async () => {
     // Total de itens
-    const { count: totalCount } = await supabase
+    let totalQuery = supabase
       .from("church_assets")
-      .select("*", { count: "exact", head: true })
-      .eq("leader_id", user.id);
+      .select("*", { count: "exact", head: true });
+    if (!isSuperAdmin) totalQuery = totalQuery.eq("leader_id", user.id);
+    if (congId) totalQuery = totalQuery.eq("congregation_id", congId);
+    const { count: totalCount } = await totalQuery;
 
     setTotalItems(totalCount || 0);
 
     // Itens em bom estado
-    const { count: goodCount } = await supabase
+    let goodQuery = supabase
       .from("church_assets")
       .select("*", { count: "exact", head: true })
-      .eq("leader_id", user.id)
       .eq("condition", "perfeito");
+    if (!isSuperAdmin) goodQuery = goodQuery.eq("leader_id", user.id);
+    if (congId) goodQuery = goodQuery.eq("congregation_id", congId);
+    const { count: goodCount } = await goodQuery;
 
     setGoodCondition(goodCount || 0);
 
     // Solicitações pendentes
-    const { count: pendingCount } = await supabase
+    let pendingQuery = supabase
       .from("asset_requests")
       .select("*", { count: "exact", head: true })
-      .eq("requested_by", user.id)
       .eq("status", "pendente");
+    if (!isSuperAdmin) pendingQuery = pendingQuery.eq("requested_by", user.id);
+    if (congId) pendingQuery = pendingQuery.eq("congregation_id", congId);
+    const { count: pendingCount } = await pendingQuery;
 
     setPendingRequests(pendingCount || 0);
 
     // Últimas solicitações
-    const { data: requestsData } = await supabase
+    let recentQuery = supabase
       .from("asset_requests")
       .select(`
         *,
         church_assets(name)
       `)
-      .eq("requested_by", user.id)
       .order("created_at", { ascending: false })
       .limit(5);
+    if (!isSuperAdmin) recentQuery = recentQuery.eq("requested_by", user.id);
+    if (congId) recentQuery = recentQuery.eq("congregation_id", congId);
+    const { data: requestsData } = await recentQuery;
 
     setRecentRequests(requestsData || []);
   };
@@ -91,7 +102,7 @@ const PatrimonioDashboard = ({ user, userEmail }: PatrimonioDashboardProps) => {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [user.id]);
+  }, [user.id, congId]);
 
   const getStatusColor = (status: string) => {
     switch (status) {

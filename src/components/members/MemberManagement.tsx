@@ -9,6 +9,7 @@ import { Pencil, Trash2 } from "lucide-react";
 import EditMemberForm from "./EditMemberForm";
 import { toast } from "sonner";
 import { getDepartmentLabel, getStatusLabel } from "@/lib/supabase";
+import { useSelectedCongregation } from "@/contexts/SelectedCongregationContext";
 import { MemberListSkeleton, MemberTableSkeleton } from "@/components/ui/content-skeleton";
 import {
   AlertDialog,
@@ -50,6 +51,8 @@ const MemberManagement = ({
   const [loading, setLoading] = useState(true);
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const [userRole, setUserRole] = useState<string | null>(null);
+  const { getEffectiveCongregationId } = useSelectedCongregation();
+  const congId = getEffectiveCongregationId();
 
   const loadMembers = async () => {
     const { data: { user } } = await supabase.auth.getUser();
@@ -71,6 +74,11 @@ const MemberManagement = ({
       .from("members")
       .select("*")
       .order("created_at", { ascending: false });
+
+    // Apply congregation filter from context
+    if (congId) {
+      query = query.eq("congregation_id", congId);
+    }
 
     if (roleData.role === "leader" && roleData.department) {
       query = query.eq("department", roleData.department);
@@ -102,7 +110,7 @@ const MemberManagement = ({
     return () => {
       supabase.removeChannel(channel);
     };
-  }, []);
+  }, [congId]);
 
   useEffect(() => {
     let filtered = [...members];
@@ -322,7 +330,7 @@ const MemberManagement = ({
                           )}
                         </>
                       ) : (
-                        <span className="text-sm text-muted-foreground">Sem permissão</span>
+                        <span className="text-sm text-muted-foreground">—</span>
                       )}
                     </TableCell>
                   </TableRow>

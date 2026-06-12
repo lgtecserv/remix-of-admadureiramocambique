@@ -10,6 +10,7 @@ import { Loader2, UserPlus, Users, UserCheck } from "lucide-react";
 import CreateVisitorForm from "@/components/visitors/CreateVisitorForm";
 import VisitorManagement from "@/components/visitors/VisitorManagement";
 import { DateRangeFilter, DateRange } from "@/components/common/DateRangeFilter";
+import { useSelectedCongregation } from "@/contexts/SelectedCongregationContext";
 
 const Visitors = () => {
   const [user, setUser] = useState<User | null>(null);
@@ -84,6 +85,9 @@ const Visitors = () => {
     }
   }, [user, role, profile, dialogOpen]);
 
+  const { isSuperAdmin } = useSelectedCongregation();
+  const effectiveRole = isSuperAdmin ? "super_admin" : role;
+
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -93,33 +97,37 @@ const Visitors = () => {
   }
 
   return (
-    <AppLayout userName={profile?.full_name} role={role}>
+    <AppLayout userName={profile?.full_name} role={effectiveRole}>
       <div className="space-y-6">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
             <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Visitantes</h1>
             <p className="text-muted-foreground mt-1">
-              Gerencie os visitantes {role === "leader" ? `do departamento de ${profile?.department}` : "da igreja"}
+              {isSuperAdmin
+                ? "Visualize os visitantes de todas as congregações"
+                : `Gerencie os visitantes ${role === "leader" ? `do departamento de ${profile?.department}` : "da igreja"}`}
             </p>
           </div>
-          <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-            <DialogTrigger asChild>
-              <Button className="w-full sm:w-auto">
-                <UserPlus className="mr-2 h-4 w-4" />
-                Cadastrar Visitante
-              </Button>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Cadastrar Novo Visitante</DialogTitle>
-              </DialogHeader>
-              <CreateVisitorForm
-                onSuccess={() => setDialogOpen(false)}
-                user={user!}
-                userDepartment={role === "leader" ? profile?.department : undefined}
-              />
-            </DialogContent>
-          </Dialog>
+          {!isSuperAdmin && (
+            <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+              <DialogTrigger asChild>
+                <Button className="w-full sm:w-auto">
+                  <UserPlus className="mr-2 h-4 w-4" />
+                  Cadastrar Visitante
+                </Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Cadastrar Novo Visitante</DialogTitle>
+                </DialogHeader>
+                <CreateVisitorForm
+                  onSuccess={() => setDialogOpen(false)}
+                  user={user!}
+                  userDepartment={role === "leader" ? profile?.department : undefined}
+                />
+              </DialogContent>
+            </Dialog>
+          )}
         </div>
 
         <div className="grid gap-4 md:grid-cols-3">

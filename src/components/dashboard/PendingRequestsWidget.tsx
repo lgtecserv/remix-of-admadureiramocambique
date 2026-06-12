@@ -3,6 +3,7 @@ import { supabase } from "@/lib/supabase";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { AlertCircle } from "lucide-react";
+import { useSelectedCongregation } from "@/contexts/SelectedCongregationContext";
 
 interface AssetRequest {
   id: string;
@@ -23,6 +24,8 @@ interface AssetRequest {
 export const PendingRequestsWidget = () => {
   const [pendingRequests, setPendingRequests] = useState<AssetRequest[]>([]);
   const [loading, setLoading] = useState(true);
+  const { getEffectiveCongregationId } = useSelectedCongregation();
+  const congId = getEffectiveCongregationId();
 
   useEffect(() => {
     loadPendingRequests();
@@ -39,10 +42,10 @@ export const PendingRequestsWidget = () => {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, []);
+  }, [congId]);
 
   const loadPendingRequests = async () => {
-    const { data, error } = await supabase
+    let query = supabase
       .from("asset_requests")
       .select(`
         *,
@@ -51,6 +54,10 @@ export const PendingRequestsWidget = () => {
       .eq("status", "pendente")
       .order("created_at", { ascending: false })
       .limit(5);
+
+    if (congId) query = query.eq("congregation_id", congId);
+
+    const { data } = await query;
 
     if (!data) {
       setLoading(false);

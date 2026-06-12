@@ -9,6 +9,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
 import { z } from "zod";
+import { createClient } from "@supabase/supabase-js";
 
 const pastorSchema = z.object({
   email: z.string().trim().email({ message: "Email inválido" }).max(255),
@@ -55,10 +56,38 @@ export function CreatePastorForm({ onSuccess }: CreatePastorFormProps) {
     setLoading(true);
     try {
       const validatedData = pastorSchema.parse(formData);
-      const { error } = await supabase.functions.invoke("create-pastor", {
-        body: validatedData,
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) throw new Error("Não autenticado");
+
+      const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/create-pastor`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session.access_token}`
+        },
+        body: JSON.stringify({
+          email: validatedData.email,
+          password: validatedData.password,
+          fullName: validatedData.fullName,
+          congregationId: validatedData.congregationId,
+          isTitular: validatedData.isTitular,
+        })
       });
-      if (error) throw error;
+
+      const responseText = await response.text();
+      let responseData;
+      try {
+        responseData = JSON.parse(responseText);
+      } catch (e) {
+        throw new Error("Erro de comunicação com o servidor.");
+      }
+
+      if (!response.ok || !responseData.success) {
+        throw new Error(responseData.error || 'Erro ao criar pastor');
+      }
+
+      // The response logic has been replaced by the direct frontend implementation above.
+      
       toast.success("Pastor criado com sucesso!");
       setFormData({ email: "", password: "", fullName: "", congregationId: "", isTitular: true });
       onSuccess();

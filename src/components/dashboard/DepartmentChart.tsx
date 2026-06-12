@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { supabase, getDepartmentLabel } from "@/lib/supabase";
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from "recharts";
+import { useSelectedCongregation } from "@/contexts/SelectedCongregationContext";
 
 const COLORS = [
   "hsl(var(--chart-1))",
@@ -12,10 +13,14 @@ const COLORS = [
 
 const DepartmentChart = () => {
   const [data, setData] = useState<{ name: string; value: number }[]>([]);
+  const { getEffectiveCongregationId } = useSelectedCongregation();
+  const congId = getEffectiveCongregationId();
 
   useEffect(() => {
     const fetchData = async () => {
-      const { data: members } = await supabase.from("members").select("department");
+      let query = supabase.from("members").select("department");
+      if (congId) query = query.eq("congregation_id", congId);
+      const { data: members } = await query;
 
       if (members) {
         const deptCount: Record<string, number> = {};
@@ -33,7 +38,7 @@ const DepartmentChart = () => {
     };
 
     fetchData();
-  }, []);
+  }, [congId]);
 
   return (
     <ResponsiveContainer width="100%" height={300}>

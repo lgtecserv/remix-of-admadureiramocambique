@@ -145,14 +145,13 @@ const Dashboard = () => {
     );
   }
 
-  if (role === "super_admin") {
-    navigate("/super-admin");
-    return null;
+  if ((role === "super_admin" || role === "super-admin") && user) {
+    return <PastorDashboard user={user} userEmail={userEmail} explicitRole="super_admin" />;
   }
 
   // Renderização baseada em role e department - ordem importa!
   if (role === "pastor" && user) {
-    return <PastorDashboard user={user} userEmail={userEmail} />;
+    return <PastorDashboard user={user} userEmail={userEmail} explicitRole="pastor" />;
   }
 
   if (role === "leader" && user) {

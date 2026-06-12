@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { supabase, getDepartmentLabel, getCurrentUserCongregationId } from "@/lib/supabase";
+import { useSelectedCongregation } from "@/contexts/SelectedCongregationContext";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -43,9 +44,13 @@ interface VisitorManagementProps {
 const VisitorManagement = ({ userRole, userDepartment, userId, dateRange }: VisitorManagementProps) => {
   const [visitors, setVisitors] = useState<Visitor[]>([]);
   const [loading, setLoading] = useState(true);
+  const { getEffectiveCongregationId } = useSelectedCongregation();
+  const congId = getEffectiveCongregationId();
 
   const loadVisitors = async () => {
     let query = supabase.from("visitors").select("*").order("visit_date", { ascending: false });
+
+    if (congId) query = query.eq("congregation_id", congId);
 
     if (userRole === "leader" && userDepartment) {
       query = query.eq("department", userDepartment as any);
@@ -86,7 +91,7 @@ const VisitorManagement = ({ userRole, userDepartment, userId, dateRange }: Visi
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [userRole, userDepartment, dateRange]);
+  }, [userRole, userDepartment, dateRange, congId]);
 
   const handleMarkReturned = async (visitorId: string) => {
     const { error } = await supabase

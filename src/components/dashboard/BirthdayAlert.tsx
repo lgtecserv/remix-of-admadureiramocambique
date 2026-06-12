@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { UserAvatar } from "@/components/common/UserAvatar";
 import { useNotificationSound } from "@/hooks/useNotificationSound";
 import { useNotificationSettings } from "@/hooks/useNotificationSettings";
+import { useSelectedCongregation } from "@/contexts/SelectedCongregationContext";
 interface BirthdayAlertProps {
   department?: string;
   leaderId?: string;
@@ -24,6 +25,8 @@ const BirthdayAlert = ({ department, leaderId }: BirthdayAlertProps) => {
   const [birthdays, setBirthdays] = useState<BirthdayMember[]>([]);
   const [userId, setUserId] = useState<string | null>(null);
   const birthdaySoundPlayedRef = useRef(false);
+  const { getEffectiveCongregationId } = useSelectedCongregation();
+  const congId = getEffectiveCongregationId();
 
   // Get user ID for notification settings
   useEffect(() => {
@@ -44,13 +47,9 @@ const BirthdayAlert = ({ department, leaderId }: BirthdayAlertProps) => {
       .select("id, full_name, department, birth_date, photo_url")
       .not("birth_date", "is", null);
 
-    if (department) {
-      query = query.eq("department", department as any);
-    }
-
-    if (leaderId) {
-      query = query.eq("leader_id", leaderId);
-    }
+    if (congId) query = query.eq("congregation_id", congId);
+    if (department) query = query.eq("department", department as any);
+    if (leaderId) query = query.eq("leader_id", leaderId);
 
     const { data } = await query;
 
@@ -65,16 +64,8 @@ const BirthdayAlert = ({ department, leaderId }: BirthdayAlertProps) => {
           const birthDate = new Date(member.birth_date!);
           const birthDay = birthDate.getDate();
           let daysUntil = birthDay - currentDay;
-          
-          // Se já passou, não mostrar
-          if (daysUntil < 0) {
-            return null;
-          }
-
-          return {
-            ...member,
-            daysUntil,
-          } as BirthdayMember;
+          if (daysUntil < 0) return null;
+          return { ...member, daysUntil } as BirthdayMember;
         })
         .filter((member): member is BirthdayMember => member !== null)
         .sort((a, b) => a.daysUntil - b.daysUntil)
@@ -99,7 +90,7 @@ const BirthdayAlert = ({ department, leaderId }: BirthdayAlertProps) => {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [department, leaderId]);
+  }, [department, leaderId, congId]);
 
   // Play birthday sound once per day when there are birthdays today
   useEffect(() => {

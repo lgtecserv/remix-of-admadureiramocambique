@@ -3,6 +3,7 @@ import { supabase, getDepartmentLabel } from "@/lib/supabase";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Users, TrendingUp, UserCheck, UserX, UserPlus } from "lucide-react";
+import { useSelectedCongregation } from "@/contexts/SelectedCongregationContext";
 
 interface DepartmentStats {
   department: string;
@@ -28,22 +29,26 @@ const getDepartmentColor = (department: string): string => {
 export function DepartmentStatsCard() {
   const [stats, setStats] = useState<DepartmentStats[]>([]);
   const [loading, setLoading] = useState(true);
+  const { getEffectiveCongregationId } = useSelectedCongregation();
+  const congId = getEffectiveCongregationId();
 
   useEffect(() => {
     loadStats();
-  }, []);
+  }, [congId]);
 
   const loadStats = async () => {
     try {
       // Get all members grouped by department
-      const { data: members, error: membersError } = await supabase
+      let membersQuery = supabase
         .from("members")
         .select("department, status, created_at, leader_id");
+      if (congId) membersQuery = membersQuery.eq("congregation_id", congId);
+      const { data: members, error: membersError } = await membersQuery;
 
       if (membersError) throw membersError;
 
       // Get all leaders
-      const { data: leaders, error: leadersError } = await supabase
+      let leadersQuery = supabase
         .from("user_roles")
         .select(`
           user_id,
@@ -51,6 +56,8 @@ export function DepartmentStatsCard() {
           profiles!inner(full_name)
         `)
         .eq("role", "leader");
+      if (congId) leadersQuery = leadersQuery.eq("congregation_id", congId);
+      const { data: leaders, error: leadersError } = await leadersQuery;
 
       if (leadersError) throw leadersError;
 
