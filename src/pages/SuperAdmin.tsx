@@ -100,6 +100,8 @@ const SuperAdmin = () => {
           </div>
         </div>
 
+        <CongregationsManagement onChange={loadPastors} />
+
         <div className="grid gap-6 md:grid-cols-2">
           <CreatePastorForm onSuccess={loadPastors} />
 
