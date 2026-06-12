@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { supabase, getDepartmentLabel } from "@/lib/supabase";
+import { supabase, getDepartmentLabel, getCurrentUserCongregationId } from "@/lib/supabase";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
