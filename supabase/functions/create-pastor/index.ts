@@ -9,6 +9,8 @@ interface CreatePastorRequest {
   email: string;
   password: string;
   fullName: string;
+  congregationId: string;
+  isTitular?: boolean;
 }
 
 Deno.serve(async (req) => {
