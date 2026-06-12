@@ -51,24 +51,16 @@ Deno.serve(async (req) => {
       );
     }
 
-    // Verify super admin status
-    const { data: profileData, error: profileError } = await supabaseClient
-      .from('profiles')
-      .select('email')
-      .eq('id', user.id)
-      .single();
+    // Verify super admin status via user_roles
+    const { data: superCheck, error: superErr } = await supabaseClient
+      .from('user_roles')
+      .select('id')
+      .eq('user_id', user.id)
+      .eq('role', 'super_admin')
+      .maybeSingle();
 
-    if (profileError || !profileData) {
-      console.log('Profile error:', profileError);
-      return new Response(
-        JSON.stringify({ error: 'Profile not found' }),
-        { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
-
-    // Check if user is super admin
-    if (profileData.email !== 'lgtecserv@gmail.com') {
-      console.log('Not super admin:', profileData.email);
+    if (superErr || !superCheck) {
+      console.log('Not super admin:', user.id, superErr);
       return new Response(
         JSON.stringify({ error: 'Forbidden: Only super admin can create pastors' }),
         { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -76,12 +68,12 @@ Deno.serve(async (req) => {
     }
 
     // Parse request body
-    const { email, password, fullName }: CreatePastorRequest = await req.json();
+    const { email, password, fullName, congregationId, isTitular }: CreatePastorRequest = await req.json();
 
     // Validate input
-    if (!email || !password || !fullName) {
+    if (!email || !password || !fullName || !congregationId) {
       return new Response(
-        JSON.stringify({ error: 'Missing required fields' }),
+        JSON.stringify({ error: 'Missing required fields (email, password, fullName, congregationId)' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
