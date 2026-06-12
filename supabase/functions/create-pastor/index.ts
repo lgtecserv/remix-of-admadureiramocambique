@@ -99,22 +99,43 @@ Deno.serve(async (req) => {
     console.log('User created:', newUser.user.id);
     console.log('Profile created automatically by trigger');
 
-    // Assign pastor role
+    // Assign pastor role + vincular à congregação
     const { error: roleError } = await supabaseClient
       .from('user_roles')
       .insert({
         user_id: newUser.user.id,
-        role: 'pastor'
+        role: 'pastor',
+        congregation_id: congregationId,
       });
 
     if (roleError) {
       console.error('Error assigning role:', roleError);
-      // Clean up user (CASCADE will automatically delete profile)
       await supabaseClient.auth.admin.deleteUser(newUser.user.id);
       return new Response(
         JSON.stringify({ error: 'Failed to assign pastor role' }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
+    }
+
+    // Criar vínculo em congregation_pastors
+    const { error: cpError } = await supabaseClient
+      .from('congregation_pastors')
+      .insert({
+        congregation_id: congregationId,
+        pastor_id: newUser.user.id,
+        is_titular: !!isTitular,
+      });
+
+    if (cpError) {
+      console.error('Error linking pastor to congregation:', cpError);
+    }
+
+    // Se titular, atualizar congregations.pastor_responsavel_id
+    if (isTitular) {
+      await supabaseClient
+        .from('congregations')
+        .update({ pastor_responsavel_id: newUser.user.id })
+        .eq('id', congregationId);
     }
 
     console.log('Pastor role assigned successfully');
