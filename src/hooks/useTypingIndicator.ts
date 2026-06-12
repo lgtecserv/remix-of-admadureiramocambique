@@ -8,7 +8,7 @@ interface TypingUser {
 
 export const useTypingIndicator = (conversationId: string | null, userId: string | undefined) => {
   const [typingUsers, setTypingUsers] = useState<TypingUser[]>([]);
-  let typingTimeout: NodeJS.Timeout | null = null;
+  let typingTimeout: ReturnType<typeof setTimeout> | null = null;
 
   const setTyping = useCallback(async (isTyping: boolean) => {
     if (!conversationId || !userId) return;
