@@ -18,6 +18,7 @@ export type Database = {
         Row: {
           approval_comment: string | null
           asset_id: string
+          congregation_id: string | null
           created_at: string
           id: string
           image_url: string | null
@@ -30,6 +31,7 @@ export type Database = {
         Insert: {
           approval_comment?: string | null
           asset_id: string
+          congregation_id?: string | null
           created_at?: string
           id?: string
           image_url?: string | null
@@ -42,6 +44,7 @@ export type Database = {
         Update: {
           approval_comment?: string | null
           asset_id?: string
+          congregation_id?: string | null
           created_at?: string
           id?: string
           image_url?: string | null
@@ -59,10 +62,18 @@ export type Database = {
             referencedRelation: "church_assets"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "asset_requests_congregation_id_fkey"
+            columns: ["congregation_id"]
+            isOneToOne: false
+            referencedRelation: "congregations"
+            referencedColumns: ["id"]
+          },
         ]
       }
       attendances: {
         Row: {
+          congregation_id: string
           created_at: string
           department: Database["public"]["Enums"]["department_type"]
           event_date: string
@@ -75,6 +86,7 @@ export type Database = {
           visitor_id: string | null
         }
         Insert: {
+          congregation_id: string
           created_at?: string
           department: Database["public"]["Enums"]["department_type"]
           event_date?: string
@@ -87,6 +99,7 @@ export type Database = {
           visitor_id?: string | null
         }
         Update: {
+          congregation_id?: string
           created_at?: string
           department?: Database["public"]["Enums"]["department_type"]
           event_date?: string
@@ -99,6 +112,13 @@ export type Database = {
           visitor_id?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "attendances_congregation_id_fkey"
+            columns: ["congregation_id"]
+            isOneToOne: false
+            referencedRelation: "congregations"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "attendances_leader_fk"
             columns: ["leader_id"]
@@ -126,6 +146,7 @@ export type Database = {
         Row: {
           adjustment_date: string
           amount: number
+          congregation_id: string | null
           created_at: string
           description: string
           id: string
@@ -135,6 +156,7 @@ export type Database = {
         Insert: {
           adjustment_date?: string
           amount: number
+          congregation_id?: string | null
           created_at?: string
           description: string
           id?: string
@@ -144,17 +166,27 @@ export type Database = {
         Update: {
           adjustment_date?: string
           amount?: number
+          congregation_id?: string | null
           created_at?: string
           description?: string
           id?: string
           recorded_by?: string
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "balance_adjustments_congregation_id_fkey"
+            columns: ["congregation_id"]
+            isOneToOne: false
+            referencedRelation: "congregations"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       church_assets: {
         Row: {
           condition: string
+          congregation_id: string
           created_at: string
           id: string
           image_url: string | null
@@ -166,6 +198,7 @@ export type Database = {
         }
         Insert: {
           condition: string
+          congregation_id: string
           created_at?: string
           id?: string
           image_url?: string | null
@@ -177,6 +210,7 @@ export type Database = {
         }
         Update: {
           condition?: string
+          congregation_id?: string
           created_at?: string
           id?: string
           image_url?: string | null
@@ -184,6 +218,82 @@ export type Database = {
           name?: string
           observations?: string | null
           quantity?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "church_assets_congregation_id_fkey"
+            columns: ["congregation_id"]
+            isOneToOne: false
+            referencedRelation: "congregations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      congregation_pastors: {
+        Row: {
+          assigned_at: string
+          congregation_id: string
+          id: string
+          is_titular: boolean
+          pastor_id: string
+        }
+        Insert: {
+          assigned_at?: string
+          congregation_id: string
+          id?: string
+          is_titular?: boolean
+          pastor_id: string
+        }
+        Update: {
+          assigned_at?: string
+          congregation_id?: string
+          id?: string
+          is_titular?: boolean
+          pastor_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "congregation_pastors_congregation_id_fkey"
+            columns: ["congregation_id"]
+            isOneToOne: false
+            referencedRelation: "congregations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      congregations: {
+        Row: {
+          active: boolean
+          address: string | null
+          city: string | null
+          created_at: string
+          id: string
+          name: string
+          pastor_responsavel_id: string | null
+          phone: string | null
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          address?: string | null
+          city?: string | null
+          created_at?: string
+          id?: string
+          name: string
+          pastor_responsavel_id?: string | null
+          phone?: string | null
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          address?: string | null
+          city?: string | null
+          created_at?: string
+          id?: string
+          name?: string
+          pastor_responsavel_id?: string | null
+          phone?: string | null
           updated_at?: string
         }
         Relationships: []
@@ -229,6 +339,7 @@ export type Database = {
       }
       conversations: {
         Row: {
+          congregation_id: string | null
           created_at: string | null
           id: string
           name: string | null
@@ -236,6 +347,7 @@ export type Database = {
           updated_at: string | null
         }
         Insert: {
+          congregation_id?: string | null
           created_at?: string | null
           id?: string
           name?: string | null
@@ -243,18 +355,28 @@ export type Database = {
           updated_at?: string | null
         }
         Update: {
+          congregation_id?: string | null
           created_at?: string | null
           id?: string
           name?: string | null
           type?: string
           updated_at?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "conversations_congregation_id_fkey"
+            columns: ["congregation_id"]
+            isOneToOne: false
+            referencedRelation: "congregations"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       expenses: {
         Row: {
           amount: number
           category: string
+          congregation_id: string
           created_at: string
           description: string
           expense_date: string
@@ -265,6 +387,7 @@ export type Database = {
         Insert: {
           amount: number
           category: string
+          congregation_id: string
           created_at?: string
           description: string
           expense_date: string
@@ -275,6 +398,7 @@ export type Database = {
         Update: {
           amount?: number
           category?: string
+          congregation_id?: string
           created_at?: string
           description?: string
           expense_date?: string
@@ -282,13 +406,22 @@ export type Database = {
           recorded_by?: string
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "expenses_congregation_id_fkey"
+            columns: ["congregation_id"]
+            isOneToOne: false
+            referencedRelation: "congregations"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       members: {
         Row: {
           address: string | null
           baptism_date: string | null
           birth_date: string | null
+          congregation_id: string
           created_at: string
           department: Database["public"]["Enums"]["department_type"]
           full_name: string
@@ -308,6 +441,7 @@ export type Database = {
           address?: string | null
           baptism_date?: string | null
           birth_date?: string | null
+          congregation_id: string
           created_at?: string
           department: Database["public"]["Enums"]["department_type"]
           full_name: string
@@ -327,6 +461,7 @@ export type Database = {
           address?: string | null
           baptism_date?: string | null
           birth_date?: string | null
+          congregation_id?: string
           created_at?: string
           department?: Database["public"]["Enums"]["department_type"]
           full_name?: string
@@ -343,6 +478,13 @@ export type Database = {
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "members_congregation_id_fkey"
+            columns: ["congregation_id"]
+            isOneToOne: false
+            referencedRelation: "congregations"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "members_leader_fk"
             columns: ["leader_id"]
@@ -442,6 +584,7 @@ export type Database = {
       offerings: {
         Row: {
           amount: number
+          congregation_id: string
           created_at: string
           event_date: string
           event_type: string
@@ -453,6 +596,7 @@ export type Database = {
         }
         Insert: {
           amount: number
+          congregation_id: string
           created_at?: string
           event_date: string
           event_type: string
@@ -464,6 +608,7 @@ export type Database = {
         }
         Update: {
           amount?: number
+          congregation_id?: string
           created_at?: string
           event_date?: string
           event_type?: string
@@ -473,7 +618,15 @@ export type Database = {
           updated_at?: string
           verified_by_names?: string[] | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "offerings_congregation_id_fkey"
+            columns: ["congregation_id"]
+            isOneToOne: false
+            referencedRelation: "congregations"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       profiles: {
         Row: {
@@ -535,6 +688,7 @@ export type Database = {
       tithes: {
         Row: {
           amount: number
+          congregation_id: string
           created_at: string
           id: string
           member_id: string
@@ -545,6 +699,7 @@ export type Database = {
         }
         Insert: {
           amount: number
+          congregation_id: string
           created_at?: string
           id?: string
           member_id: string
@@ -555,6 +710,7 @@ export type Database = {
         }
         Update: {
           amount?: number
+          congregation_id?: string
           created_at?: string
           id?: string
           member_id?: string
@@ -564,6 +720,13 @@ export type Database = {
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "tithes_congregation_id_fkey"
+            columns: ["congregation_id"]
+            isOneToOne: false
+            referencedRelation: "congregations"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "tithes_member_id_fkey"
             columns: ["member_id"]
@@ -662,6 +825,7 @@ export type Database = {
       }
       user_roles: {
         Row: {
+          congregation_id: string | null
           created_at: string
           department: Database["public"]["Enums"]["department_type"] | null
           id: string
@@ -669,6 +833,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          congregation_id?: string | null
           created_at?: string
           department?: Database["public"]["Enums"]["department_type"] | null
           id?: string
@@ -676,6 +841,7 @@ export type Database = {
           user_id: string
         }
         Update: {
+          congregation_id?: string | null
           created_at?: string
           department?: Database["public"]["Enums"]["department_type"] | null
           id?: string
@@ -683,6 +849,13 @@ export type Database = {
           user_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "user_roles_congregation_id_fkey"
+            columns: ["congregation_id"]
+            isOneToOne: false
+            referencedRelation: "congregations"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "user_roles_user_fk"
             columns: ["user_id"]
@@ -694,6 +867,7 @@ export type Database = {
       }
       visitor_followups: {
         Row: {
+          congregation_id: string | null
           created_at: string
           department: Database["public"]["Enums"]["department_type"]
           followup_date: string
@@ -706,6 +880,7 @@ export type Database = {
           visitor_id: string
         }
         Insert: {
+          congregation_id?: string | null
           created_at?: string
           department: Database["public"]["Enums"]["department_type"]
           followup_date?: string
@@ -718,6 +893,7 @@ export type Database = {
           visitor_id: string
         }
         Update: {
+          congregation_id?: string | null
           created_at?: string
           department?: Database["public"]["Enums"]["department_type"]
           followup_date?: string
@@ -730,6 +906,13 @@ export type Database = {
           visitor_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "visitor_followups_congregation_id_fkey"
+            columns: ["congregation_id"]
+            isOneToOne: false
+            referencedRelation: "congregations"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "visitor_followups_leader_fk"
             columns: ["leader_id"]
@@ -748,6 +931,7 @@ export type Database = {
       }
       visitors: {
         Row: {
+          congregation_id: string
           created_at: string
           department: Database["public"]["Enums"]["department_type"]
           full_name: string
@@ -761,6 +945,7 @@ export type Database = {
           visit_date: string
         }
         Insert: {
+          congregation_id: string
           created_at?: string
           department: Database["public"]["Enums"]["department_type"]
           full_name: string
@@ -774,6 +959,7 @@ export type Database = {
           visit_date?: string
         }
         Update: {
+          congregation_id?: string
           created_at?: string
           department?: Database["public"]["Enums"]["department_type"]
           full_name?: string
@@ -787,6 +973,13 @@ export type Database = {
           visit_date?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "visitors_congregation_id_fkey"
+            columns: ["congregation_id"]
+            isOneToOne: false
+            referencedRelation: "congregations"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "visitors_leader_fk"
             columns: ["leader_id"]
@@ -807,6 +1000,8 @@ export type Database = {
         Args: { other_user_id: string }
         Returns: string
       }
+      get_leader_congregation: { Args: { _user_id: string }; Returns: string }
+      get_user_congregations: { Args: { _user_id: string }; Returns: string[] }
       get_user_department: {
         Args: { _user_id: string }
         Returns: Database["public"]["Enums"]["department_type"]
@@ -827,11 +1022,13 @@ export type Database = {
         Args: { profile_id: string }
         Returns: boolean
       }
-      is_super_admin:
-        | { Args: { _email: string }; Returns: boolean }
-        | { Args: { _user_id: string }; Returns: boolean }
+      is_super_admin: { Args: { _user_id: string }; Returns: boolean }
       mark_message_delivered: { Args: { msg_id: string }; Returns: undefined }
       mark_message_read: { Args: { msg_id: string }; Returns: undefined }
+      user_has_access_to_congregation: {
+        Args: { _congregation_id: string; _user_id: string }
+        Returns: boolean
+      }
     }
     Enums: {
       app_role: "pastor" | "leader" | "super_admin"
