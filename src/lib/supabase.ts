@@ -49,3 +49,44 @@ export const getDepartmentBadgeClass = (department: string): string => {
 };
 
 export { supabase };
+
+/**
+ * Retorna a congregação ativa do usuário logado.
+ * - Leader: pega de user_roles.congregation_id
+ * - Pastor: pega da primeira entrada em congregation_pastors (titular preferido)
+ * - Super admin: retorna a congregação "Sede" (fallback)
+ */
+export const getCurrentUserCongregationId = async (): Promise<string | null> => {
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return null;
+
+  // 1. Tenta user_roles (leader)
+  const { data: roleRow } = await supabase
+    .from("user_roles")
+    .select("role, congregation_id")
+    .eq("user_id", user.id)
+    .maybeSingle();
+
+  if (roleRow?.congregation_id) return roleRow.congregation_id;
+
+  // 2. Pastor → congregation_pastors
+  if (roleRow?.role === "pastor") {
+    const { data: cp } = await supabase
+      .from("congregation_pastors")
+      .select("congregation_id, is_titular")
+      .eq("pastor_id", user.id)
+      .order("is_titular", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    if (cp?.congregation_id) return cp.congregation_id;
+  }
+
+  // 3. Fallback: Sede
+  const { data: sede } = await supabase
+    .from("congregations")
+    .select("id")
+    .eq("name", "Sede")
+    .maybeSingle();
+  return sede?.id ?? null;
+};
+
