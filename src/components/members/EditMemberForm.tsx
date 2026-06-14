@@ -22,6 +22,8 @@ const editMemberSchema = z.object({
   gender: z.string().optional(),
   memberType: z.string().optional(),
   photoUrl: z.string().optional(),
+  churchFunction: z.string().trim().max(120).optional(),
+  churchOffice: z.string().optional(),
 });
 
 interface EditMemberFormProps {
@@ -33,6 +35,8 @@ interface EditMemberFormProps {
     gender?: string | null;
     member_type?: string | null;
     photo_url?: string | null;
+    church_function?: string | null;
+    church_office?: string | null;
   };
   onSuccess: () => void;
 }
@@ -47,6 +51,14 @@ const memberTypes = [
   { value: "congregado", label: "Congregado" },
   { value: "membro", label: "Membro da Igreja" },
 ];
+const churchOffices = [
+  { value: "cooperador", label: "Cooperador" },
+  { value: "diacono", label: "Diácono" },
+  { value: "presbitero", label: "Presbítero" },
+  { value: "pastor", label: "Pastor" },
+  { value: "evangelista", label: "Evangelista" },
+  { value: "missionario", label: "Missionária/o" },
+];
 
 const EditMemberForm = ({ member, onSuccess }: EditMemberFormProps) => {
   const [loading, setLoading] = useState(false);
@@ -57,6 +69,8 @@ const EditMemberForm = ({ member, onSuccess }: EditMemberFormProps) => {
     gender: member.gender || "",
     memberType: member.member_type || "membro",
     photoUrl: member.photo_url || "",
+    churchFunction: member.church_function || "",
+    churchOffice: member.church_office || "",
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -75,7 +89,9 @@ const EditMemberForm = ({ member, onSuccess }: EditMemberFormProps) => {
           gender: validatedData.gender || null,
           member_type: validatedData.memberType || null,
           photo_url: validatedData.photoUrl || null,
-        })
+          church_function: validatedData.churchFunction || null,
+          church_office: validatedData.churchOffice || null,
+        } as any)
         .eq("id", member.id);
 
       if (error) throw error;
@@ -162,6 +178,36 @@ const EditMemberForm = ({ member, onSuccess }: EditMemberFormProps) => {
               ))}
             </SelectContent>
           </Select>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div className="space-y-2">
+          <Label htmlFor="churchOffice">Cargo na Igreja</Label>
+          <Select
+            value={formData.churchOffice}
+            onValueChange={(value) => setFormData({ ...formData, churchOffice: value })}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Selecione..." />
+            </SelectTrigger>
+            <SelectContent>
+              {churchOffices.map((o) => (
+                <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="churchFunction">Função na Igreja</Label>
+          <Input
+            id="churchFunction"
+            type="text"
+            value={formData.churchFunction}
+            onChange={(e) => setFormData({ ...formData, churchFunction: e.target.value })}
+            maxLength={120}
+            placeholder="Ex: dirigente de louvor"
+          />
         </div>
       </div>
 

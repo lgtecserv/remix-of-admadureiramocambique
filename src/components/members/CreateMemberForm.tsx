@@ -26,6 +26,8 @@ const memberSchema = z.object({
   gender: z.enum(["masculino", "feminino"]).optional(),
   memberType: z.enum(["obreiro", "congregado", "membro"]).optional(),
   photoUrl: z.string().optional(),
+  churchFunction: z.string().trim().max(120).optional(),
+  churchOffice: z.string().optional(),
 });
 
 interface CreateMemberFormProps {
@@ -48,6 +50,8 @@ const CreateMemberForm = ({ department, leaderId, onSuccess }: CreateMemberFormP
     gender: "",
     memberType: "membro",
     photoUrl: "",
+    churchFunction: "",
+    churchOffice: "",
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -77,7 +81,9 @@ const CreateMemberForm = ({ department, leaderId, onSuccess }: CreateMemberFormP
         gender: validatedData.gender || null,
         member_type: validatedData.memberType || "membro",
         photo_url: validatedData.photoUrl || null,
-      });
+        church_function: validatedData.churchFunction || null,
+        church_office: validatedData.churchOffice || null,
+      } as any);
 
       if (error) throw error;
 

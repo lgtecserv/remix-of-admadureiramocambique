@@ -9,7 +9,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
 import { z } from "zod";
-import { createClient } from "@supabase/supabase-js";
+
 
 const pastorSchema = z.object({
   email: z.string().trim().email({ message: "Email inválido" }).max(255),

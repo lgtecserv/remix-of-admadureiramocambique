@@ -28,7 +28,7 @@ export const SelectedCongregationProvider = ({ children }: { children: ReactNode
   const [userDepartment, setUserDepartment] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const isSuperAdmin = userRole === "super_admin";
+  const isSuperAdmin = userRole === "super_admin" || userRole === "secretary";
 
   useEffect(() => {
     let isMounted = true;
@@ -53,8 +53,8 @@ export const SelectedCongregationProvider = ({ children }: { children: ReactNode
         setUserRole(roleData.role);
         setUserDepartment(roleData.department);
 
-        if (roleData.role === "super_admin") {
-          // Super admin começa com "all"
+        if (roleData.role === "super_admin" || roleData.role === "secretary") {
+          // Super admin / Secretário começam com "all" (acesso global)
           setSelectedCongregationId("all");
           setUserCongregationId(null);
         } else if (roleData.congregation_id) {

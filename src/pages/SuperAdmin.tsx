@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/lib/supabase";
 import AppLayout from "@/components/layout/AppLayout";
 import { CreatePastorForm } from "@/components/admin/CreatePastorForm";
+import { SecretariesManagement } from "@/components/admin/SecretariesManagement";
 import { CongregationsManagement } from "@/components/admin/CongregationsManagement";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -34,15 +35,16 @@ const SuperAdmin = () => {
       return;
     }
 
-    // Verificar role super_admin na tabela user_roles
-    const { data: roleData } = await supabase
+    // Permite super_admin OU secretary
+    const { data: roles } = await supabase
       .from("user_roles")
       .select("role")
-      .eq("user_id", session.user.id)
-      .eq("role", "super_admin")
-      .maybeSingle();
+      .eq("user_id", session.user.id);
 
-    if (!roleData) {
+    const allowed = (roles ?? []).some(
+      (r: any) => r.role === "super_admin" || r.role === "secretary"
+    );
+    if (!allowed) {
       navigate("/dashboard");
       return;
     }
@@ -101,6 +103,8 @@ const SuperAdmin = () => {
         </div>
 
         <CongregationsManagement onChange={loadPastors} />
+
+        <SecretariesManagement />
 
         <div className="grid gap-6 md:grid-cols-2">
           <CreatePastorForm onSuccess={loadPastors} />

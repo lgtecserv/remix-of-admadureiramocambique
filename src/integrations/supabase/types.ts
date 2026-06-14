@@ -421,6 +421,8 @@ export type Database = {
           address: string | null
           baptism_date: string | null
           birth_date: string | null
+          church_function: string | null
+          church_office: string | null
           congregation_id: string
           created_at: string
           department: Database["public"]["Enums"]["department_type"]
@@ -441,6 +443,8 @@ export type Database = {
           address?: string | null
           baptism_date?: string | null
           birth_date?: string | null
+          church_function?: string | null
+          church_office?: string | null
           congregation_id: string
           created_at?: string
           department: Database["public"]["Enums"]["department_type"]
@@ -461,6 +465,8 @@ export type Database = {
           address?: string | null
           baptism_date?: string | null
           birth_date?: string | null
+          church_function?: string | null
+          church_office?: string | null
           congregation_id?: string
           created_at?: string
           department?: Database["public"]["Enums"]["department_type"]
@@ -1022,6 +1028,7 @@ export type Database = {
         Args: { profile_id: string }
         Returns: boolean
       }
+      is_secretary: { Args: { _user_id: string }; Returns: boolean }
       is_super_admin: { Args: { _user_id: string }; Returns: boolean }
       mark_message_delivered: { Args: { msg_id: string }; Returns: undefined }
       mark_message_read: { Args: { msg_id: string }; Returns: undefined }
@@ -1031,7 +1038,7 @@ export type Database = {
       }
     }
     Enums: {
-      app_role: "pastor" | "leader" | "super_admin"
+      app_role: "pastor" | "leader" | "super_admin" | "secretary"
       department_type:
         | "jovens"
         | "irmas"
@@ -1168,7 +1175,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["pastor", "leader", "super_admin"],
+      app_role: ["pastor", "leader", "super_admin", "secretary"],
       department_type: [
         "jovens",
         "irmas",
