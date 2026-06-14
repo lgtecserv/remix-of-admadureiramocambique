@@ -130,13 +130,6 @@ const AdditionalMemberFields = ({ formData, setFormData, memberName }: Additiona
             onChange={(e) => setFormData({ ...formData, birthDate: e.target.value })}
           />
         </div>
-          <Input
-            id="birthDate"
-            type="date"
-            value={formData.birthDate}
-            onChange={(e) => setFormData({ ...formData, birthDate: e.target.value })}
-          />
-        </div>
 
         <div className="space-y-2">
           <Label htmlFor="maritalStatus">Estado Civil</Label>
