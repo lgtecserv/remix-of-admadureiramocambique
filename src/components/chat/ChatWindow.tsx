@@ -115,14 +115,14 @@ const ChatWindow = ({ conversationId, conversationName, userId, onMarkAsRead, sh
     <div className="flex-1 flex flex-col h-full min-h-0">
       {/* Header */}
       {showHeader && (
-        <div className="border-b bg-card p-3 sm:p-4 shrink-0">
+        <div className="border-b bg-background/80 backdrop-blur-md p-3 sm:p-4 shrink-0 z-10 sticky top-0 shadow-sm">
           <div className="flex items-center gap-3">
             <UserAvatar
               avatarUrl={conversationAvatar}
               fullName={conversationName}
-              size="sm"
+              size="md"
             />
-            <h2 className="text-base sm:text-lg font-semibold truncate">{conversationName}</h2>
+            <h2 className="text-base sm:text-lg font-semibold truncate tracking-tight">{conversationName}</h2>
           </div>
         </div>
       )}

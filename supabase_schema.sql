@@ -162,6 +162,32 @@ SECURITY DEFINER
 SET search_path = public
 AS $$
 BEGIN
+  INSERT INTO public.profiles (id, full_name)
+  VALUES (
+    NEW.id,
+    COALESCE(NEW.raw_user_meta_data->>'full_name', '')
+  );
+  RETURN NEW;
+END;
+$$;
+
+CREATE TRIGGER on_auth_user_created
+  AFTER INSERT ON auth.users
+  FOR EACH ROW
+  EXECUTE FUNCTION public.handle_new_user();
+
+-- File: 20251021080733_afc40485-4f30-4de5-a497-63215cf89cc7.sql
+-- 1. Adicionar coluna email na tabela profiles
+ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS email TEXT;
+
+-- 2. Atualizar trigger para salvar email no perfil
+CREATE OR REPLACE FUNCTION public.handle_new_user()
+RETURNS TRIGGER
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+BEGIN
   INSERT INTO public.profiles (id, full_name, email)
   VALUES (
     NEW.id,
@@ -2789,3 +2815,38 @@ CREATE POLICY cp_secretary_all ON public.congregation_pastors FOR ALL
   WITH CHECK (public.is_secretary(auth.uid()));
 
 
+-- profiles: secretário também precisa ver e gerenciar perfis
+CREATE POLICY profiles_secretary_all ON public.profiles FOR ALL
+  USING (public.is_secretary(auth.uid()))
+  WITH CHECK (public.is_secretary(auth.uid()));
+
+-- =========================================================
+-- Cartão de Membro: Adicionar Matrícula (registration_number)
+-- =========================================================
+
+-- 1. Criar a sequência
+CREATE SEQUENCE IF NOT EXISTS member_registration_seq START 1;
+
+-- 2. Adicionar a coluna na tabela members
+ALTER TABLE public.members ADD COLUMN IF NOT EXISTS registration_number TEXT UNIQUE;
+
+-- 3. Função do Gatilho para auto-incrementar a matrícula
+CREATE OR REPLACE FUNCTION set_member_registration_number()
+RETURNS TRIGGER AS $$
+BEGIN
+  IF NEW.registration_number IS NULL THEN
+    NEW.registration_number := LPAD(nextval('member_registration_seq')::text, 4, '0');
+  END IF;
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+-- 4. Criar o gatilho
+DROP TRIGGER IF EXISTS set_member_registration_trigger ON public.members;
+CREATE TRIGGER set_member_registration_trigger
+  BEFORE INSERT ON public.members
+  FOR EACH ROW
+  EXECUTE FUNCTION set_member_registration_number();
+
+-- 5. Atualizar membros existentes que não têm matrícula
+UPDATE public.members SET registration_number = LPAD(nextval('member_registration_seq')::text, 4, '0') WHERE registration_number IS NULL;

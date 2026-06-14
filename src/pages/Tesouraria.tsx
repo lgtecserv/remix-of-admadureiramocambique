@@ -14,6 +14,8 @@ const Tesouraria = () => {
   const navigate = useNavigate();
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<any>(null);
+  const [userRole, setUserRole] = useState<string>("");
+  const [userDepartment, setUserDepartment] = useState<string>("");
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -33,10 +35,14 @@ const Tesouraria = () => {
         .eq("user_id", session.user.id)
         .single();
 
-      if (!roleData || roleData.department !== "tesouraria") {
+      const isSuperAdminOrSecretary = roleData.role === "super_admin" || roleData.role === "secretary";
+      if (!roleData || (!isSuperAdminOrSecretary && roleData.department !== "tesouraria")) {
         navigate("/dashboard");
         return;
       }
+
+      setUserRole(roleData.role);
+      setUserDepartment(roleData.department || "");
 
       const { data: profileData } = await supabase
         .from("profiles")
@@ -60,7 +66,7 @@ const Tesouraria = () => {
   }
 
   return (
-    <AppLayout userName={profile?.full_name} role="leader" department="tesouraria" userEmail={user?.email} user={user}>
+    <AppLayout userName={profile?.full_name} role={userRole} department={userDepartment} userEmail={user?.email} user={user}>
       <div className="space-y-6 animate-fade-in">
         <div>
           <h2 className="text-2xl sm:text-3xl font-bold text-foreground mb-2">

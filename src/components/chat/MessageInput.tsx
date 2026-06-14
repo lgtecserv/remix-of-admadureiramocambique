@@ -55,25 +55,27 @@ const MessageInput = ({ onSend, disabled, onTyping }: MessageInputProps) => {
   };
 
   return (
-    <div className="border-t bg-card p-2 sm:p-4 pb-safe shrink-0">
-      <div className="flex gap-2 items-end">
+    <div className="border-t bg-background/90 backdrop-blur-sm p-3 sm:p-4 pb-safe shrink-0 shadow-[0_-4px_10px_-5px_rgba(0,0,0,0.05)]">
+      <div className="flex gap-2 items-end max-w-4xl mx-auto">
         <Textarea
           value={content}
           onChange={handleChange}
           onKeyDown={handleKeyDown}
-          placeholder="Digite sua mensagem..."
-          className="min-h-[40px] sm:min-h-[48px] max-h-[80px] sm:max-h-[120px] resize-none text-sm"
+          placeholder="Escreva sua mensagem..."
+          className="min-h-[44px] sm:min-h-[48px] max-h-[120px] resize-none text-sm rounded-2xl py-3 px-4 border-muted-foreground/20 focus-visible:ring-1 focus-visible:ring-primary/50 shadow-sm transition-shadow"
           disabled={disabled}
         />
-        <StickerPicker onSelect={handleStickerSelect} />
-        <Button
-          onClick={handleSend}
-          disabled={!content.trim() || disabled}
-          size="icon"
-          className="shrink-0 h-[40px] w-[40px] sm:h-[48px] sm:w-[48px]"
-        >
-          <Send className="h-4 w-4" />
-        </Button>
+        <div className="flex items-center gap-1.5 pb-1">
+          <StickerPicker onSelect={handleStickerSelect} />
+          <Button
+            onClick={handleSend}
+            disabled={!content.trim() || disabled}
+            size="icon"
+            className="shrink-0 h-[40px] w-[40px] sm:h-[44px] sm:w-[44px] rounded-full shadow-sm hover:shadow-md transition-all active:scale-95"
+          >
+            <Send className="h-4 w-4 ml-0.5" />
+          </Button>
+        </div>
       </div>
     </div>
   );

@@ -2,12 +2,13 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
-import { Pencil, Trash2, IdCard } from "lucide-react";
+import { Pencil, Trash2, UserCheck } from "lucide-react";
 import EditMemberForm from "./EditMemberForm";
-import { GenerateCardDialog } from "./GenerateCardDialog";
 import { toast } from "sonner";
 import { getDepartmentLabel, getStatusLabel } from "@/lib/supabase";
 import { useSelectedCongregation } from "@/contexts/SelectedCongregationContext";
@@ -43,7 +44,7 @@ interface MemberManagementProps {
   departmentFilter?: string;
 }
 
-const MemberManagement = ({ 
+const CongregadosManagement = ({ 
   searchTerm = "", 
   statusFilter = "all", 
   departmentFilter = "all" 
@@ -52,8 +53,9 @@ const MemberManagement = ({
   const [filteredMembers, setFilteredMembers] = useState<Member[]>([]);
   const [editingMember, setEditingMember] = useState<Member | null>(null);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
-  const [cardMember, setCardMember] = useState<Member | null>(null);
-  const [cardDialogOpen, setCardDialogOpen] = useState(false);
+  const [baptizeDialogOpen, setBaptizeDialogOpen] = useState(false);
+  const [memberToBaptize, setMemberToBaptize] = useState<Member | null>(null);
+  const [baptismDate, setBaptismDate] = useState("");
   const [loading, setLoading] = useState(true);
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const [userRole, setUserRole] = useState<string | null>(null);
@@ -79,7 +81,7 @@ const MemberManagement = ({
     let query = supabase
       .from("members")
       .select("*")
-      .neq("member_type", "congregado")
+      .eq("member_type", "congregado")
       .order("created_at", { ascending: false });
 
     // Apply congregation filter from context
@@ -148,6 +150,31 @@ const MemberManagement = ({
     }
 
     toast.success("Membro removido com sucesso");
+  };
+
+  const handleBaptize = async () => {
+    if (!memberToBaptize || !baptismDate) {
+      toast.error("Preencha a data de batismo");
+      return;
+    }
+
+    const { error } = await supabase
+      .from("members")
+      .update({ 
+        member_type: "membro",
+        baptism_date: baptismDate
+      })
+      .eq("id", memberToBaptize.id);
+
+    if (error) {
+      toast.error("Erro ao registrar batismo");
+      return;
+    }
+
+    toast.success("Congregado atualizado para membro com sucesso!");
+    setBaptizeDialogOpen(false);
+    setMemberToBaptize(null);
+    setBaptismDate("");
   };
 
   const getStatusBadgeVariant = (status: string) => {
@@ -228,13 +255,25 @@ const MemberManagement = ({
                       </Button>
 
                       {userRole === "secretary" && (
-                        <AlertDialog>
-                          <AlertDialogTrigger asChild>
-                            <Button variant="destructive" size="icon" className="h-8 w-8">
-                              <Trash2 className="h-3 w-3" />
-                            </Button>
-                          </AlertDialogTrigger>
-                          <AlertDialogContent>
+                        <>
+                          <Button 
+                            variant="outline" 
+                            size="icon" 
+                            className="h-8 w-8 text-primary"
+                            onClick={() => {
+                              setMemberToBaptize(member);
+                              setBaptizeDialogOpen(true);
+                            }}
+                          >
+                            <UserCheck className="h-3 w-3" />
+                          </Button>
+                          <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                              <Button variant="destructive" size="icon" className="h-8 w-8">
+                                <Trash2 className="h-3 w-3" />
+                              </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
                             <AlertDialogHeader>
                               <AlertDialogTitle>Confirmar remoção</AlertDialogTitle>
                               <AlertDialogDescription>
@@ -249,6 +288,7 @@ const MemberManagement = ({
                             </AlertDialogFooter>
                           </AlertDialogContent>
                         </AlertDialog>
+                        </>
                       )}
                     </>
                   ) : null}
@@ -313,20 +353,6 @@ const MemberManagement = ({
                     <TableCell className="text-right space-x-2">
                       {(userRole === "pastor" || userRole === "secretary" || member.leader_id === currentUserId) ? (
                         <>
-                          {(userRole === "secretary" || userRole === "super_admin") && member.member_type !== "congregado" && (
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              className="mr-2"
-                              title="Gerar Cartão"
-                              onClick={() => {
-                                setCardMember(member);
-                                setCardDialogOpen(true);
-                              }}
-                            >
-                              <IdCard className="h-4 w-4" />
-                            </Button>
-                          )}
                           <Button
                             variant="outline"
                             size="sm"
@@ -339,13 +365,25 @@ const MemberManagement = ({
                           </Button>
 
                           {userRole === "secretary" && (
-                            <AlertDialog>
-                              <AlertDialogTrigger asChild>
-                                <Button variant="destructive" size="sm">
-                                  <Trash2 className="h-4 w-4" />
-                                </Button>
-                              </AlertDialogTrigger>
-                              <AlertDialogContent>
+                            <>
+                              <Button 
+                                variant="outline" 
+                                size="sm"
+                                className="text-primary hover:text-primary"
+                                onClick={() => {
+                                  setMemberToBaptize(member);
+                                  setBaptizeDialogOpen(true);
+                                }}
+                              >
+                                Batizar
+                              </Button>
+                              <AlertDialog>
+                                <AlertDialogTrigger asChild>
+                                  <Button variant="destructive" size="sm">
+                                    <Trash2 className="h-4 w-4" />
+                                  </Button>
+                                </AlertDialogTrigger>
+                                <AlertDialogContent>
                                 <AlertDialogHeader>
                                   <AlertDialogTitle>Confirmar remoção</AlertDialogTitle>
                                   <AlertDialogDescription>
@@ -360,6 +398,7 @@ const MemberManagement = ({
                                 </AlertDialogFooter>
                               </AlertDialogContent>
                             </AlertDialog>
+                            </>
                           )}
                         </>
                       ) : (
@@ -391,13 +430,38 @@ const MemberManagement = ({
         </DialogContent>
       </Dialog>
 
-      <GenerateCardDialog
-        member={cardMember}
-        open={cardDialogOpen}
-        onOpenChange={setCardDialogOpen}
-      />
+      <Dialog open={baptizeDialogOpen} onOpenChange={setBaptizeDialogOpen}>
+        <DialogContent className="max-w-md mx-auto">
+          <DialogHeader>
+            <DialogTitle>Tornar Membro (Batismo)</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <p className="text-sm text-muted-foreground">
+              Você está prestes a registrar o batismo de <strong className="text-foreground">{memberToBaptize?.full_name}</strong>. Ele deixará de ser congregado e passará para a lista de membros.
+            </p>
+            <div className="space-y-2">
+              <Label htmlFor="baptismDate">Data de Batismo</Label>
+              <Input
+                id="baptismDate"
+                type="date"
+                value={baptismDate}
+                onChange={(e) => setBaptismDate(e.target.value)}
+                required
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setBaptizeDialogOpen(false)}>
+              Cancelar
+            </Button>
+            <Button onClick={handleBaptize} disabled={!baptismDate}>
+              Confirmar Batismo
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
 
-export default MemberManagement;
+export default CongregadosManagement;

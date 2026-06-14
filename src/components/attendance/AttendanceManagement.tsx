@@ -17,7 +17,6 @@ interface Attendance {
   department: string;
   notes: string | null;
   members: { full_name: string } | null;
-  visitors: { full_name: string } | null;
 }
 
 interface AttendanceManagementProps {
@@ -37,8 +36,7 @@ const AttendanceManagement = ({ role, department, leaderId }: AttendanceManageme
         .from("attendances")
         .select(`
           *,
-          members(full_name),
-          visitors(full_name)
+          members(full_name)
         `)
         .order("event_date", { ascending: false })
         .limit(50);
@@ -120,7 +118,7 @@ const AttendanceManagement = ({ role, department, leaderId }: AttendanceManageme
               <div className="flex items-start justify-between gap-2 mb-2">
                 <div className="space-y-1 flex-1 min-w-0">
                   <p className="font-medium truncate">
-                    {attendance.members?.full_name || attendance.visitors?.full_name || "-"}
+                    {attendance.members?.full_name || "-"}
                   </p>
                   <p className="text-sm text-muted-foreground">
                     {format(new Date(attendance.event_date), "dd/MM/yyyy", { locale: ptBR })}
@@ -171,7 +169,7 @@ const AttendanceManagement = ({ role, department, leaderId }: AttendanceManageme
                     </TableCell>
                     <TableCell>{getEventTypeBadge(attendance.event_type)}</TableCell>
                     <TableCell>
-                      {attendance.members?.full_name || attendance.visitors?.full_name || "-"}
+                      {attendance.members?.full_name || "-"}
                     </TableCell>
                     <TableCell>
                       <Badge variant="outline">{attendance.department}</Badge>

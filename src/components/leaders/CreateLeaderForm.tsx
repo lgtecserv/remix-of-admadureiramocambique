@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { supabase, getDepartmentLabel } from "@/lib/supabase";
 import { useSelectedCongregation } from "@/contexts/SelectedCongregationContext";
 import { Button } from "@/components/ui/button";
@@ -38,8 +38,25 @@ const CreateLeaderForm = ({ onSuccess }: CreateLeaderFormProps) => {
     department: "",
   });
 
-  const { getEffectiveCongregationId } = useSelectedCongregation();
+  const { isSuperAdmin, getEffectiveCongregationId } = useSelectedCongregation();
   const congId = getEffectiveCongregationId();
+
+  const [selectedCongregation, setSelectedCongregation] = useState<string>("");
+  const [congregations, setCongregations] = useState<{ id: string; name: string }[]>([]);
+
+  useEffect(() => {
+    if (congId) {
+      setSelectedCongregation(congId);
+    }
+  }, [congId]);
+
+  useEffect(() => {
+    if (isSuperAdmin) {
+      supabase.from("congregations").select("id, name").eq("active", true).order("name").then(({ data }) => {
+        if (data) setCongregations(data);
+      });
+    }
+  }, [isSuperAdmin]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -49,6 +66,13 @@ const CreateLeaderForm = ({ onSuccess }: CreateLeaderFormProps) => {
       // Validate input
       const validatedData = leaderSchema.parse(formData);
 
+      const finalCongId = isSuperAdmin ? selectedCongregation : congId;
+      if (!finalCongId) {
+        toast.error("Por favor, selecione uma congregação");
+        setLoading(false);
+        return;
+      }
+
       // Call backend function to create leader (doesn't affect current session)
       const { data, error } = await supabase.functions.invoke("create-leader", {
         body: {
@@ -56,7 +80,7 @@ const CreateLeaderForm = ({ onSuccess }: CreateLeaderFormProps) => {
           password: validatedData.password,
           fullName: validatedData.fullName,
           department: validatedData.department,
-          congregationId: congId,
+          congregationId: finalCongId,
         },
       });
 
@@ -148,6 +172,28 @@ const CreateLeaderForm = ({ onSuccess }: CreateLeaderFormProps) => {
           </SelectContent>
         </Select>
       </div>
+
+      {isSuperAdmin && (
+        <div className="space-y-2">
+          <Label htmlFor="congregation">Congregação</Label>
+          <Select
+            value={selectedCongregation}
+            onValueChange={setSelectedCongregation}
+            required
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Selecione a congregação" />
+            </SelectTrigger>
+            <SelectContent>
+              {congregations.map((c) => (
+                <SelectItem key={c.id} value={c.id}>
+                  {c.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      )}
 
       <Button type="submit" className="w-full" disabled={loading}>
         {loading ? "Cadastrando..." : "Cadastrar Líder"}

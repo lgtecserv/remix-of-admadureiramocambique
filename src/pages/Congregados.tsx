@@ -3,13 +3,13 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/lib/supabase";
 import { User } from "@supabase/supabase-js";
 import AppLayout from "@/components/layout/AppLayout";
-import MemberManagement from "@/components/members/MemberManagement";
+import CongregadosManagement from "@/components/members/CongregadosManagement";
 import MembersFilter from "@/components/members/MembersFilter";
 import CreateMemberButton from "@/components/members/CreateMemberButton";
 import PageLoader from "@/components/ui/page-loader";
 import { useSelectedCongregation } from "@/contexts/SelectedCongregationContext";
 
-const Members = () => {
+const Congregados = () => {
   const navigate = useNavigate();
   const [user, setUser] = useState<User | null>(null);
   const [role, setRole] = useState<string | null>(null);
@@ -62,7 +62,7 @@ const Members = () => {
   const { isSuperAdmin } = useSelectedCongregation();
 
   if (loading) {
-    return <PageLoader message="Carregando membros..." />;
+    return <PageLoader message="Carregando congregados..." />;
   }
 
   const effectiveRole = isSuperAdmin ? (role === "secretary" ? "secretary" : "super_admin") : role;
@@ -74,17 +74,17 @@ const Members = () => {
       <div className="space-y-6 animate-fade-in">
         <div className="flex items-start justify-between gap-3">
           <div className="flex-1 min-w-0">
-            <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-foreground">Gestão de Membros</h1>
+            <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-foreground">Gestão de Congregados</h1>
             <p className="text-sm text-muted-foreground">
               {isReadOnlySuper
-                ? "Visualize os membros de todas as congregações"
+                ? "Visualize os congregados de todas as congregações"
                 : role === "secretary"
-                  ? "Gerencie os membros de todas as congregações"
-                  : `Gerencie os membros ${role === "leader" ? "do seu departamento" : "da igreja"}`}
+                  ? "Gerencie os congregados de todas as congregações"
+                  : `Gerencie os congregados ${role === "leader" ? "do seu departamento" : "da igreja"}`}
             </p>
           </div>
           {canCreate && (
-            <CreateMemberButton role={role} onSuccess={() => setCreateDialogOpen(false)} />
+            <CreateMemberButton role={role} onSuccess={() => setCreateDialogOpen(false)} defaultType="congregado" />
           )}
         </div>
 
@@ -98,7 +98,7 @@ const Members = () => {
           showDepartmentFilter={role === "pastor" || isSuperAdmin}
         />
 
-        <MemberManagement 
+        <CongregadosManagement
           searchTerm={searchTerm}
           statusFilter={statusFilter}
           departmentFilter={departmentFilter}
@@ -108,4 +108,4 @@ const Members = () => {
   );
 };
 
-export default Members;
+export default Congregados;

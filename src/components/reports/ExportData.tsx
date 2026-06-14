@@ -3,6 +3,7 @@ import { Download, FileSpreadsheet } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { toast } from "sonner";
 import { format } from "date-fns";
+import { useSelectedCongregation } from "@/contexts/SelectedCongregationContext";
 
 interface ExportDataProps {
   role: string;
@@ -10,6 +11,8 @@ interface ExportDataProps {
 }
 
 const ExportData = ({ role, department }: ExportDataProps) => {
+  const { getEffectiveCongregationId } = useSelectedCongregation();
+  
   const exportToCSV = (data: any[], filename: string, headers: string[]) => {
     const csvContent = [
       headers.join(","),
@@ -30,8 +33,13 @@ const ExportData = ({ role, department }: ExportDataProps) => {
 
   const exportMembers = async () => {
     try {
+      const congId = getEffectiveCongregationId();
       let query = supabase.from("members").select("*");
       
+      if (congId) {
+        query = query.eq("congregation_id", congId);
+      }
+
       if (role === "leader" && department) {
         query = query.eq("department", department as any);
       }
@@ -48,26 +56,6 @@ const ExportData = ({ role, department }: ExportDataProps) => {
     }
   };
 
-  const exportVisitors = async () => {
-    try {
-      let query = supabase.from("visitors").select("*");
-      
-      if (role === "leader" && department) {
-        query = query.eq("department", department as any);
-      }
-
-      const { data, error } = await query;
-      if (error) throw error;
-
-      const headers = ["full_name", "phone_number", "department", "visit_date", "returned", "invited_by", "observations"];
-      exportToCSV(data || [], "visitantes", headers);
-      toast.success("Visitantes exportados com sucesso!");
-    } catch (error) {
-      console.error("Error exporting visitors:", error);
-      toast.error("Erro ao exportar visitantes");
-    }
-  };
-
   const exportAttendances = async () => {
     try {
       let query = supabase.from("attendances").select(`
@@ -75,10 +63,14 @@ const ExportData = ({ role, department }: ExportDataProps) => {
         event_type,
         department,
         notes,
-        members(full_name),
-        visitors(full_name)
+        members(full_name)
       `);
       
+      const congId = getEffectiveCongregationId();
+      if (congId) {
+        query = query.eq("congregation_id", congId);
+      }
+
       if (role === "leader" && department) {
         query = query.eq("department", department as any);
       }
@@ -89,7 +81,7 @@ const ExportData = ({ role, department }: ExportDataProps) => {
       const formatted = (data || []).map((item: any) => ({
         data: item.event_date,
         tipo: item.event_type,
-        pessoa: item.members?.full_name || item.visitors?.full_name || "",
+        pessoa: item.members?.full_name || "",
         departamento: item.department,
         observacoes: item.notes || "",
       }));
@@ -114,11 +106,6 @@ const ExportData = ({ role, department }: ExportDataProps) => {
         <Button onClick={exportMembers} variant="outline" className="h-24 flex-col gap-2">
           <Download className="h-6 w-6" />
           <span>Exportar Membros</span>
-        </Button>
-
-        <Button onClick={exportVisitors} variant="outline" className="h-24 flex-col gap-2">
-          <Download className="h-6 w-6" />
-          <span>Exportar Visitantes</span>
         </Button>
 
         <Button onClick={exportAttendances} variant="outline" className="h-24 flex-col gap-2">

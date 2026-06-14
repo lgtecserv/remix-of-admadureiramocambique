@@ -4,6 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Search, User, Users, X } from "lucide-react";
 import MemberIdCard from "./MemberIdCard";
+import { useSelectedCongregation } from "@/contexts/SelectedCongregationContext";
 
 interface Member {
   id: string;
@@ -34,10 +35,12 @@ const MemberSearchWidget = ({ department, leaderId }: MemberSearchWidgetProps) =
   const [selectedMember, setSelectedMember] = useState<Member | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [showAllMembers, setShowAllMembers] = useState(false);
+  const { getEffectiveCongregationId } = useSelectedCongregation();
+  const congId = getEffectiveCongregationId();
 
   useEffect(() => {
     loadMembers();
-  }, [department, leaderId]);
+  }, [department, leaderId, congId]);
 
   useEffect(() => {
     if (searchTerm.trim() === "") {
@@ -52,6 +55,10 @@ const MemberSearchWidget = ({ department, leaderId }: MemberSearchWidgetProps) =
 
   const loadMembers = async () => {
     let query = supabase.from("members").select("*");
+
+    if (congId) {
+      query = query.eq("congregation_id", congId);
+    }
 
     if (department && leaderId) {
       query = query.eq("department", department as any).eq("leader_id", leaderId);

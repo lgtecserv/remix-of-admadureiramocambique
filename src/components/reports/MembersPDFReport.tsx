@@ -14,6 +14,7 @@ import {
   downloadPDF,
   formatDateBR,
 } from "@/lib/pdfGenerator";
+import { useSelectedCongregation } from "@/contexts/SelectedCongregationContext";
 
 interface MembersPDFReportProps {
   role: string;
@@ -43,12 +44,18 @@ const MembersPDFReport = ({ role, department }: MembersPDFReportProps) => {
   const [selectedDepartment, setSelectedDepartment] = useState<string>(department || "all");
   const [selectedStatus, setSelectedStatus] = useState<string>("all");
   const [loading, setLoading] = useState(false);
+  const { getEffectiveCongregationId } = useSelectedCongregation();
 
   const generatePDF = async () => {
     setLoading(true);
 
     try {
+      const congId = getEffectiveCongregationId();
       let query = supabase.from("members").select("*").order("full_name");
+
+      if (congId) {
+        query = query.eq("congregation_id", congId);
+      }
 
       // Filter by department
       if (role === "leader" && department) {

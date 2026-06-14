@@ -26,7 +26,20 @@ const superAdminItems = [
   { title: "Administração", url: "/super-admin", icon: Shield },
   { title: "Líderes", url: "/dashboard/leaders", icon: UserCog },
   { title: "Membros", url: "/dashboard/members", icon: Users },
-  { title: "Visitantes", url: "/dashboard/visitors", icon: UserPlus },
+  { title: "Congregados", url: "/dashboard/congregados", icon: UserPlus },
+  { title: "Tesouraria", url: "/dashboard/tesouraria", icon: DollarSign },
+  { title: "Patrimônio", url: "/dashboard/patrimonio", icon: Images },
+  { title: "Chat", url: "/dashboard/chat", icon: MessageSquare },
+  { title: "Relatórios", url: "/dashboard/reports", icon: FileText },
+  { title: "Estatísticas", url: "/dashboard/statistics", icon: BarChart3 },
+  { title: "Configurações", url: "/dashboard/settings", icon: Settings },
+];
+
+const secretaryItems = [
+  { title: "Dashboard", url: "/dashboard", icon: Home },
+  { title: "Líderes", url: "/dashboard/leaders", icon: UserCog },
+  { title: "Membros", url: "/dashboard/members", icon: Users },
+  { title: "Congregados", url: "/dashboard/congregados", icon: UserPlus },
   { title: "Tesouraria", url: "/dashboard/tesouraria", icon: DollarSign },
   { title: "Patrimônio", url: "/dashboard/patrimonio", icon: Images },
   { title: "Chat", url: "/dashboard/chat", icon: MessageSquare },
@@ -39,7 +52,7 @@ const pastorItems = [
   { title: "Dashboard", url: "/dashboard", icon: Home },
   { title: "Líderes", url: "/dashboard/leaders", icon: UserCog },
   { title: "Membros", url: "/dashboard/members", icon: Users },
-  { title: "Visitantes", url: "/dashboard/visitors", icon: Users },
+  { title: "Congregados", url: "/dashboard/congregados", icon: Users },
   { title: "Chat", url: "/dashboard/chat", icon: Users },
   { title: "Relatórios", url: "/dashboard/reports", icon: FileText },
   { title: "Estatísticas", url: "/dashboard/statistics", icon: BarChart3 },
@@ -49,7 +62,7 @@ const pastorItems = [
 const leaderItems = [
   { title: "Dashboard", url: "/dashboard", icon: Home },
   { title: "Membros", url: "/dashboard/members", icon: Users },
-  { title: "Visitantes", url: "/dashboard/visitors", icon: UserPlus },
+  { title: "Congregados", url: "/dashboard/congregados", icon: UserPlus },
   { title: "Chat", url: "/dashboard/chat", icon: MessageSquare },
   { title: "Relatórios", url: "/dashboard/reports", icon: FileText },
   { title: "Estatísticas", url: "/dashboard/statistics", icon: BarChart3 },
@@ -86,7 +99,8 @@ export function AppSidebar({ role = "leader", department, userEmail }: AppSideba
   };
   
   const getMenuItems = () => {
-    if (role === "super_admin" || role === "super-admin" || role === "secretary") return superAdminItems;
+    if (role === "super_admin" || role === "super-admin") return superAdminItems;
+    if (role === "secretary") return secretaryItems;
     if (role === "pastor") return pastorItems;
     if (role === "leader") {
       if (department === "patrimonio") return patrimonioItems;

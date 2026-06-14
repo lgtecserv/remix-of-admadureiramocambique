@@ -33,10 +33,11 @@ const LeaderManagement = () => {
   const [loading, setLoading] = useState(true);
   const [transferDialogOpen, setTransferDialogOpen] = useState(false);
   const [leaderToDelete, setLeaderToDelete] = useState<Leader & { memberCount: number } | null>(null);
-  const { isSuperAdmin } = useSelectedCongregation();
+  const { isSuperAdmin, getEffectiveCongregationId } = useSelectedCongregation();
+  const congId = getEffectiveCongregationId();
 
   const loadLeaders = async () => {
-    const { data: rolesData, error } = await supabase
+    let query = supabase
       .from("user_roles")
       .select(`
         id, 
@@ -45,6 +46,12 @@ const LeaderManagement = () => {
         profiles!inner(full_name, email)
       `)
       .eq("role", "leader");
+
+    if (congId) {
+      query = query.eq("congregation_id", congId);
+    }
+
+    const { data: rolesData, error } = await query;
 
     if (error) {
       console.error("Erro ao carregar líderes:", error);
@@ -70,7 +77,7 @@ const LeaderManagement = () => {
 
   useEffect(() => {
     loadLeaders();
-  }, []);
+  }, [congId]);
 
   const handleDelete = async (leader: Leader) => {
     // Verificar se o líder tem membros cadastrados

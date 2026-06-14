@@ -59,7 +59,6 @@ const ConversationList = ({
             avatar_url
           )
         `)
-        .in("role", ["leader", "pastor"])
         .neq("user_id", currentUserId!);
 
       if (error) throw error;
@@ -194,8 +193,8 @@ const ConversationList = ({
                   key={conv.id}
                   onClick={() => onSelect(conv.id)}
                   className={cn(
-                    "w-full p-2 sm:p-3 rounded-lg text-left transition-colors hover:bg-muted/50",
-                    isSelected && "bg-muted"
+                    "w-full p-3 rounded-xl text-left transition-all duration-200 ease-in-out border border-transparent hover:bg-muted/60",
+                    isSelected && "bg-background shadow-sm border-border/50 ring-1 ring-primary/5"
                   )}
                 >
                   <div className="flex items-start gap-2 sm:gap-3">

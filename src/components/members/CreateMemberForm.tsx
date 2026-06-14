@@ -1,8 +1,10 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { supabase, getCurrentUserCongregationId } from "@/lib/supabase";
+import { useSelectedCongregation } from "@/contexts/SelectedCongregationContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
 import { z } from "zod";
 import AdditionalMemberFields from "./AdditionalMemberFields";
@@ -31,13 +33,15 @@ const memberSchema = z.object({
 });
 
 interface CreateMemberFormProps {
-  department: string;
+  department?: string;
   leaderId: string;
   onSuccess: () => void;
+  defaultType?: "membro" | "congregado";
 }
 
-const CreateMemberForm = ({ department, leaderId, onSuccess }: CreateMemberFormProps) => {
+const CreateMemberForm = ({ department, leaderId, onSuccess, defaultType = "membro" }: CreateMemberFormProps) => {
   const [loading, setLoading] = useState(false);
+  const [selectedDepartment, setSelectedDepartment] = useState<string>(department || "");
   const [formData, setFormData] = useState({
     fullName: "",
     phoneNumber: "",
@@ -48,11 +52,31 @@ const CreateMemberForm = ({ department, leaderId, onSuccess }: CreateMemberFormP
     baptismDate: "",
     observations: "",
     gender: "",
-    memberType: "membro",
+    memberType: defaultType,
     photoUrl: "",
     churchFunction: "",
     churchOffice: "",
   });
+
+  const { isSuperAdmin, getEffectiveCongregationId } = useSelectedCongregation();
+  const congId = getEffectiveCongregationId();
+
+  const [selectedCongregation, setSelectedCongregation] = useState<string>("");
+  const [congregations, setCongregations] = useState<{ id: string; name: string }[]>([]);
+
+  useEffect(() => {
+    if (congId) {
+      setSelectedCongregation(congId);
+    }
+  }, [congId]);
+
+  useEffect(() => {
+    if (isSuperAdmin) {
+      supabase.from("congregations").select("id, name").eq("active", true).order("name").then(({ data }) => {
+        if (data) setCongregations(data);
+      });
+    }
+  }, [isSuperAdmin]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -60,18 +84,28 @@ const CreateMemberForm = ({ department, leaderId, onSuccess }: CreateMemberFormP
 
     try {
       // Validate input
+      if (!selectedDepartment) {
+        toast.error("Por favor, selecione um departamento");
+        setLoading(false);
+        return;
+      }
+
       const validatedData = memberSchema.parse(formData);
 
-      const congregation_id = await getCurrentUserCongregationId();
-      if (!congregation_id) throw new Error("Congregação não encontrada");
+      let finalCongId = isSuperAdmin ? selectedCongregation : congId;
+      if (!finalCongId) {
+        finalCongId = await getCurrentUserCongregationId();
+      }
+      
+      if (!finalCongId) throw new Error("Congregação não encontrada");
 
       const { error } = await supabase.from("members").insert({
         full_name: validatedData.fullName,
         phone_number: validatedData.phoneNumber,
-        department: department as any,
+        department: selectedDepartment as any,
         leader_id: leaderId,
         status: "novo" as const,
-        congregation_id,
+        congregation_id: finalCongId,
         address: validatedData.address || null,
         birth_date: validatedData.birthDate || null,
         marital_status: validatedData.maritalStatus || null,
@@ -79,7 +113,7 @@ const CreateMemberForm = ({ department, leaderId, onSuccess }: CreateMemberFormP
         baptism_date: validatedData.baptismDate || null,
         observations: validatedData.observations || null,
         gender: validatedData.gender || null,
-        member_type: validatedData.memberType || "membro",
+        member_type: validatedData.memberType || defaultType,
         photo_url: validatedData.photoUrl || null,
         church_function: validatedData.churchFunction || null,
         church_office: validatedData.churchOffice || null,
@@ -113,6 +147,51 @@ const CreateMemberForm = ({ department, leaderId, onSuccess }: CreateMemberFormP
           required
         />
       </div>
+
+      {!department && (
+        <div className="space-y-2">
+          <Label>Departamento</Label>
+          <Select value={selectedDepartment} onValueChange={setSelectedDepartment} required>
+            <SelectTrigger>
+              <SelectValue placeholder="Selecione um departamento" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="jovens">Jovens</SelectItem>
+              <SelectItem value="irmas">Irmãs</SelectItem>
+              <SelectItem value="varoes">Varões</SelectItem>
+              <SelectItem value="adolescentes">Adolescentes</SelectItem>
+              <SelectItem value="criancas">Crianças</SelectItem>
+              <SelectItem value="patrimonio">Patrimônio</SelectItem>
+              <SelectItem value="tesouraria">Tesouraria</SelectItem>
+              <SelectItem value="diaconato">Diaconato</SelectItem>
+              <SelectItem value="musica">Música</SelectItem>
+              <SelectItem value="ensino">Ensino</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      )}
+
+      {isSuperAdmin && (
+        <div className="space-y-2">
+          <Label htmlFor="congregation">Congregação</Label>
+          <Select
+            value={selectedCongregation}
+            onValueChange={setSelectedCongregation}
+            required
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Selecione a congregação" />
+            </SelectTrigger>
+            <SelectContent>
+              {congregations.map((c) => (
+                <SelectItem key={c.id} value={c.id}>
+                  {c.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      )}
 
       <div className="space-y-2">
         <Label htmlFor="phoneNumber">Número de Telefone</Label>

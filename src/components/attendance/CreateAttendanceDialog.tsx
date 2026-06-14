@@ -31,7 +31,7 @@ const CreateAttendanceDialog = ({
   role,
 }: CreateAttendanceDialogProps) => {
   const [loading, setLoading] = useState(false);
-  const [personType, setPersonType] = useState<"member" | "visitor">("member");
+  const [personType, setPersonType] = useState<"membro" | "congregado">("membro");
   const [selectedPerson, setSelectedPerson] = useState("");
   const [eventType, setEventType] = useState("culto");
   const [eventDate, setEventDate] = useState<Date>(new Date());
@@ -46,8 +46,7 @@ const CreateAttendanceDialog = ({
 
   const loadPeople = async () => {
     try {
-      const table = personType === "member" ? "members" : "visitors";
-      let query = supabase.from(table).select("id, full_name, department");
+      let query = supabase.from("members").select("id, full_name, department").eq("member_type", personType);
 
       if (role === "leader" && department) {
         query = query.eq("department", department as any);
@@ -77,11 +76,7 @@ const CreateAttendanceDialog = ({
         notes: notes || null,
       };
 
-      if (personType === "member") {
-        attendanceData.member_id = selectedPerson;
-      } else {
-        attendanceData.visitor_id = selectedPerson;
-      }
+      attendanceData.member_id = selectedPerson;
 
       const { error } = await supabase.from("attendances").insert(attendanceData as any);
 
@@ -100,7 +95,7 @@ const CreateAttendanceDialog = ({
   };
 
   const resetForm = () => {
-    setPersonType("member");
+    setPersonType("membro");
     setSelectedPerson("");
     setEventType("culto");
     setEventDate(new Date());
@@ -121,8 +116,8 @@ const CreateAttendanceDialog = ({
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="member">Membro</SelectItem>
-                <SelectItem value="visitor">Visitante</SelectItem>
+                <SelectItem value="membro">Membro</SelectItem>
+                <SelectItem value="congregado">Congregado</SelectItem>
               </SelectContent>
             </Select>
           </div>

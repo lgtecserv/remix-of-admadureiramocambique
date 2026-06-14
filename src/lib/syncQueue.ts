@@ -6,7 +6,7 @@ const MAX_RETRIES = 3;
 const RETRY_DELAY = 1000; // 1 segundo
 
 // Tipos de tabelas suportadas para sincronização
-type SyncTable = 'messages' | 'members' | 'visitors' | 'attendances';
+type SyncTable = 'messages' | 'members' | 'attendances';
 
 /**
  * Adiciona uma ação à fila de sincronização

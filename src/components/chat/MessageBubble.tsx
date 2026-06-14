@@ -122,19 +122,19 @@ const MessageBubble = ({ message, isOwn, participants, onEdit, onDelete }: Messa
                 <>
                   <div
                     className={cn(
-                      "rounded-2xl px-3 sm:px-4 py-2 break-words",
+                      "rounded-2xl px-3 sm:px-4 py-2.5 break-words shadow-sm relative",
                       isOwn
-                        ? "bg-primary text-primary-foreground"
-                        : "bg-muted text-foreground"
+                        ? "bg-gradient-to-tr from-primary to-primary/90 text-primary-foreground rounded-tr-sm"
+                        : "bg-background border border-border text-foreground rounded-tl-sm"
                     )}
                   >
-                    <p className="text-sm whitespace-pre-wrap">{message.content}</p>
+                    <p className="text-sm whitespace-pre-wrap leading-relaxed">{message.content}</p>
                     {message.edited_at && (
-                      <span className="text-[10px] italic opacity-70 ml-1">(editado)</span>
+                      <span className="text-[10px] italic opacity-70 mt-1 block text-right">(editado)</span>
                     )}
                   </div>
-                  <div className="flex items-center gap-1 px-2 sm:px-3">
-                    <span className="text-[10px] sm:text-xs text-muted-foreground">
+                  <div className={cn("flex items-center gap-1.5 px-1 mt-1", isOwn ? "justify-end" : "justify-start")}>
+                    <span className="text-[10px] sm:text-[11px] font-medium text-muted-foreground/80">
                       {format(new Date(message.created_at), "HH:mm", { locale: ptBR })}
                     </span>
                     {isOwn && <ReadReceipt message={message} isOwn={isOwn} participants={participants} />}

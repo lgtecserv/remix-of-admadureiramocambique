@@ -8,9 +8,10 @@ import { Plus } from "lucide-react";
 interface CreateMemberButtonProps {
   role: string | null;
   onSuccess: () => void;
+  defaultType?: "membro" | "congregado";
 }
 
-const CreateMemberButton = ({ role, onSuccess }: CreateMemberButtonProps) => {
+const CreateMemberButton = ({ role, onSuccess, defaultType = "membro" }: CreateMemberButtonProps) => {
   const [open, setOpen] = useState(false);
   const [department, setDepartment] = useState<string>("");
   const [leaderId, setLeaderId] = useState<string>("");
@@ -50,18 +51,19 @@ const CreateMemberButton = ({ role, onSuccess }: CreateMemberButtonProps) => {
       <DialogTrigger asChild>
         <Button size="sm" className="w-auto shrink-0">
           <Plus className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
-          <span className="hidden xs:inline">Novo </span>Membro
+          <span className="hidden xs:inline">Novo </span>{defaultType === "congregado" ? "Congregado" : "Membro"}
         </Button>
       </DialogTrigger>
       <DialogContent className="max-w-md w-[calc(100%-2rem)] mx-auto">
         <DialogHeader>
-          <DialogTitle>Cadastrar Novo Membro</DialogTitle>
+          <DialogTitle>Cadastrar Novo {defaultType === "congregado" ? "Congregado" : "Membro"}</DialogTitle>
         </DialogHeader>
-        {department && leaderId && (
+        {leaderId && (role === "secretary" || department) && (
           <CreateMemberForm 
-            department={department} 
+            department={department || undefined} 
             leaderId={leaderId} 
             onSuccess={handleSuccess} 
+            defaultType={defaultType}
           />
         )}
       </DialogContent>
