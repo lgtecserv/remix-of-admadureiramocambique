@@ -162,32 +162,6 @@ SECURITY DEFINER
 SET search_path = public
 AS $$
 BEGIN
-  INSERT INTO public.profiles (id, full_name)
-  VALUES (
-    NEW.id,
-    COALESCE(NEW.raw_user_meta_data->>'full_name', '')
-  );
-  RETURN NEW;
-END;
-$$;
-
-CREATE TRIGGER on_auth_user_created
-  AFTER INSERT ON auth.users
-  FOR EACH ROW
-  EXECUTE FUNCTION public.handle_new_user();
-
--- File: 20251021080733_afc40485-4f30-4de5-a497-63215cf89cc7.sql
--- 1. Adicionar coluna email na tabela profiles
-ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS email TEXT;
-
--- 2. Atualizar trigger para salvar email no perfil
-CREATE OR REPLACE FUNCTION public.handle_new_user()
-RETURNS TRIGGER
-LANGUAGE plpgsql
-SECURITY DEFINER
-SET search_path = public
-AS $$
-BEGIN
   INSERT INTO public.profiles (id, full_name, email)
   VALUES (
     NEW.id,
@@ -818,12 +792,12 @@ ALTER TYPE app_role ADD VALUE IF NOT EXISTS 'super_admin';
 -- File: 20251108194641_2dac7f1d-c1c0-4218-84f8-81736f93290c.sql
 -- Assign super_admin role to lgtecserv@gmail.com
 -- INSERT INTO user_roles (user_id, role, department)
-VALUES (
-  -- 'aff25e57-3441-4ba8-bff2-33c6cbe79ba7',
-  'super_admin',
-  NULL
-)
-ON CONFLICT DO NOTHING;
+-- VALUES (
+--   'aff25e57-3441-4ba8-bff2-33c6cbe79ba7',
+--   'super_admin',
+--   NULL
+-- )
+-- ON CONFLICT DO NOTHING;
 
 -- Update RLS policies to include super_admin checks
 
@@ -1132,10 +1106,10 @@ CREATE TRIGGER on_user_role_created
 
 -- FASE 3.2: Adicionar super_admin ao chat geral existente
 -- INSERT INTO conversation_participants (conversation_id, user_id)
-SELECT c.id, -- 'aff25e57-3441-4ba8-bff2-33c6cbe79ba7'
-FROM conversations c
-WHERE c.type = 'general'
-ON CONFLICT DO NOTHING;
+-- SELECT c.id, 'aff25e57-3441-4ba8-bff2-33c6cbe79ba7'
+-- FROM conversations c
+-- WHERE c.type = 'general'
+-- ON CONFLICT DO NOTHING;
 
 -- FASE 3.3: Atualizar função create_general_chat para incluir super_admin
 CREATE OR REPLACE FUNCTION public.create_general_chat()
