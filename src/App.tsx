@@ -25,6 +25,7 @@ import FinancialReports from "./pages/FinancialReports";
 import AssetRequests from "./pages/AssetRequests";
 import Inventory from "./pages/Inventory";
 import NotFound from "./pages/NotFound";
+import ReunioesObreiros from "./pages/ReunioesObreiros";
 
 const queryClient = new QueryClient();
 
@@ -57,6 +58,7 @@ const App = () => (
             <Route path="/dashboard/tesouraria/solicitacoes" element={<AssetRequests />} />
             <Route path="/dashboard/tesouraria/inventario" element={<Inventory />} />
             <Route path="/super-admin" element={<SuperAdmin />} />
+            <Route path="/dashboard/reunioes-obreiros" element={<ReunioesObreiros />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

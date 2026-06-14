@@ -1,4 +1,4 @@
-import { Home, Users, BarChart3, Settings, LogOut, UserCog, Shield, FileText, MessageSquare, Package, DollarSign, UserPlus, ClipboardList, Images } from "lucide-react";
+import { Home, Users, BarChart3, Settings, LogOut, UserCog, Shield, FileText, MessageSquare, Package, DollarSign, UserPlus, ClipboardList, Images, Calendar } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import {
   Sidebar,
@@ -40,6 +40,7 @@ const secretaryItems = [
   { title: "Líderes", url: "/dashboard/leaders", icon: UserCog },
   { title: "Membros", url: "/dashboard/members", icon: Users },
   { title: "Congregados", url: "/dashboard/congregados", icon: UserPlus },
+  { title: "Reuniões de Obreiros", url: "/dashboard/reunioes-obreiros", icon: Calendar },
   { title: "Tesouraria", url: "/dashboard/tesouraria", icon: DollarSign },
   { title: "Patrimônio", url: "/dashboard/patrimonio", icon: Images },
   { title: "Chat", url: "/dashboard/chat", icon: MessageSquare },

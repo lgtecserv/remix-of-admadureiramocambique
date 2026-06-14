@@ -24,6 +24,7 @@ const editMemberSchema = z.object({
   photoUrl: z.string().optional(),
   churchFunction: z.string().trim().max(120).optional(),
   churchOffice: z.string().optional(),
+  maritalStatus: z.enum(["solteiro", "casado", "divorciado", "viuvo"]).optional(),
 });
 
 interface EditMemberFormProps {
@@ -37,6 +38,7 @@ interface EditMemberFormProps {
     photo_url?: string | null;
     church_function?: string | null;
     church_office?: string | null;
+    marital_status?: string | null;
   };
   onSuccess: () => void;
 }
@@ -46,19 +48,35 @@ const genders = [
   { value: "masculino", label: "Masculino" },
   { value: "feminino", label: "Feminino" },
 ];
-const memberTypes = [
-  { value: "obreiro", label: "Obreiro" },
-  { value: "congregado", label: "Congregado" },
-  { value: "membro", label: "Membro da Igreja" },
-];
-const churchOffices = [
-  { value: "cooperador", label: "Cooperador" },
-  { value: "diacono", label: "Diácono" },
-  { value: "presbitero", label: "Presbítero" },
-  { value: "pastor", label: "Pastor" },
-  { value: "evangelista", label: "Evangelista" },
-  { value: "missionario", label: "Missionária/o" },
-];
+const getMemberTypes = (gender?: string) => {
+  const isFemale = gender === "feminino";
+  return [
+    { value: "congregado", label: isFemale ? "Congregada" : "Congregado" },
+    { value: "membro", label: "Membro da Igreja" },
+  ];
+};
+
+const getChurchOffices = (gender?: string) => {
+  const isFemale = gender === "feminino";
+  return [
+    { value: "cooperador", label: isFemale ? "Cooperadora" : "Cooperador" },
+    { value: "diacono", label: isFemale ? "Diaconisa" : "Diácono" },
+    { value: "presbitero", label: isFemale ? "Presbítera" : "Presbítero" },
+    { value: "pastor", label: isFemale ? "Pastora" : "Pastor" },
+    { value: "evangelista", label: "Evangelista" },
+    { value: "missionario", label: isFemale ? "Missionária" : "Missionário" },
+  ];
+};
+
+const getMaritalStatuses = (gender?: string) => {
+  const isFemale = gender === "feminino";
+  return [
+    { value: "solteiro", label: isFemale ? "Solteira" : "Solteiro" },
+    { value: "casado", label: isFemale ? "Casada" : "Casado" },
+    { value: "divorciado", label: isFemale ? "Divorciada" : "Divorciado" },
+    { value: "viuvo", label: isFemale ? "Viúva" : "Viúvo" },
+  ];
+};
 
 const EditMemberForm = ({ member, onSuccess }: EditMemberFormProps) => {
   const [loading, setLoading] = useState(false);
@@ -71,6 +89,7 @@ const EditMemberForm = ({ member, onSuccess }: EditMemberFormProps) => {
     photoUrl: member.photo_url || "",
     churchFunction: member.church_function || "",
     churchOffice: member.church_office || "",
+    maritalStatus: member.marital_status || "",
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -91,6 +110,7 @@ const EditMemberForm = ({ member, onSuccess }: EditMemberFormProps) => {
           photo_url: validatedData.photoUrl || null,
           church_function: validatedData.churchFunction || null,
           church_office: validatedData.churchOffice || null,
+          marital_status: validatedData.maritalStatus || null,
         } as any)
         .eq("id", member.id);
 
@@ -171,7 +191,7 @@ const EditMemberForm = ({ member, onSuccess }: EditMemberFormProps) => {
               <SelectValue placeholder="Selecione" />
             </SelectTrigger>
             <SelectContent>
-              {memberTypes.map((type) => (
+              {getMemberTypes(formData.gender).map((type) => (
                 <SelectItem key={type.value} value={type.value}>
                   {type.label}
                 </SelectItem>
@@ -192,7 +212,7 @@ const EditMemberForm = ({ member, onSuccess }: EditMemberFormProps) => {
               <SelectValue placeholder="Selecione..." />
             </SelectTrigger>
             <SelectContent>
-              {churchOffices.map((o) => (
+              {getChurchOffices(formData.gender).map((o) => (
                 <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>
               ))}
             </SelectContent>
@@ -209,6 +229,23 @@ const EditMemberForm = ({ member, onSuccess }: EditMemberFormProps) => {
             placeholder="Ex: dirigente de louvor"
           />
         </div>
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="maritalStatus">Estado Civil</Label>
+        <Select
+          value={formData.maritalStatus}
+          onValueChange={(value) => setFormData({ ...formData, maritalStatus: value })}
+        >
+          <SelectTrigger>
+            <SelectValue placeholder="Selecione..." />
+          </SelectTrigger>
+          <SelectContent>
+            {getMaritalStatuses(formData.gender).map((status) => (
+              <SelectItem key={status.value} value={status.value}>{status.label}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
 
       <div className="space-y-2">

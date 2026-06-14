@@ -16,7 +16,7 @@ import { useSelectedCongregation } from "@/contexts/SelectedCongregationContext"
 interface PastorDashboardProps {
   user: User;
   userEmail?: string;
-  explicitRole?: "super_admin" | "pastor";
+  explicitRole?: "super_admin" | "pastor" | "secretary";
 }
 
 interface Stats {
@@ -101,8 +101,10 @@ const PastorDashboard = ({ user, userEmail, explicitRole }: PastorDashboardProps
   }, [user.id, congId]);
 
   const layoutRole = effectiveRole;
-  const dashboardTitle = effectiveRole === "super_admin" ? "Painel Super Admin" : "Painel do Pastor";
-  const dashboardSubtitle = effectiveRole === "super_admin"
+  const dashboardTitle = effectiveRole === "super_admin" ? "Painel Super Admin" 
+                       : effectiveRole === "secretary" ? "Painel da Secretaria" 
+                       : "Painel do Pastor";
+  const dashboardSubtitle = (effectiveRole === "super_admin" || effectiveRole === "secretary")
     ? "Visão geral de todas as congregações"
     : "Visão geral completa da igreja";
 

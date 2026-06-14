@@ -28,10 +28,11 @@ interface MemberIdCardProps {
   onOpenChange: (open: boolean) => void;
 }
 
-const getMemberTypeLabel = (type: string | null | undefined) => {
+const getMemberTypeLabel = (type: string | null | undefined, gender?: string | null) => {
+  const isFemale = gender === "feminino";
   switch (type) {
-    case "obreiro": return "Obreiro";
-    case "congregado": return "Congregado";
+    case "obreiro": return "Membro da Igreja";
+    case "congregado": return isFemale ? "Congregada" : "Congregado";
     case "membro": return "Membro da Igreja";
     default: return "Membro";
   }
@@ -139,7 +140,7 @@ const MemberIdCard = ({ member, open, onOpenChange }: MemberIdCardProps) => {
               <Users className="h-3 w-3 text-chart-2 shrink-0" />
               <div>
                 <p className="text-[10px] text-muted-foreground">Classificação</p>
-                <p className="font-medium text-foreground text-xs">{getMemberTypeLabel(member.member_type)}</p>
+                <p className="font-medium text-foreground text-xs">{getMemberTypeLabel(member.member_type, member.gender)}</p>
               </div>
             </div>
 

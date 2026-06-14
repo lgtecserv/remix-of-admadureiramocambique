@@ -22,6 +22,7 @@ interface Member {
   created_at: string;
   congregation_id?: string;
   member_type?: string;
+  gender?: string;
 }
 
 interface GenerateCardDialogProps {
@@ -30,22 +31,35 @@ interface GenerateCardDialogProps {
   onOpenChange: (open: boolean) => void;
 }
 
-const getOfficeLabel = (value: string) => {
+const getOfficeLabel = (value: string, gender?: string) => {
+  const isFemale = gender === "feminino";
   const offices: Record<string, string> = {
-    cooperador: "Cooperador",
-    diacono: "Diácono",
-    presbitero: "Presbítero",
-    pastor: "Pastor",
+    cooperador: isFemale ? "Cooperadora" : "Cooperador",
+    diacono: isFemale ? "Diaconisa" : "Diácono",
+    presbitero: isFemale ? "Presbítera" : "Presbítero",
+    pastor: isFemale ? "Pastora" : "Pastor",
     evangelista: "Evangelista",
-    missionario: "Missionário(a)"
+    missionario: isFemale ? "Missionária" : "Missionário(a)"
   };
   return offices[value] || value;
 };
 
-const getTypeLabel = (value: string) => {
+const getMaritalStatusLabel = (value: string, gender?: string) => {
+  const isFemale = gender === "feminino";
+  const statuses: Record<string, string> = {
+    solteiro: isFemale ? "Solteira" : "Solteiro",
+    casado: isFemale ? "Casada" : "Casado",
+    divorciado: isFemale ? "Divorciada" : "Divorciado",
+    viuvo: isFemale ? "Viúva" : "Viúvo"
+  };
+  return statuses[value] || value;
+};
+
+const getTypeLabel = (value: string, gender?: string) => {
+  const isFemale = gender === "feminino";
   const types: Record<string, string> = {
-    obreiro: "Obreiro",
-    congregado: "Congregado",
+    obreiro: "Membro", // Legacy fallback
+    congregado: isFemale ? "Congregada" : "Congregado",
     membro: "Membro"
   };
   return types[value] || value;
@@ -178,7 +192,7 @@ export const GenerateCardDialog = ({ member, open, onOpenChange }: GenerateCardD
                     {member.full_name}
                   </h2>
                   <p className="text-xl font-bold text-yellow-600 uppercase tracking-widest">
-                    {member.church_office ? getOfficeLabel(member.church_office) : getTypeLabel(member.member_type || "membro")}
+                    {member.church_office ? getOfficeLabel(member.church_office, member.gender) : getTypeLabel(member.member_type || "membro")}
                     {member.church_function ? ` - ${member.church_function}` : ""}
                   </p>
                 </div>
@@ -201,7 +215,7 @@ export const GenerateCardDialog = ({ member, open, onOpenChange }: GenerateCardD
                   </div>
                   <div className="border-b border-slate-200 pb-1">
                     <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">Estado Civil</p>
-                    <p className="text-lg font-bold text-[#1A365D] uppercase">{member.marital_status || "—"}</p>
+                    <p className="text-lg font-bold text-[#1A365D] uppercase">{member.marital_status ? getMaritalStatusLabel(member.marital_status, member.gender) : "—"}</p>
                   </div>
                 </div>
               </div>

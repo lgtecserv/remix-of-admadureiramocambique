@@ -150,7 +150,7 @@ const Dashboard = () => {
   }
 
   if (role === "secretary" && user) {
-    return <PastorDashboard user={user} userEmail={userEmail} explicitRole="super_admin" />;
+    return <PastorDashboard user={user} userEmail={userEmail} explicitRole="secretary" />;
   }
 
   // Renderização baseada em role e department - ordem importa!

@@ -22,14 +22,35 @@ interface AdditionalMemberFieldsProps {
   memberName?: string;
 }
 
-const CHURCH_OFFICES = [
-  { value: "cooperador", label: "Cooperador" },
-  { value: "diacono", label: "Diácono" },
-  { value: "presbitero", label: "Presbítero" },
-  { value: "pastor", label: "Pastor" },
-  { value: "evangelista", label: "Evangelista" },
-  { value: "missionario", label: "Missionária/o" },
-];
+const getMemberTypes = (gender?: string) => {
+  const isFemale = gender === "feminino";
+  return [
+    { value: "congregado", label: isFemale ? "Congregada" : "Congregado" },
+    { value: "membro", label: "Membro da Igreja" },
+  ];
+};
+
+const getChurchOffices = (gender?: string) => {
+  const isFemale = gender === "feminino";
+  return [
+    { value: "cooperador", label: isFemale ? "Cooperadora" : "Cooperador" },
+    { value: "diacono", label: isFemale ? "Diaconisa" : "Diácono" },
+    { value: "presbitero", label: isFemale ? "Presbítera" : "Presbítero" },
+    { value: "pastor", label: isFemale ? "Pastora" : "Pastor" },
+    { value: "evangelista", label: "Evangelista" },
+    { value: "missionario", label: isFemale ? "Missionária" : "Missionário" },
+  ];
+};
+
+const getMaritalStatuses = (gender?: string) => {
+  const isFemale = gender === "feminino";
+  return [
+    { value: "solteiro", label: isFemale ? "Solteira" : "Solteiro" },
+    { value: "casado", label: isFemale ? "Casada" : "Casado" },
+    { value: "divorciado", label: isFemale ? "Divorciada" : "Divorciado" },
+    { value: "viuvo", label: isFemale ? "Viúva" : "Viúvo" },
+  ];
+};
 
 const AdditionalMemberFields = ({ formData, setFormData, memberName }: AdditionalMemberFieldsProps) => {
   return (
@@ -69,9 +90,11 @@ const AdditionalMemberFields = ({ formData, setFormData, memberName }: Additiona
               <SelectValue placeholder="Selecione..." />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="obreiro">Obreiro</SelectItem>
-              <SelectItem value="congregado">Congregado</SelectItem>
-              <SelectItem value="membro">Membro da Igreja</SelectItem>
+              {getMemberTypes(formData.gender).map((type) => (
+                <SelectItem key={type.value} value={type.value}>
+                  {type.label}
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
         </div>
@@ -88,7 +111,7 @@ const AdditionalMemberFields = ({ formData, setFormData, memberName }: Additiona
               <SelectValue placeholder="Selecione..." />
             </SelectTrigger>
             <SelectContent>
-              {CHURCH_OFFICES.map((o) => (
+              {getChurchOffices(formData.gender).map((o) => (
                 <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>
               ))}
             </SelectContent>
@@ -141,10 +164,9 @@ const AdditionalMemberFields = ({ formData, setFormData, memberName }: Additiona
               <SelectValue placeholder="Selecione..." />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="solteiro">Solteiro(a)</SelectItem>
-              <SelectItem value="casado">Casado(a)</SelectItem>
-              <SelectItem value="divorciado">Divorciado(a)</SelectItem>
-              <SelectItem value="viuvo">Viúvo(a)</SelectItem>
+              {getMaritalStatuses(formData.gender).map((status) => (
+                <SelectItem key={status.value} value={status.value}>{status.label}</SelectItem>
+              ))}
             </SelectContent>
           </Select>
         </div>
