@@ -86,7 +86,7 @@ export function AppSidebar({ role = "leader", department, userEmail }: AppSideba
   };
   
   const getMenuItems = () => {
-    if (role === "super_admin" || role === "super-admin") return superAdminItems;
+    if (role === "super_admin" || role === "super-admin" || role === "secretary") return superAdminItems;
     if (role === "pastor") return pastorItems;
     if (role === "leader") {
       if (department === "patrimonio") return patrimonioItems;
@@ -97,7 +97,7 @@ export function AppSidebar({ role = "leader", department, userEmail }: AppSideba
   };
   
   const items = getMenuItems();
-  const isSuperAdmin = role === "super_admin" || role === "super-admin";
+  const isSuperAdmin = role === "super_admin" || role === "super-admin" || role === "secretary";
 
   const handleLogout = async () => {
     const { error } = await supabase.auth.signOut();

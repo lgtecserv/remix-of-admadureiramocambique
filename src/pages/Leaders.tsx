@@ -38,14 +38,15 @@ const Leaders = () => {
       const { data: isSuperAdmin } = await supabase.rpc("is_super_admin", {
         _user_id: user.id,
       });
+      const isSecretary = roleData?.role === "secretary";
 
-      // Allow access to pastor or super admin
-      if (roleData?.role !== "pastor" && !isSuperAdmin) {
+      // Allow access to pastor, super admin or secretary
+      if (roleData?.role !== "pastor" && !isSuperAdmin && !isSecretary) {
         navigate("/dashboard");
         return;
       }
 
-      setRole(isSuperAdmin ? "super_admin" : (roleData?.role || "pastor"));
+      setRole(isSecretary ? "secretary" : (isSuperAdmin ? "super_admin" : (roleData?.role || "pastor")));
 
       const { data: profileData } = await supabase
         .from("profiles")

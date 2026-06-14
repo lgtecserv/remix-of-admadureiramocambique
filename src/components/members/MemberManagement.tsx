@@ -202,7 +202,7 @@ const MemberManagement = ({
                   </div>
                 </div>
                 <div className="flex gap-1 shrink-0">
-                  {(userRole === "pastor" || member.leader_id === currentUserId) ? (
+                  {(userRole === "pastor" || userRole === "secretary" || member.leader_id === currentUserId) ? (
                     <>
                       <Button
                         variant="outline"
@@ -216,7 +216,7 @@ const MemberManagement = ({
                         <Pencil className="h-3 w-3" />
                       </Button>
 
-                      {userRole === "pastor" && (
+                      {userRole === "secretary" && (
                         <AlertDialog>
                           <AlertDialogTrigger asChild>
                             <Button variant="destructive" size="icon" className="h-8 w-8">
