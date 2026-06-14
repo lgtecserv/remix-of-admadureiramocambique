@@ -1,4 +1,5 @@
-﻿-- Create role enum
+-- File: 20251019192308_c5729320-4e89-4f40-9e12-5de1c87d0f6d.sql
+-- Create role enum
 CREATE TYPE public.app_role AS ENUM ('pastor', 'leader');
 
 -- Create department enum
@@ -175,8 +176,7 @@ CREATE TRIGGER on_auth_user_created
   FOR EACH ROW
   EXECUTE FUNCTION public.handle_new_user();
 
-
-
+-- File: 20251021080733_afc40485-4f30-4de5-a497-63215cf89cc7.sql
 -- 1. Adicionar coluna email na tabela profiles
 ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS email TEXT;
 
@@ -272,17 +272,16 @@ BEFORE UPDATE ON public.visitors
 FOR EACH ROW
 EXECUTE FUNCTION public.update_updated_at_column();
 
-
-
--- Migration 1: Popular emails faltantes dos lÃ­deres
--- Atualizar profiles com emails de auth.users para lÃ­deres sem email
+-- File: 20251022093249_d62806e6-4501-42b8-9176-c5e5be13c21e.sql
+-- Migration 1: Popular emails faltantes dos líderes
+-- Atualizar profiles com emails de auth.users para líderes sem email
 UPDATE public.profiles
 SET email = auth.users.email
 FROM auth.users
 WHERE profiles.id = auth.users.id
   AND profiles.email IS NULL;
 
--- Migration 2: Criar funÃ§Ã£o para verificar super-admin
+-- Migration 2: Criar função para verificar super-admin
 CREATE OR REPLACE FUNCTION public.is_super_admin(_email text)
 RETURNS boolean
 LANGUAGE plpgsql
@@ -295,7 +294,7 @@ BEGIN
 END;
 $$;
 
--- Criar polÃ­tica RLS para permitir super-admin gerenciar roles de pastores
+-- Criar política RLS para permitir super-admin gerenciar roles de pastores
 CREATE POLICY "Super admin can manage pastor roles"
 ON public.user_roles
 FOR ALL
@@ -303,12 +302,11 @@ USING (
   is_super_admin((SELECT email FROM auth.users WHERE id = auth.uid()))
 );
 
--- Adicionar Ã­ndice para performance
+-- Adicionar índice para performance
 CREATE INDEX IF NOT EXISTS idx_user_roles_user_id ON public.user_roles(user_id);
 CREATE INDEX IF NOT EXISTS idx_profiles_email ON public.profiles(email);
 
-
-
+-- File: 20251103080153_5c47f76d-0c24-441b-96bc-369ef48962bd.sql
 -- Fix 1: Drop problematic RLS policy that queries auth.users
 DROP POLICY IF EXISTS "Super admin can manage pastor roles" ON public.user_roles;
 
@@ -336,8 +334,7 @@ ON public.user_roles
 FOR ALL
 USING (public.is_super_admin(auth.uid()));
 
-
-
+-- File: 20251103083939_c2b0d5ad-0958-4679-8938-2e002fffb097.sql
 -- Add new fields to members table
 ALTER TABLE public.members
 ADD COLUMN IF NOT EXISTS address TEXT,
@@ -498,9 +495,8 @@ CREATE INDEX IF NOT EXISTS idx_visitor_followups_status ON public.visitor_follow
 CREATE INDEX IF NOT EXISTS idx_notifications_user_id ON public.notifications(user_id);
 CREATE INDEX IF NOT EXISTS idx_notifications_read ON public.notifications(read);
 
-
-
--- Remover a policy atual que permite lÃ­deres deletarem membros
+-- File: 20251105083100_0a9d4aa7-037b-4aa3-b7b0-8f360a2026b5.sql
+-- Remover a policy atual que permite líderes deletarem membros
 DROP POLICY IF EXISTS "Leaders can delete own department members" ON public.members;
 
 -- Criar nova policy permitindo APENAS pastor deletar membros
@@ -510,8 +506,7 @@ FOR DELETE
 TO authenticated
 USING (has_role(auth.uid(), 'pastor'::app_role));
 
-
-
+-- File: 20251106142420_9895413a-d751-4816-b112-9562479f3585.sql
 -- Add RLS policies to allow pastors and super admin to view all profiles
 -- This is needed for LeaderManagement, SuperAdmin, and TransferMembersDialog components
 -- which join user_roles with profiles table
@@ -545,8 +540,7 @@ CREATE POLICY "Leaders can view same department leader profiles"
     )
   );
 
-
-
+-- File: 20251107120115_b6c26b25-9b10-4532-a47e-2db6aa195413.sql
 -- Step 1: Clean up orphaned records before adding foreign keys
 -- Remove user_roles entries without matching profiles
 DELETE FROM public.user_roles
@@ -595,8 +589,7 @@ CREATE POLICY "Pastor can update all members"
   FOR UPDATE
   USING (public.has_role(auth.uid(), 'pastor'::app_role));
 
-
-
+-- File: 20251107124129_c586e1f1-a5ce-4169-abef-5907e9a70b00.sql
 -- Tabela de conversas
 CREATE TABLE conversations (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -627,7 +620,7 @@ CREATE TABLE messages (
   is_deleted BOOLEAN DEFAULT false
 );
 
--- Ãndices para performance
+-- Índices para performance
 CREATE INDEX idx_messages_conversation ON messages(conversation_id, created_at DESC);
 CREATE INDEX idx_messages_sender ON messages(sender_id);
 CREATE INDEX idx_participants_user ON conversation_participants(user_id);
@@ -643,7 +636,7 @@ ALTER TABLE conversations ENABLE ROW LEVEL SECURITY;
 ALTER TABLE conversation_participants ENABLE ROW LEVEL SECURITY;
 ALTER TABLE messages ENABLE ROW LEVEL SECURITY;
 
--- UsuÃ¡rios podem ver conversas das quais participam
+-- Usuários podem ver conversas das quais participam
 CREATE POLICY "Users can view own conversations"
   ON conversations FOR SELECT
   USING (
@@ -654,7 +647,7 @@ CREATE POLICY "Users can view own conversations"
     )
   );
 
--- UsuÃ¡rios podem ver participantes de suas conversas
+-- Usuários podem ver participantes de suas conversas
 CREATE POLICY "Users can view conversation participants"
   ON conversation_participants FOR SELECT
   USING (
@@ -665,7 +658,7 @@ CREATE POLICY "Users can view conversation participants"
     )
   );
 
--- UsuÃ¡rios podem ver mensagens de suas conversas
+-- Usuários podem ver mensagens de suas conversas
 CREATE POLICY "Users can view messages"
   ON messages FOR SELECT
   USING (
@@ -676,7 +669,7 @@ CREATE POLICY "Users can view messages"
     )
   );
 
--- UsuÃ¡rios podem enviar mensagens em conversas que participam
+-- Usuários podem enviar mensagens em conversas que participam
 CREATE POLICY "Users can send messages"
   ON messages FOR INSERT
   WITH CHECK (
@@ -688,7 +681,7 @@ CREATE POLICY "Users can send messages"
     )
   );
 
--- UsuÃ¡rios podem atualizar suas prÃ³prias mensagens
+-- Usuários podem atualizar suas próprias mensagens
 CREATE POLICY "Users can update own messages"
   ON messages FOR UPDATE
   USING (sender_id = auth.uid());
@@ -698,28 +691,28 @@ CREATE POLICY "Pastors can create conversations"
   ON conversations FOR INSERT
   WITH CHECK (has_role(auth.uid(), 'pastor'::app_role));
 
--- UsuÃ¡rios podem criar conversas privadas
+-- Usuários podem criar conversas privadas
 CREATE POLICY "Users can create private conversations"
   ON conversations FOR INSERT
   WITH CHECK (type = 'private');
 
--- UsuÃ¡rios podem adicionar participantes em conversas que criaram
+-- Usuários podem adicionar participantes em conversas que criaram
 CREATE POLICY "Users can add participants"
   ON conversation_participants FOR INSERT
   WITH CHECK (true);
 
--- UsuÃ¡rios podem atualizar seu last_read_at
+-- Usuários podem atualizar seu last_read_at
 CREATE POLICY "Users can update own participant record"
   ON conversation_participants FOR UPDATE
   USING (user_id = auth.uid());
 
--- FunÃ§Ã£o para criar conversa geral automaticamente
+-- Função para criar conversa geral automaticamente
 CREATE OR REPLACE FUNCTION create_general_chat()
 RETURNS void AS $$
 DECLARE
   general_conv_id UUID;
 BEGIN
-  -- Criar conversa geral se nÃ£o existir
+  -- Criar conversa geral se não existir
   INSERT INTO conversations (type, name)
   VALUES ('general', 'Chat Geral')
   ON CONFLICT DO NOTHING
@@ -732,7 +725,7 @@ BEGIN
     LIMIT 1;
   END IF;
   
-  -- Adicionar todos os lÃ­deres e pastores
+  -- Adicionar todos os líderes e pastores
   INSERT INTO conversation_participants (conversation_id, user_id)
   SELECT general_conv_id, user_id
   FROM user_roles
@@ -741,7 +734,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public;
 
--- FunÃ§Ã£o para criar conversa privada
+-- Função para criar conversa privada
 CREATE OR REPLACE FUNCTION create_private_conversation(
   other_user_id UUID
 )
@@ -750,7 +743,7 @@ DECLARE
   conv_id UUID;
   existing_conv UUID;
 BEGIN
-  -- Verificar se jÃ¡ existe conversa privada entre os dois usuÃ¡rios
+  -- Verificar se já existe conversa privada entre os dois usuários
   SELECT c.id INTO existing_conv
   FROM conversations c
   INNER JOIN conversation_participants cp1 ON cp1.conversation_id = c.id
@@ -779,7 +772,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public;
 
--- Trigger para adicionar novos lÃ­deres ao chat geral
+-- Trigger para adicionar novos líderes ao chat geral
 CREATE OR REPLACE FUNCTION add_leader_to_general_chat()
 RETURNS TRIGGER AS $$
 DECLARE
@@ -807,20 +800,18 @@ CREATE TRIGGER on_leader_created
   FOR EACH ROW
   EXECUTE FUNCTION add_leader_to_general_chat();
 
--- Inicializar chat geral com usuÃ¡rios existentes
+-- Inicializar chat geral com usuários existentes
 SELECT create_general_chat();
 
-
-
+-- File: 20251108194616_f4ed5edb-da5c-419a-b1ef-10231b0b7d20.sql
 -- Add super_admin to app_role enum
 ALTER TYPE app_role ADD VALUE IF NOT EXISTS 'super_admin';
 
-
-
+-- File: 20251108194641_2dac7f1d-c1c0-4218-84f8-81736f93290c.sql
 -- Assign super_admin role to lgtecserv@gmail.com
-INSERT INTO user_roles (user_id, role, department)
+-- INSERT INTO user_roles (user_id, role, department)
 VALUES (
-  'aff25e57-3441-4ba8-bff2-33c6cbe79ba7',
+  -- 'aff25e57-3441-4ba8-bff2-33c6cbe79ba7',
   'super_admin',
   NULL
 )
@@ -878,9 +869,8 @@ CREATE POLICY "Super admin can manage all messages"
 ON messages FOR ALL 
 USING (has_role(auth.uid(), 'super_admin'));
 
-
-
--- Criar funÃ§Ã£o SECURITY DEFINER para evitar recursÃ£o infinita nas polÃ­ticas RLS
+-- File: 20251127120015_29c494a1-d162-42df-9142-b5f23445357c.sql
+-- Criar função SECURITY DEFINER para evitar recursão infinita nas políticas RLS
 CREATE OR REPLACE FUNCTION public.is_conversation_participant(conv_id uuid, uid uuid)
 RETURNS boolean
 LANGUAGE sql
@@ -894,10 +884,10 @@ AS $$
   );
 $$;
 
--- Remover polÃ­ticas problemÃ¡ticas que causam recursÃ£o
+-- Remover políticas problemáticas que causam recursão
 DROP POLICY IF EXISTS "Users can view conversation participants" ON conversation_participants;
 
--- Criar novas polÃ­ticas sem recursÃ£o para conversation_participants
+-- Criar novas políticas sem recursão para conversation_participants
 CREATE POLICY "Users can view own participation"
 ON conversation_participants FOR SELECT
 USING (user_id = auth.uid());
@@ -906,7 +896,7 @@ CREATE POLICY "Users can view co-participants"
 ON conversation_participants FOR SELECT
 USING (is_conversation_participant(conversation_id, auth.uid()));
 
--- Recriar polÃ­ticas de messages usando a funÃ§Ã£o SECURITY DEFINER
+-- Recriar políticas de messages usando a função SECURITY DEFINER
 DROP POLICY IF EXISTS "Users can view messages" ON messages;
 CREATE POLICY "Users can view messages"
 ON messages FOR SELECT
@@ -920,7 +910,7 @@ WITH CHECK (
   AND is_conversation_participant(conversation_id, auth.uid())
 );
 
--- Garantir que a funÃ§Ã£o create_private_conversation usa SECURITY DEFINER
+-- Garantir que a função create_private_conversation usa SECURITY DEFINER
 CREATE OR REPLACE FUNCTION public.create_private_conversation(other_user_id uuid)
 RETURNS uuid
 LANGUAGE plpgsql
@@ -931,7 +921,7 @@ DECLARE
   conv_id UUID;
   existing_conv UUID;
 BEGIN
-  -- Verificar se jÃ¡ existe conversa privada entre os dois usuÃ¡rios
+  -- Verificar se já existe conversa privada entre os dois usuários
   SELECT c.id INTO existing_conv
   FROM conversations c
   INNER JOIN conversation_participants cp1 ON cp1.conversation_id = c.id
@@ -960,9 +950,8 @@ BEGIN
 END;
 $$;
 
-
-
--- Criar tabela para tracking de digitaÃ§Ã£o
+-- File: 20251127121036_3e700534-9228-4dde-a370-f2b8633fe4e1.sql
+-- Criar tabela para tracking de digitação
 CREATE TABLE typing_indicators (
   id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
   conversation_id uuid REFERENCES conversations(id) ON DELETE CASCADE NOT NULL,
@@ -972,7 +961,7 @@ CREATE TABLE typing_indicators (
   UNIQUE(conversation_id, user_id)
 );
 
--- RLS para ver quem estÃ¡ digitando na conversa
+-- RLS para ver quem está digitando na conversa
 ALTER TABLE typing_indicators ENABLE ROW LEVEL SECURITY;
 
 CREATE POLICY "Users can view typing in own conversations"
@@ -993,7 +982,7 @@ ALTER PUBLICATION supabase_realtime ADD TABLE typing_indicators;
 -- Adicionar coluna read_by na tabela messages
 ALTER TABLE messages ADD COLUMN read_by uuid[] DEFAULT '{}';
 
--- FunÃ§Ã£o para marcar como lido
+-- Função para marcar como lido
 CREATE OR REPLACE FUNCTION mark_message_read(msg_id uuid)
 RETURNS void
 LANGUAGE plpgsql
@@ -1010,12 +999,11 @@ BEGIN
 END;
 $$;
 
-
-
+-- File: 20251127122150_4a17893c-638d-4683-9725-6ea17d13e294.sql
 -- Adicionar coluna delivered_to para rastrear entrega de mensagens
 ALTER TABLE messages ADD COLUMN delivered_to uuid[] DEFAULT '{}';
 
--- FunÃ§Ã£o para marcar mensagem como entregue
+-- Função para marcar mensagem como entregue
 CREATE OR REPLACE FUNCTION mark_message_delivered(msg_id uuid)
 RETURNS void
 LANGUAGE plpgsql
@@ -1032,8 +1020,7 @@ BEGIN
 END;
 $$;
 
-
-
+-- File: 20251127123845_3d6912ee-c386-4cf6-ba45-977252abda27.sql
 -- Create user notification settings table
 CREATE TABLE IF NOT EXISTS public.user_notification_settings (
   id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
@@ -1078,9 +1065,8 @@ CREATE TRIGGER update_user_notification_settings_updated_at
   FOR EACH ROW
   EXECUTE FUNCTION public.update_updated_at_column();
 
-
-
--- FASE 2: Criar configuraÃ§Ãµes de notificaÃ§Ã£o para usuÃ¡rios que nÃ£o tÃªm
+-- File: 20251127125501_57550701-b15d-4c6a-b54b-e2c607deca39.sql
+-- FASE 2: Criar configurações de notificação para usuários que não têm
 CREATE OR REPLACE FUNCTION create_missing_notification_settings()
 RETURNS void
 LANGUAGE plpgsql
@@ -1098,7 +1084,7 @@ BEGIN
 END;
 $$;
 
--- Executar funÃ§Ã£o para criar configuraÃ§Ãµes faltantes
+-- Executar função para criar configurações faltantes
 SELECT create_missing_notification_settings();
 
 -- FASE 3.1: Atualizar trigger para incluir super_admin no chat geral
@@ -1137,13 +1123,13 @@ CREATE TRIGGER on_user_role_created
   EXECUTE FUNCTION public.add_leader_to_general_chat();
 
 -- FASE 3.2: Adicionar super_admin ao chat geral existente
-INSERT INTO conversation_participants (conversation_id, user_id)
-SELECT c.id, 'aff25e57-3441-4ba8-bff2-33c6cbe79ba7'
+-- INSERT INTO conversation_participants (conversation_id, user_id)
+SELECT c.id, -- 'aff25e57-3441-4ba8-bff2-33c6cbe79ba7'
 FROM conversations c
 WHERE c.type = 'general'
 ON CONFLICT DO NOTHING;
 
--- FASE 3.3: Atualizar funÃ§Ã£o create_general_chat para incluir super_admin
+-- FASE 3.3: Atualizar função create_general_chat para incluir super_admin
 CREATE OR REPLACE FUNCTION public.create_general_chat()
 RETURNS void
 LANGUAGE plpgsql
@@ -1153,7 +1139,7 @@ AS $$
 DECLARE
   general_conv_id UUID;
 BEGIN
-  -- Criar conversa geral se nÃ£o existir
+  -- Criar conversa geral se não existir
   INSERT INTO conversations (type, name)
   VALUES ('general', 'Chat Geral')
   ON CONFLICT DO NOTHING
@@ -1166,7 +1152,7 @@ BEGIN
     LIMIT 1;
   END IF;
   
-  -- Adicionar todos os lÃ­deres, pastores e super_admins
+  -- Adicionar todos os líderes, pastores e super_admins
   INSERT INTO conversation_participants (conversation_id, user_id)
   SELECT general_conv_id, user_id
   FROM user_roles
@@ -1175,9 +1161,8 @@ BEGIN
 END;
 $$;
 
-
-
--- CORREÃ‡ÃƒO 1: Permitir lÃ­deres ver profiles de outros lÃ­deres/pastores para chat
+-- File: 20251127131757_24674267-1310-4f31-9149-2b7380cafe07.sql
+-- CORREÇÃO 1: Permitir líderes ver profiles de outros líderes/pastores para chat
 CREATE POLICY "Leaders can view leader and pastor profiles for chat"
 ON public.profiles
 FOR SELECT
@@ -1195,7 +1180,7 @@ USING (
   )
 );
 
--- CORREÃ‡ÃƒO 2: FunÃ§Ã£o para criar notificaÃ§Ã£o de nova mensagem
+-- CORREÇÃO 2: Função para criar notificação de nova mensagem
 CREATE OR REPLACE FUNCTION notify_message_recipient()
 RETURNS TRIGGER
 LANGUAGE plpgsql
@@ -1217,7 +1202,7 @@ BEGIN
   FROM profiles 
   WHERE id = NEW.sender_id;
   
-  -- Para cada participante que nÃ£o seja o remetente
+  -- Para cada participante que não seja o remetente
   FOR recipient_id IN 
     SELECT user_id 
     FROM conversation_participants 
@@ -1229,7 +1214,7 @@ BEGIN
       recipient_id,
       CASE 
         WHEN conv_type = 'general' THEN 'Nova mensagem no Chat Geral'
-        ELSE 'Nova mensagem de ' || COALESCE(sender_name, 'UsuÃ¡rio')
+        ELSE 'Nova mensagem de ' || COALESCE(sender_name, 'Usuário')
       END,
       LEFT(NEW.content, 100),
       'info',
@@ -1241,15 +1226,14 @@ BEGIN
 END;
 $$;
 
--- Trigger para executar apÃ³s inserÃ§Ã£o de mensagem
+-- Trigger para executar após inserção de mensagem
 CREATE TRIGGER on_message_insert
 AFTER INSERT ON messages
 FOR EACH ROW
 EXECUTE FUNCTION notify_message_recipient();
 
-
-
--- FASE 1: Permitir lÃ­deres ver roles de outros lÃ­deres/pastores para chat
+-- File: 20251127172223_3eeca3b8-4b62-4f43-b15e-54bd707655a0.sql
+-- FASE 1: Permitir líderes ver roles de outros líderes/pastores para chat
 CREATE POLICY "Leaders can view leader and pastor roles for chat"
 ON public.user_roles
 FOR SELECT
@@ -1281,8 +1265,7 @@ ON public.push_subscriptions
 FOR ALL
 USING (user_id = auth.uid());
 
-
-
+-- File: 20251127172434_fc11681b-5b06-4686-b9bc-1847bd09c19e.sql
 -- Atualizar trigger para chamar edge function de push notification
 CREATE OR REPLACE FUNCTION notify_message_recipient()
 RETURNS TRIGGER
@@ -1306,20 +1289,20 @@ BEGIN
   FROM profiles 
   WHERE id = NEW.sender_id;
   
-  -- Para cada participante que nÃ£o seja o remetente
+  -- Para cada participante que não seja o remetente
   FOR recipient_id IN 
     SELECT user_id 
     FROM conversation_participants 
     WHERE conversation_id = NEW.conversation_id 
     AND user_id != NEW.sender_id
   LOOP
-    -- Criar notificaÃ§Ã£o
+    -- Criar notificação
     INSERT INTO notifications (user_id, title, message, type, link)
     VALUES (
       recipient_id,
       CASE 
         WHEN conv_type = 'general' THEN 'Nova mensagem no Chat Geral'
-        ELSE 'Nova mensagem de ' || COALESCE(sender_name, 'UsuÃ¡rio')
+        ELSE 'Nova mensagem de ' || COALESCE(sender_name, 'Usuário')
       END,
       LEFT(NEW.content, 100),
       'info',
@@ -1328,7 +1311,7 @@ BEGIN
     RETURNING id INTO new_notification_id;
     
     -- Chamar edge function para enviar push notification
-    -- Nota: Esta chamada Ã© assÃ­ncrona e nÃ£o bloqueia a inserÃ§Ã£o
+    -- Nota: Esta chamada é assíncrona e não bloqueia a inserção
     PERFORM net.http_post(
       url := current_setting('app.settings.supabase_url') || '/functions/v1/send-push-notification',
       headers := jsonb_build_object(
@@ -1346,13 +1329,12 @@ BEGIN
 END;
 $$;
 
-
-
--- 1. Remover polÃ­ticas problemÃ¡ticas
+-- File: 20251127172934_ec6c80aa-b94a-402b-89f7-02be1f909f4e.sql
+-- 1. Remover políticas problemáticas
 DROP POLICY IF EXISTS "Leaders can view leader and pastor roles for chat" ON public.user_roles;
 DROP POLICY IF EXISTS "Leaders can view leader and pastor profiles for chat" ON public.profiles;
 
--- 2. Recriar polÃ­tica de user_roles usando has_role()
+-- 2. Recriar política de user_roles usando has_role()
 CREATE POLICY "Leaders can view leader and pastor roles for chat"
 ON public.user_roles
 FOR SELECT
@@ -1365,7 +1347,7 @@ USING (
   )
 );
 
--- 3. Criar funÃ§Ã£o auxiliar SECURITY DEFINER para verificar se um profile Ã© lÃ­der/pastor
+-- 3. Criar função auxiliar SECURITY DEFINER para verificar se um profile é líder/pastor
 CREATE OR REPLACE FUNCTION public.is_leader_or_pastor(profile_id UUID)
 RETURNS BOOLEAN
 LANGUAGE SQL
@@ -1380,7 +1362,7 @@ AS $$
   );
 $$;
 
--- 4. Recriar polÃ­tica de profiles usando funÃ§Ãµes SECURITY DEFINER
+-- 4. Recriar política de profiles usando funções SECURITY DEFINER
 CREATE POLICY "Leaders can view leader and pastor profiles for chat"
 ON public.profiles
 FOR SELECT
@@ -1393,9 +1375,8 @@ USING (
   )
 );
 
-
-
--- 1. Criar funÃ§Ã£o SECURITY DEFINER para verificar lÃ­deres do mesmo departamento
+-- File: 20251127173500_c1fcb9b5-e3cc-4716-a057-71646ae6983f.sql
+-- 1. Criar função SECURITY DEFINER para verificar líderes do mesmo departamento
 CREATE OR REPLACE FUNCTION public.is_same_department_leader(profile_id UUID)
 RETURNS BOOLEAN
 LANGUAGE SQL
@@ -1414,10 +1395,10 @@ AS $$
   );
 $$;
 
--- 2. Remover polÃ­tica problemÃ¡tica
+-- 2. Remover política problemática
 DROP POLICY IF EXISTS "Leaders can view same department leader profiles" ON public.profiles;
 
--- 3. Recriar polÃ­tica usando funÃ§Ã£o SECURITY DEFINER
+-- 3. Recriar política usando função SECURITY DEFINER
 CREATE POLICY "Leaders can view same department leader profiles"
 ON public.profiles
 FOR SELECT
@@ -1425,9 +1406,8 @@ USING (
   is_same_department_leader(id)
 );
 
-
-
--- Recriar funÃ§Ã£o notify_message_recipient sem a chamada net.http_post()
+-- File: 20251127205355_41064e45-5256-4ca1-a9f9-fce8702e3e75.sql
+-- Recriar função notify_message_recipient sem a chamada net.http_post()
 CREATE OR REPLACE FUNCTION public.notify_message_recipient()
 RETURNS TRIGGER
 LANGUAGE plpgsql
@@ -1449,20 +1429,20 @@ BEGIN
   FROM profiles 
   WHERE id = NEW.sender_id;
   
-  -- Para cada participante que nÃ£o seja o remetente
+  -- Para cada participante que não seja o remetente
   FOR recipient_id IN 
     SELECT user_id 
     FROM conversation_participants 
     WHERE conversation_id = NEW.conversation_id 
     AND user_id != NEW.sender_id
   LOOP
-    -- Criar notificaÃ§Ã£o no banco de dados
+    -- Criar notificação no banco de dados
     INSERT INTO notifications (user_id, title, message, type, link)
     VALUES (
       recipient_id,
       CASE 
         WHEN conv_type = 'general' THEN 'Nova mensagem no Chat Geral'
-        ELSE 'Nova mensagem de ' || COALESCE(sender_name, 'UsuÃ¡rio')
+        ELSE 'Nova mensagem de ' || COALESCE(sender_name, 'Usuário')
       END,
       LEFT(NEW.content, 100),
       'info',
@@ -1474,15 +1454,13 @@ BEGIN
 END;
 $$;
 
-
-
+-- File: 20251127212338_996c5162-0206-4f32-8cd2-0fd26a7e1c48.sql
 -- Adicionar novos departamentos ao enum department_type
 ALTER TYPE department_type ADD VALUE IF NOT EXISTS 'patrimonio';
 ALTER TYPE department_type ADD VALUE IF NOT EXISTS 'tesouraria';
 
-
-
--- Criar tabela church_assets (Materiais da Igreja - PatrimÃ´nio)
+-- File: 20251127212419_4131feaf-e440-453b-b32a-f3c2877b8542.sql
+-- Criar tabela church_assets (Materiais da Igreja - Patrimônio)
 CREATE TABLE public.church_assets (
   id UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
   name TEXT NOT NULL,
@@ -1493,7 +1471,7 @@ CREATE TABLE public.church_assets (
   updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now()
 );
 
--- Criar tabela asset_requests (SolicitaÃ§Ãµes de Uso - PatrimÃ´nio)
+-- Criar tabela asset_requests (Solicitações de Uso - Patrimônio)
 CREATE TABLE public.asset_requests (
   id UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
   asset_id UUID NOT NULL REFERENCES public.church_assets(id) ON DELETE CASCADE,
@@ -1517,7 +1495,7 @@ CREATE TABLE public.offerings (
   updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now()
 );
 
--- Criar tabela tithes (DÃ­zimos - Tesouraria)
+-- Criar tabela tithes (Dízimos - Tesouraria)
 CREATE TABLE public.tithes (
   id UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
   member_id UUID NOT NULL REFERENCES public.members(id) ON DELETE CASCADE,
@@ -1540,7 +1518,7 @@ CREATE TABLE public.expenses (
   updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now()
 );
 
--- Criar Ã­ndices para melhor performance
+-- Criar índices para melhor performance
 CREATE INDEX idx_church_assets_leader_id ON public.church_assets(leader_id);
 CREATE INDEX idx_asset_requests_asset_id ON public.asset_requests(asset_id);
 CREATE INDEX idx_asset_requests_requested_by ON public.asset_requests(requested_by);
@@ -1591,8 +1569,8 @@ ALTER TABLE public.expenses ENABLE ROW LEVEL SECURITY;
 
 -- ===== CHURCH_ASSETS POLICIES =====
 
--- LÃ­der do patrimÃ´nio pode gerenciar seus assets
-CREATE POLICY "LÃ­der patrimÃ´nio pode gerenciar seus assets"
+-- Líder do patrimônio pode gerenciar seus assets
+CREATE POLICY "Líder patrimônio pode gerenciar seus assets"
 ON public.church_assets
 FOR ALL
 USING (
@@ -1615,8 +1593,8 @@ USING (has_role(auth.uid(), 'super_admin'::app_role));
 
 -- ===== ASSET_REQUESTS POLICIES =====
 
--- LÃ­der do patrimÃ´nio pode gerenciar suas solicitaÃ§Ãµes
-CREATE POLICY "LÃ­der patrimÃ´nio pode gerenciar suas solicitaÃ§Ãµes"
+-- Líder do patrimônio pode gerenciar suas solicitações
+CREATE POLICY "Líder patrimônio pode gerenciar suas solicitações"
 ON public.asset_requests
 FOR ALL
 USING (
@@ -1625,14 +1603,14 @@ USING (
   AND requested_by = auth.uid()
 );
 
--- Pastor pode ver todas as solicitaÃ§Ãµes
-CREATE POLICY "Pastor pode ver todas solicitaÃ§Ãµes"
+-- Pastor pode ver todas as solicitações
+CREATE POLICY "Pastor pode ver todas solicitações"
 ON public.asset_requests
 FOR SELECT
 USING (has_role(auth.uid(), 'pastor'::app_role));
 
--- Tesouraria pode ver todas as solicitaÃ§Ãµes
-CREATE POLICY "Tesouraria pode ver todas solicitaÃ§Ãµes"
+-- Tesouraria pode ver todas as solicitações
+CREATE POLICY "Tesouraria pode ver todas solicitações"
 ON public.asset_requests
 FOR SELECT
 USING (
@@ -1640,16 +1618,16 @@ USING (
   AND get_user_department(auth.uid()) = 'tesouraria'::department_type
 );
 
--- Super admin pode gerenciar todas as solicitaÃ§Ãµes
-CREATE POLICY "Super admin pode gerenciar todas solicitaÃ§Ãµes"
+-- Super admin pode gerenciar todas as solicitações
+CREATE POLICY "Super admin pode gerenciar todas solicitações"
 ON public.asset_requests
 FOR ALL
 USING (has_role(auth.uid(), 'super_admin'::app_role));
 
 -- ===== OFFERINGS POLICIES =====
 
--- LÃ­der da tesouraria pode gerenciar ofertas
-CREATE POLICY "LÃ­der tesouraria pode gerenciar ofertas"
+-- Líder da tesouraria pode gerenciar ofertas
+CREATE POLICY "Líder tesouraria pode gerenciar ofertas"
 ON public.offerings
 FOR ALL
 USING (
@@ -1671,8 +1649,8 @@ USING (has_role(auth.uid(), 'super_admin'::app_role));
 
 -- ===== TITHES POLICIES =====
 
--- LÃ­der da tesouraria pode gerenciar dÃ­zimos
-CREATE POLICY "LÃ­der tesouraria pode gerenciar dÃ­zimos"
+-- Líder da tesouraria pode gerenciar dízimos
+CREATE POLICY "Líder tesouraria pode gerenciar dízimos"
 ON public.tithes
 FOR ALL
 USING (
@@ -1680,22 +1658,22 @@ USING (
   AND get_user_department(auth.uid()) = 'tesouraria'::department_type
 );
 
--- Pastor pode ver todos os dÃ­zimos
-CREATE POLICY "Pastor pode ver todos dÃ­zimos"
+-- Pastor pode ver todos os dízimos
+CREATE POLICY "Pastor pode ver todos dízimos"
 ON public.tithes
 FOR SELECT
 USING (has_role(auth.uid(), 'pastor'::app_role));
 
--- Super admin pode gerenciar todos os dÃ­zimos
-CREATE POLICY "Super admin pode gerenciar todos dÃ­zimos"
+-- Super admin pode gerenciar todos os dízimos
+CREATE POLICY "Super admin pode gerenciar todos dízimos"
 ON public.tithes
 FOR ALL
 USING (has_role(auth.uid(), 'super_admin'::app_role));
 
 -- ===== EXPENSES POLICIES =====
 
--- LÃ­der da tesouraria pode gerenciar gastos
-CREATE POLICY "LÃ­der tesouraria pode gerenciar gastos"
+-- Líder da tesouraria pode gerenciar gastos
+CREATE POLICY "Líder tesouraria pode gerenciar gastos"
 ON public.expenses
 FOR ALL
 USING (
@@ -1715,9 +1693,9 @@ ON public.expenses
 FOR ALL
 USING (has_role(auth.uid(), 'super_admin'::app_role));
 
--- ===== TRIGGER PARA NOTIFICAÃ‡Ã•ES DE SOLICITAÃ‡Ã•ES =====
+-- ===== TRIGGER PARA NOTIFICAÇÕES DE SOLICITAÇÕES =====
 
--- FunÃ§Ã£o para notificar quando uma solicitaÃ§Ã£o Ã© criada
+-- Função para notificar quando uma solicitação é criada
 CREATE OR REPLACE FUNCTION public.notify_asset_request()
 RETURNS TRIGGER
 LANGUAGE plpgsql
@@ -1748,8 +1726,8 @@ BEGIN
     INSERT INTO notifications (user_id, title, message, type, link)
     VALUES (
       recipient_id,
-      'Nova SolicitaÃ§Ã£o de PatrimÃ´nio',
-      COALESCE(requester_name, 'UsuÃ¡rio') || ' solicitou ' || NEW.quantity || ' unidade(s) de ' || COALESCE(asset_name, 'item'),
+      'Nova Solicitação de Patrimônio',
+      COALESCE(requester_name, 'Usuário') || ' solicitou ' || NEW.quantity || ' unidade(s) de ' || COALESCE(asset_name, 'item'),
       'warning',
       '/chat'
     );
@@ -1764,8 +1742,8 @@ BEGIN
     INSERT INTO notifications (user_id, title, message, type, link)
     VALUES (
       recipient_id,
-      'Nova SolicitaÃ§Ã£o de PatrimÃ´nio',
-      COALESCE(requester_name, 'UsuÃ¡rio') || ' solicitou ' || NEW.quantity || ' unidade(s) de ' || COALESCE(asset_name, 'item'),
+      'Nova Solicitação de Patrimônio',
+      COALESCE(requester_name, 'Usuário') || ' solicitou ' || NEW.quantity || ' unidade(s) de ' || COALESCE(asset_name, 'item'),
       'warning',
       '/chat'
     );
@@ -1780,8 +1758,8 @@ BEGIN
     INSERT INTO notifications (user_id, title, message, type, link)
     VALUES (
       recipient_id,
-      'Nova SolicitaÃ§Ã£o de PatrimÃ´nio',
-      COALESCE(requester_name, 'UsuÃ¡rio') || ' solicitou ' || NEW.quantity || ' unidade(s) de ' || COALESCE(asset_name, 'item'),
+      'Nova Solicitação de Patrimônio',
+      COALESCE(requester_name, 'Usuário') || ' solicitou ' || NEW.quantity || ' unidade(s) de ' || COALESCE(asset_name, 'item'),
       'warning',
       '/chat'
     );
@@ -1791,15 +1769,14 @@ BEGIN
 END;
 $$;
 
--- Criar trigger para notificaÃ§Ãµes
+-- Criar trigger para notificações
 CREATE TRIGGER trigger_notify_asset_request
 AFTER INSERT ON public.asset_requests
 FOR EACH ROW
 EXECUTE FUNCTION public.notify_asset_request();
 
-
-
--- Fase 1: CorreÃ§Ãµes de Banco de Dados
+-- File: 20251129211746_f472d258-f77d-4283-909f-8ec678ed1873.sql
+-- Fase 1: Correções de Banco de Dados
 
 -- 1.1 Adicionar colunas na tabela church_assets
 ALTER TABLE church_assets
@@ -1824,7 +1801,7 @@ VALUES ('assets', 'assets', true)
 ON CONFLICT (id) DO NOTHING;
 
 -- 1.6 RLS policies para o bucket assets
-CREATE POLICY "Qualquer um pode visualizar assets pÃºblicos"
+CREATE POLICY "Qualquer um pode visualizar assets públicos"
 ON storage.objects FOR SELECT
 USING (bucket_id = 'assets');
 
@@ -1852,8 +1829,7 @@ USING (
   OR has_role(auth.uid(), 'super_admin'::app_role)
 );
 
-
-
+-- File: 20251129214146_3c61f4dc-e046-4f74-b1e4-89597d253c17.sql
 -- Criar tabela para ajustes de saldo
 CREATE TABLE IF NOT EXISTS public.balance_adjustments (
   id UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
@@ -1868,8 +1844,8 @@ CREATE TABLE IF NOT EXISTS public.balance_adjustments (
 -- Habilitar RLS
 ALTER TABLE public.balance_adjustments ENABLE ROW LEVEL SECURITY;
 
--- PolÃ­ticas para balance_adjustments
-CREATE POLICY "LÃ­der tesouraria pode gerenciar ajustes"
+-- Políticas para balance_adjustments
+CREATE POLICY "Líder tesouraria pode gerenciar ajustes"
 ON public.balance_adjustments
 FOR ALL
 USING (
@@ -1887,7 +1863,7 @@ ON public.balance_adjustments
 FOR ALL
 USING (has_role(auth.uid(), 'super_admin'::app_role));
 
--- Adicionar coluna de comentÃ¡rio em asset_requests
+-- Adicionar coluna de comentário em asset_requests
 ALTER TABLE public.asset_requests 
 ADD COLUMN IF NOT EXISTS approval_comment TEXT;
 
@@ -1897,9 +1873,8 @@ BEFORE UPDATE ON public.balance_adjustments
 FOR EACH ROW
 EXECUTE FUNCTION public.update_updated_at_column();
 
-
-
--- Adicionar RLS policy para Tesouraria ver todos os materiais do patrimÃ´nio
+-- File: 20251201214116_13f49935-b4d3-443c-9a5b-ea8472400720.sql
+-- Adicionar RLS policy para Tesouraria ver todos os materiais do patrimônio
 CREATE POLICY "Tesouraria pode ver todos assets"
 ON church_assets FOR SELECT
 USING (
@@ -1907,26 +1882,24 @@ USING (
   AND get_user_department(auth.uid()) = 'tesouraria'::department_type
 );
 
--- Adicionar RLS policy para Tesouraria aprovar/rejeitar solicitaÃ§Ãµes
-CREATE POLICY "Tesouraria pode aprovar solicitaÃ§Ãµes"
+-- Adicionar RLS policy para Tesouraria aprovar/rejeitar solicitações
+CREATE POLICY "Tesouraria pode aprovar solicitações"
 ON asset_requests FOR UPDATE
 USING (
   has_role(auth.uid(), 'leader'::app_role) 
   AND get_user_department(auth.uid()) = 'tesouraria'::department_type
 );
 
-
-
--- Permitir que tesouraria veja todos os membros para registrar dÃ­zimos
-CREATE POLICY "Tesouraria pode ver todos membros para dÃ­zimos"
+-- File: 20251201220909_c3c572b3-9856-4e28-97a6-ae3f7313c965.sql
+-- Permitir que tesouraria veja todos os membros para registrar dízimos
+CREATE POLICY "Tesouraria pode ver todos membros para dízimos"
 ON members FOR SELECT
 USING (
   has_role(auth.uid(), 'leader'::app_role) 
   AND get_user_department(auth.uid()) = 'tesouraria'::department_type
 );
 
-
-
+-- File: 20251201221934_5884562f-9a03-4a9b-a22a-96d259856244.sql
 -- Adicionar coluna avatar_url na tabela profiles
 ALTER TABLE profiles ADD COLUMN avatar_url TEXT;
 
@@ -1934,35 +1907,34 @@ ALTER TABLE profiles ADD COLUMN avatar_url TEXT;
 INSERT INTO storage.buckets (id, name, public) 
 VALUES ('avatars', 'avatars', true);
 
--- PolÃ­ticas RLS para o bucket avatars
-CREATE POLICY "UsuÃ¡rios podem fazer upload de seu avatar"
+-- Políticas RLS para o bucket avatars
+CREATE POLICY "Usuários podem fazer upload de seu avatar"
 ON storage.objects FOR INSERT
 WITH CHECK (
   bucket_id = 'avatars' 
   AND auth.uid()::text = (storage.foldername(name))[1]
 );
 
-CREATE POLICY "Avatares sÃ£o pÃºblicos para visualizaÃ§Ã£o"
+CREATE POLICY "Avatares são públicos para visualização"
 ON storage.objects FOR SELECT
 USING (bucket_id = 'avatars');
 
-CREATE POLICY "UsuÃ¡rios podem atualizar seu avatar"
+CREATE POLICY "Usuários podem atualizar seu avatar"
 ON storage.objects FOR UPDATE
 USING (
   bucket_id = 'avatars' 
   AND auth.uid()::text = (storage.foldername(name))[1]
 );
 
-CREATE POLICY "UsuÃ¡rios podem deletar seu avatar"
+CREATE POLICY "Usuários podem deletar seu avatar"
 ON storage.objects FOR DELETE
 USING (
   bucket_id = 'avatars' 
   AND auth.uid()::text = (storage.foldername(name))[1]
 );
 
-
-
--- FunÃ§Ã£o para enviar push notification via edge function quando uma notificaÃ§Ã£o Ã© criada
+-- File: 20251202095621_ad050e3a-64ba-4add-b1ce-de7d96bd7f50.sql
+-- Função para enviar push notification via edge function quando uma notificação é criada
 CREATE OR REPLACE FUNCTION send_push_on_notification()
 RETURNS TRIGGER
 LANGUAGE plpgsql
@@ -1970,8 +1942,8 @@ SECURITY DEFINER
 SET search_path TO 'public'
 AS $$
 BEGIN
-  -- Chamar edge function para enviar push notification de forma assÃ­ncrona
-  -- Isso garante que push notifications sejam enviadas mesmo quando o app estÃ¡ fechado
+  -- Chamar edge function para enviar push notification de forma assíncrona
+  -- Isso garante que push notifications sejam enviadas mesmo quando o app está fechado
   PERFORM net.http_post(
     url := current_setting('app.supabase_url') || '/functions/v1/send-push-notification',
     headers := jsonb_build_object(
@@ -1995,21 +1967,21 @@ CREATE TRIGGER on_notification_created
   FOR EACH ROW
   EXECUTE FUNCTION send_push_on_notification();
 
--- ComentÃ¡rio explicativo
-COMMENT ON FUNCTION send_push_on_notification() IS 'Envia push notification via edge function quando uma notificaÃ§Ã£o Ã© criada na tabela notifications';
+-- Comentário explicativo
+COMMENT ON FUNCTION send_push_on_notification() IS 'Envia push notification via edge function quando uma notificação é criada na tabela notifications';
 
 
-
--- Remover trigger anterior que usa net.http_post (nÃ£o funciona sem extensÃ£o)
+-- File: 20251202100252_7da253c1-096c-4f4a-981d-16d16b1e6272.sql
+-- Remover trigger anterior que usa net.http_post (não funciona sem extensão)
 DROP TRIGGER IF EXISTS on_notification_created ON notifications;
 DROP FUNCTION IF EXISTS send_push_on_notification();
 
--- A edge function serÃ¡ chamada pelo frontend quando necessÃ¡rio
--- Por enquanto, as push notifications funcionarÃ£o via Service Worker
--- quando o navegador receber as notificaÃ§Ãµes do sistema
+-- A edge function será chamada pelo frontend quando necessário
+-- Por enquanto, as push notifications funcionarão via Service Worker
+-- quando o navegador receber as notificações do sistema
 
 
-
+-- File: 20251213160017_09e4fcdd-a2b9-452a-83b1-52af670bbf89.sql
 -- Enable the http extension for making HTTP calls from PostgreSQL
 CREATE EXTENSION IF NOT EXISTS http WITH SCHEMA extensions;
 
@@ -2064,8 +2036,7 @@ CREATE TRIGGER on_notification_insert_push
   FOR EACH ROW
   EXECUTE FUNCTION public.trigger_push_notification();
 
-
-
+-- File: 20251213160906_619eb915-7030-4adf-abe1-ae0b97e1bd7f.sql
 -- Add metadata column to notifications table for storing conversation_id
 ALTER TABLE public.notifications ADD COLUMN IF NOT EXISTS metadata JSONB DEFAULT NULL;
 
@@ -2091,20 +2062,20 @@ BEGIN
   FROM profiles 
   WHERE id = NEW.sender_id;
   
-  -- Para cada participante que nÃ£o seja o remetente
+  -- Para cada participante que não seja o remetente
   FOR recipient_id IN 
     SELECT user_id 
     FROM conversation_participants 
     WHERE conversation_id = NEW.conversation_id 
     AND user_id != NEW.sender_id
   LOOP
-    -- Criar notificaÃ§Ã£o com metadata incluindo conversation_id
+    -- Criar notificação com metadata incluindo conversation_id
     INSERT INTO notifications (user_id, title, message, type, link, metadata)
     VALUES (
       recipient_id,
       CASE 
         WHEN conv_type = 'general' THEN 'Nova mensagem no Chat Geral'
-        ELSE 'Nova mensagem de ' || COALESCE(sender_name, 'UsuÃ¡rio')
+        ELSE 'Nova mensagem de ' || COALESCE(sender_name, 'Usuário')
       END,
       LEFT(NEW.content, 100),
       'message',
@@ -2117,20 +2088,18 @@ BEGIN
 END;
 $$;
 
-
-
+-- File: 20251213161445_a48e38f7-3279-46c9-9c2e-837be653594a.sql
 -- Remover constraint antiga
 ALTER TABLE public.notifications 
 DROP CONSTRAINT IF EXISTS notifications_type_check;
 
--- Adicionar nova constraint com 'message' incluÃ­do
+-- Adicionar nova constraint com 'message' incluído
 ALTER TABLE public.notifications 
 ADD CONSTRAINT notifications_type_check 
 CHECK (type = ANY (ARRAY['info', 'success', 'warning', 'error', 'message']));
 
-
-
--- Adicionar novos campos Ã  tabela members
+-- File: 20251213164819_6188fe2f-111c-4897-8c08-d5fb103931d5.sql
+-- Adicionar novos campos à tabela members
 ALTER TABLE public.members ADD COLUMN IF NOT EXISTS gender text;
 ALTER TABLE public.members ADD COLUMN IF NOT EXISTS member_type text DEFAULT 'membro';
 ALTER TABLE public.members ADD COLUMN IF NOT EXISTS photo_url text;
@@ -2140,7 +2109,7 @@ INSERT INTO storage.buckets (id, name, public)
 VALUES ('member-photos', 'member-photos', true)
 ON CONFLICT (id) DO NOTHING;
 
--- PolÃ­ticas para o bucket member-photos
+-- Políticas para o bucket member-photos
 CREATE POLICY "Leaders can upload member photos"
 ON storage.objects FOR INSERT
 WITH CHECK (
@@ -2169,8 +2138,7 @@ USING (
   (has_role(auth.uid(), 'leader') OR has_role(auth.uid(), 'pastor') OR has_role(auth.uid(), 'super_admin'))
 );
 
-
-
+-- File: 20251213181115_58e64db4-52a4-4415-8f35-767bfd08ca81.sql
 -- Enable http extension for calling edge functions
 CREATE EXTENSION IF NOT EXISTS http WITH SCHEMA extensions;
 
@@ -2211,15 +2179,13 @@ AFTER INSERT ON public.notifications
 FOR EACH ROW
 EXECUTE FUNCTION public.trigger_push_notification();
 
-
-
+-- File: 20251213181621_c8071931-ecc0-4872-831f-4b84cc6e3bd6.sql
 -- Add unique constraint for user_id and endpoint combination
 ALTER TABLE public.push_subscriptions 
 ADD CONSTRAINT push_subscriptions_user_endpoint_unique 
 UNIQUE (user_id, endpoint);
 
-
-
+-- File: 20251223172658_3bc5cc0e-5bf4-41c1-8c01-a04a6b40dd4d.sql
 -- Enable pg_net extension if not already enabled
 CREATE EXTENSION IF NOT EXISTS pg_net WITH SCHEMA extensions;
 
@@ -2262,17 +2228,15 @@ CREATE TRIGGER on_notification_insert_push
   FOR EACH ROW
   EXECUTE FUNCTION public.trigger_push_notification();
 
-
-
+-- File: 20251223173820_ba65bfb5-190a-48be-89fd-5b3f6c360448.sql
 -- Habilitar replica identity full para garantir que os dados completos sejam enviados
 ALTER TABLE public.notifications REPLICA IDENTITY FULL;
 
--- Adicionar a tabela notifications Ã  publicaÃ§Ã£o supabase_realtime
+-- Adicionar a tabela notifications à publicação supabase_realtime
 ALTER PUBLICATION supabase_realtime ADD TABLE public.notifications;
 
-
-
--- Atualizar a funÃ§Ã£o notify_message_recipient para usar o link correto
+-- File: 20251223175017_09d4c42d-8780-4232-847f-7ac7feb8e2b4.sql
+-- Atualizar a função notify_message_recipient para usar o link correto
 CREATE OR REPLACE FUNCTION public.notify_message_recipient()
  RETURNS trigger
  LANGUAGE plpgsql
@@ -2294,20 +2258,20 @@ BEGIN
   FROM profiles 
   WHERE id = NEW.sender_id;
   
-  -- Para cada participante que nÃ£o seja o remetente
+  -- Para cada participante que não seja o remetente
   FOR recipient_id IN 
     SELECT user_id 
     FROM conversation_participants 
     WHERE conversation_id = NEW.conversation_id 
     AND user_id != NEW.sender_id
   LOOP
-    -- Criar notificaÃ§Ã£o com metadata incluindo conversation_id
+    -- Criar notificação com metadata incluindo conversation_id
     INSERT INTO notifications (user_id, title, message, type, link, metadata)
     VALUES (
       recipient_id,
       CASE 
         WHEN conv_type = 'general' THEN 'Nova mensagem no Chat Geral'
-        ELSE 'Nova mensagem de ' || COALESCE(sender_name, 'UsuÃ¡rio')
+        ELSE 'Nova mensagem de ' || COALESCE(sender_name, 'Usuário')
       END,
       LEFT(NEW.content, 100),
       'message',
@@ -2320,16 +2284,15 @@ BEGIN
 END;
 $function$;
 
-
-
--- Adicionar novas colunas para separaÃ§Ã£o de sons por tipo
+-- File: 20251223181756_8113e209-cfbf-49e6-969e-92ee01c52406.sql
+-- Adicionar novas colunas para separação de sons por tipo
 ALTER TABLE public.user_notification_settings
 ADD COLUMN IF NOT EXISTS message_sound_name TEXT DEFAULT 'msg-short-1',
 ADD COLUMN IF NOT EXISTS in_conversation_sound_name TEXT DEFAULT 'in-conv-soft',
 ADD COLUMN IF NOT EXISTS in_conversation_volume NUMERIC DEFAULT 0.3,
 ADD COLUMN IF NOT EXISTS alert_sound_name TEXT DEFAULT 'alert-long-1';
 
--- Atualizar registros existentes com valores padrÃ£o
+-- Atualizar registros existentes com valores padrão
 UPDATE public.user_notification_settings
 SET 
   message_sound_name = COALESCE(message_sound_name, 'msg-short-1'),
@@ -2338,15 +2301,13 @@ SET
   alert_sound_name = COALESCE(alert_sound_name, 'alert-long-1')
 WHERE message_sound_name IS NULL OR in_conversation_sound_name IS NULL;
 
-
-
--- Adicionar coluna de preferÃªncia de tema na tabela profiles
+-- File: 20260121220539_3b484cc1-431a-4972-aaf0-d3f2dba80931.sql
+-- Adicionar coluna de preferência de tema na tabela profiles
 ALTER TABLE public.profiles 
 ADD COLUMN IF NOT EXISTS theme_preference TEXT DEFAULT 'light' CHECK (theme_preference IN ('light', 'dark'));
 
-
-
--- Atualizar constraint para permitir 'auto' como opÃ§Ã£o de tema
+-- File: 20260121220841_c0f8b0c3-251e-432a-9b1b-c9454da6b1d3.sql
+-- Atualizar constraint para permitir 'auto' como opção de tema
 ALTER TABLE public.profiles 
 DROP CONSTRAINT IF EXISTS profiles_theme_preference_check;
 
@@ -2354,11 +2315,10 @@ ALTER TABLE public.profiles
 ADD CONSTRAINT profiles_theme_preference_check 
 CHECK (theme_preference IN ('light', 'dark', 'auto'));
 
-
-
+-- File: 20260612084737_ff00bb73-7cd2-4bc9-99e1-5061effaa799.sql
 
 -- ============================================================
--- FASE 1: MULTI-CONGREGAÃ‡ÃƒO (corrigida)
+-- FASE 1: MULTI-CONGREGAÇÃO (corrigida)
 -- ============================================================
 
 CREATE TABLE public.congregations (
@@ -2392,7 +2352,7 @@ ALTER TABLE public.congregation_pastors ENABLE ROW LEVEL SECURITY;
 CREATE INDEX idx_congregation_pastors_pastor ON public.congregation_pastors(pastor_id);
 CREATE INDEX idx_congregation_pastors_cong ON public.congregation_pastors(congregation_id);
 
--- is_super_admin dinÃ¢mico
+-- is_super_admin dinâmico
 DROP FUNCTION IF EXISTS public.is_super_admin(text);
 CREATE OR REPLACE FUNCTION public.is_super_admin(_user_id uuid)
 RETURNS boolean LANGUAGE sql STABLE SECURITY DEFINER SET search_path = public AS $$
@@ -2412,7 +2372,7 @@ FROM auth.users u
 WHERE u.email IN ('lgtecserv@gmail.com', 'pastorrobertobueno@gmail.com')
 ON CONFLICT (user_id, role) DO NOTHING;
 
--- CongregaÃ§Ã£o Sede
+-- Congregação Sede
 DO $$
 DECLARE sede_id uuid;
 BEGIN
@@ -2465,7 +2425,7 @@ BEGIN
     WHERE id = sede_id AND pastor_responsavel_id IS NULL;
 END $$;
 
--- NOT NULL onde aplicÃ¡vel
+-- NOT NULL onde aplicável
 ALTER TABLE public.members             ALTER COLUMN congregation_id SET NOT NULL;
 ALTER TABLE public.visitors            ALTER COLUMN congregation_id SET NOT NULL;
 ALTER TABLE public.attendances         ALTER COLUMN congregation_id SET NOT NULL;
@@ -2474,7 +2434,7 @@ ALTER TABLE public.offerings           ALTER COLUMN congregation_id SET NOT NULL
 ALTER TABLE public.expenses            ALTER COLUMN congregation_id SET NOT NULL;
 ALTER TABLE public.church_assets       ALTER COLUMN congregation_id SET NOT NULL;
 
--- Ãndices
+-- Índices
 CREATE INDEX idx_members_congregation     ON public.members(congregation_id);
 CREATE INDEX idx_visitors_congregation    ON public.visitors(congregation_id);
 CREATE INDEX idx_attendances_congregation ON public.attendances(congregation_id);
@@ -2594,9 +2554,9 @@ CREATE POLICY "att_leader_iud" ON public.attendances FOR ALL
   WITH CHECK (has_role(auth.uid(),'leader'::app_role) AND department = get_user_department(auth.uid()) AND leader_id = auth.uid() AND congregation_id = get_leader_congregation(auth.uid()));
 
 -- TITHES
-DROP POLICY IF EXISTS "LÃ­der tesouraria pode gerenciar dÃ­zimos" ON public.tithes;
-DROP POLICY IF EXISTS "Pastor pode ver todos dÃ­zimos" ON public.tithes;
-DROP POLICY IF EXISTS "Super admin pode gerenciar todos dÃ­zimos" ON public.tithes;
+DROP POLICY IF EXISTS "Líder tesouraria pode gerenciar dízimos" ON public.tithes;
+DROP POLICY IF EXISTS "Pastor pode ver todos dízimos" ON public.tithes;
+DROP POLICY IF EXISTS "Super admin pode gerenciar todos dízimos" ON public.tithes;
 CREATE POLICY "tithes_super_all" ON public.tithes FOR ALL
   USING (public.is_super_admin(auth.uid())) WITH CHECK (public.is_super_admin(auth.uid()));
 CREATE POLICY "tithes_pastor_all" ON public.tithes FOR ALL
@@ -2607,7 +2567,7 @@ CREATE POLICY "tithes_tesouraria_all" ON public.tithes FOR ALL
   WITH CHECK (has_role(auth.uid(),'leader'::app_role) AND get_user_department(auth.uid())='tesouraria'::department_type AND congregation_id = get_leader_congregation(auth.uid()));
 
 -- OFFERINGS
-DROP POLICY IF EXISTS "LÃ­der tesouraria pode gerenciar ofertas" ON public.offerings;
+DROP POLICY IF EXISTS "Líder tesouraria pode gerenciar ofertas" ON public.offerings;
 DROP POLICY IF EXISTS "Pastor pode ver todas ofertas" ON public.offerings;
 DROP POLICY IF EXISTS "Super admin pode gerenciar todas ofertas" ON public.offerings;
 CREATE POLICY "off_super_all" ON public.offerings FOR ALL
@@ -2620,7 +2580,7 @@ CREATE POLICY "off_tesouraria_all" ON public.offerings FOR ALL
   WITH CHECK (has_role(auth.uid(),'leader'::app_role) AND get_user_department(auth.uid())='tesouraria'::department_type AND congregation_id = get_leader_congregation(auth.uid()));
 
 -- EXPENSES
-DROP POLICY IF EXISTS "LÃ­der tesouraria pode gerenciar despesas" ON public.expenses;
+DROP POLICY IF EXISTS "Líder tesouraria pode gerenciar despesas" ON public.expenses;
 DROP POLICY IF EXISTS "Pastor pode ver todas despesas" ON public.expenses;
 DROP POLICY IF EXISTS "Super admin pode gerenciar todas despesas" ON public.expenses;
 CREATE POLICY "exp_super_all" ON public.expenses FOR ALL
@@ -2633,7 +2593,7 @@ CREATE POLICY "exp_tesouraria_all" ON public.expenses FOR ALL
   WITH CHECK (has_role(auth.uid(),'leader'::app_role) AND get_user_department(auth.uid())='tesouraria'::department_type AND congregation_id = get_leader_congregation(auth.uid()));
 
 -- BALANCE_ADJUSTMENTS
-DROP POLICY IF EXISTS "LÃ­der tesouraria pode gerenciar ajustes" ON public.balance_adjustments;
+DROP POLICY IF EXISTS "Líder tesouraria pode gerenciar ajustes" ON public.balance_adjustments;
 DROP POLICY IF EXISTS "Pastor pode ver todos ajustes" ON public.balance_adjustments;
 DROP POLICY IF EXISTS "Super admin pode gerenciar todos ajustes" ON public.balance_adjustments;
 CREATE POLICY "bal_super_all" ON public.balance_adjustments FOR ALL
@@ -2646,7 +2606,7 @@ CREATE POLICY "bal_tesouraria_all" ON public.balance_adjustments FOR ALL
   WITH CHECK (has_role(auth.uid(),'leader'::app_role) AND get_user_department(auth.uid())='tesouraria'::department_type AND congregation_id = get_leader_congregation(auth.uid()));
 
 -- CHURCH_ASSETS
-DROP POLICY IF EXISTS "LÃ­der patrimÃ´nio pode gerenciar seus assets" ON public.church_assets;
+DROP POLICY IF EXISTS "Líder patrimônio pode gerenciar seus assets" ON public.church_assets;
 DROP POLICY IF EXISTS "Pastor pode gerenciar todos assets" ON public.church_assets;
 DROP POLICY IF EXISTS "Super admin pode gerenciar todos assets" ON public.church_assets;
 DROP POLICY IF EXISTS "Tesouraria pode ver todos assets" ON public.church_assets;
@@ -2662,11 +2622,11 @@ CREATE POLICY "asset_tesouraria_select" ON public.church_assets FOR SELECT
   USING (has_role(auth.uid(),'leader'::app_role) AND get_user_department(auth.uid())='tesouraria'::department_type AND congregation_id = get_leader_congregation(auth.uid()));
 
 -- ASSET_REQUESTS
-DROP POLICY IF EXISTS "LÃ­der patrimÃ´nio pode gerenciar suas solicitaÃ§Ãµes" ON public.asset_requests;
-DROP POLICY IF EXISTS "Pastor pode ver todas solicitaÃ§Ãµes" ON public.asset_requests;
-DROP POLICY IF EXISTS "Super admin pode gerenciar todas solicitaÃ§Ãµes" ON public.asset_requests;
-DROP POLICY IF EXISTS "Tesouraria pode aprovar solicitaÃ§Ãµes" ON public.asset_requests;
-DROP POLICY IF EXISTS "Tesouraria pode ver todas solicitaÃ§Ãµes" ON public.asset_requests;
+DROP POLICY IF EXISTS "Líder patrimônio pode gerenciar suas solicitações" ON public.asset_requests;
+DROP POLICY IF EXISTS "Pastor pode ver todas solicitações" ON public.asset_requests;
+DROP POLICY IF EXISTS "Super admin pode gerenciar todas solicitações" ON public.asset_requests;
+DROP POLICY IF EXISTS "Tesouraria pode aprovar solicitações" ON public.asset_requests;
+DROP POLICY IF EXISTS "Tesouraria pode ver todas solicitações" ON public.asset_requests;
 CREATE POLICY "ar_super_all" ON public.asset_requests FOR ALL
   USING (public.is_super_admin(auth.uid())) WITH CHECK (public.is_super_admin(auth.uid()));
 CREATE POLICY "ar_pastor_select" ON public.asset_requests FOR SELECT
@@ -2679,7 +2639,7 @@ CREATE POLICY "ar_tesouraria_select" ON public.asset_requests FOR SELECT
 CREATE POLICY "ar_tesouraria_update" ON public.asset_requests FOR UPDATE
   USING (has_role(auth.uid(),'leader'::app_role) AND get_user_department(auth.uid())='tesouraria'::department_type);
 
--- add_leader_to_general_chat (general por congregaÃ§Ã£o)
+-- add_leader_to_general_chat (general por congregação)
 CREATE OR REPLACE FUNCTION public.add_leader_to_general_chat()
 RETURNS trigger LANGUAGE plpgsql SECURITY DEFINER SET search_path = public AS $$
 DECLARE
@@ -2728,7 +2688,7 @@ BEGIN
 END $$;
 
 
-
+-- File: 20260614120803_ebb48635-227a-4978-9ddc-2c5eb16accfe.sql
 
 -- 1. Adicionar 'secretary' ao enum app_role
 ALTER TYPE public.app_role ADD VALUE IF NOT EXISTS 'secretary';
@@ -2748,7 +2708,7 @@ ALTER TABLE public.members
   ADD COLUMN IF NOT EXISTS church_office  text;
 
 -- =========================================================
--- 4. RLS â€” rebaixar super_admin para SELECT e dar ALL ao secretary
+-- 4. RLS — rebaixar super_admin para SELECT e dar ALL ao secretary
 -- =========================================================
 
 -- members
@@ -2835,7 +2795,7 @@ CREATE POLICY followups_secretary_all ON public.visitor_followups FOR ALL
   USING (public.is_secretary(auth.uid()))
   WITH CHECK (public.is_secretary(auth.uid()));
 
--- user_roles / congregations: secretÃ¡rio tambÃ©m gerencia
+-- user_roles / congregations: secretário também gerencia
 CREATE POLICY user_roles_secretary_all ON public.user_roles FOR ALL
   USING (public.is_secretary(auth.uid()))
   WITH CHECK (public.is_secretary(auth.uid()));
@@ -2845,6 +2805,5 @@ CREATE POLICY cong_secretary_all ON public.congregations FOR ALL
 CREATE POLICY cp_secretary_all ON public.congregation_pastors FOR ALL
   USING (public.is_secretary(auth.uid()))
   WITH CHECK (public.is_secretary(auth.uid()));
-
 
 
