@@ -1,79 +1,81 @@
+## Ajustes solicitados
 
-# Expansão: Sistema Multi-Congregação
-
-Hierarquia: **Super Admin → Congregação (com Pastores) → Departamentos → Líderes → Membros**.
-
----
-
-## 1. Promover super admins
-- Remover o e-mail fixo (`lgtecserv@gmail.com`) das funções `is_super_admin` — passa a ser baseado **somente** na tabela `user_roles`.
-- Inserir role `super_admin` para:
-  - `lgtecserv@gmail.com`
-  - `pastorrobertobueno@gmail.com`
-- Super admin **não pertence a nenhuma congregação** (vê tudo).
-
-## 2. Nova tabela `congregations`
-Campos: `name`, `address`, `city`, `phone`, `pastor_responsavel_id` (pastor titular), `active`, timestamps.
-
-Tabela de vínculo `congregation_pastors` (N pastores por congregação):
-- `congregation_id`, `pastor_id`, `is_titular`, `assigned_at`.
-
-## 3. Adicionar `congregation_id` em todas as tabelas de domínio
-`members`, `visitors`, `visitor_followups`, `attendances`, `tithes`, `offerings`, `expenses`, `balance_adjustments`, `church_assets`, `asset_requests`, `user_roles` (para líderes), `conversations`.
-
-### Migração de dados existentes
-- Criar congregação **"Sede"** automaticamente.
-- Atualizar todos os registros existentes com `congregation_id = Sede`.
-- Tornar a coluna `NOT NULL` após o backfill.
-
-## 4. Segurança (RLS)
-Nova função `get_user_congregation(uid)` (SECURITY DEFINER) retorna a congregação do usuário (pastor/líder).
-
-Reescrever políticas RLS de todas as tabelas acima:
-- **super_admin**: acesso total.
-- **pastor**: acesso somente onde `congregation_id` ∈ congregações vinculadas em `congregation_pastors`.
-- **leader**: acesso somente da sua congregação + seu departamento.
-
-`user_roles` ganha `congregation_id` (obrigatório para pastor e leader).
-
-Chat:
-- `general` vira **por congregação** (uma conversa geral por congregação).
-- Trigger `add_leader_to_general_chat` adiciona o usuário só ao geral da sua congregação.
-- Super admin entra em todos os gerais.
-
-## 5. Painel Super Admin (`/super-admin`)
-Novas seções:
-- **Congregações**: lista + criar/editar/desativar. Form com nome, endereço, telefone e seleção de pastor titular.
-- **Pastores**: criar pastor já vinculado a uma congregação (edge function `create-pastor` recebe `congregation_id`); transferir pastor entre congregações; adicionar pastores auxiliares.
-- **Visão centralizada**: cards por congregação mostrando totais (membros, líderes, departamentos ativos).
-
-## 6. Painel Pastor
-- Seletor de congregação no topo (se tiver mais de uma vinculada).
-- Todas as queries do dashboard/membros/finanças/patrimônio passam a filtrar pela congregação ativa.
-
-## 7. Painel Líder
-- Sem alteração visual; passa a herdar automaticamente a `congregation_id` do seu vínculo em `user_roles`.
-
-## 8. Edge functions
-- `create-pastor`: aceita `congregation_id`, valida que solicitante é `super_admin`, insere vínculo em `congregation_pastors`.
-- `create-leader`: valida que solicitante é `pastor` da congregação alvo e injeta `congregation_id` no `user_roles`.
-
-## 9. Frontend — pontos de mudança
-- `CreateMemberForm`, `CreateVisitorForm`, dialogs de Tesouraria/Patrimônio: injetar `congregation_id` automaticamente a partir do contexto do usuário.
-- Novo hook `useCurrentCongregation()` (carrega 1x, cache em contexto).
-- Sidebar do super admin ganha item "Congregações".
-- Sidebar do pastor mostra o nome da congregação ativa.
+- O cadastro de secretários é feito **pelo super admin**, não pelo pastor.
+- O super admin atual passa a ter perfil de **observador**: visualiza, acompanha, mas **não apaga nem aprova**.
+- O secretário passa a ser o **gestor total** do sistema: pode apagar membros, aprovar solicitações e executar as demais ações administrativas.
+- Os e-mails abaixo serão promovidos a secretário assim que existirem no sistema (o usuário vai criá-los):
+  - `presbiterodino@gmail.com`
+  - `diaconojorge@gmail.com`
+  - `diaconoedmilson@gmail.com`
 
 ---
 
-## Notas técnicas
-- A coluna `congregation_id` será adicionada **nullable**, com backfill da "Sede", depois `SET NOT NULL` na mesma migração.
-- Todas as políticas RLS antigas serão **dropadas e recriadas** para incluir o filtro de congregação — necessário para o isolamento exigido.
-- A função `is_super_admin(email)` é removida; só sobra `is_super_admin(uuid)` baseada em `user_roles`.
-- Realtime/`REPLICA IDENTITY FULL` mantidos.
-- Index em `congregation_id` em todas as tabelas grandes (members, tithes, offerings, expenses, attendances) para performance.
+## Plano revisado
 
-## Fora de escopo (confirmar se quer depois)
-- Relatórios consolidados cross-congregação para super admin (PDF).
-- Transferência de membros entre congregações.
-- Convite por e-mail para pastor recém-criado.
+### 1. Corrigir o cadastro de pastores pelo super admin
+- Ajustar a função `create-pastor` para validar corretamente o token da sessão e retornar erros claros.
+- Garantir vínculo do pastor à congregação selecionada (papel, vínculo de pastor da congregação e atualização do pastor titular quando marcado).
+- Limpar formulário de criação de pastor.
+
+### 2. Revisar permissões em telas críticas para evitar o mesmo erro
+- Padronizar a validação de papel em funções e telas sensíveis: criação de líderes, atualização de status de membros e gestão de congregações.
+
+### 3. Novo papel: Secretário (criado pelo super admin)
+- Adicionar o papel `secretary` no sistema.
+- Tela de gestão de secretários disponível **somente para super admin** (no painel atual de administração):
+  - listar secretários
+  - cadastrar novo secretário (e-mail, senha, nome, congregação opcional)
+  - desativar / remover secretário
+- Os três e-mails informados serão promovidos a secretário automaticamente assim que existirem como usuários do sistema. Se ainda não existirem, ficam na lista para serem promovidos depois.
+- Secretário entra no menu lateral com acesso completo às mesmas áreas do super admin atual.
+
+### 4. Redefinir poderes
+- **Super admin (perfil atual)**: somente **visualização e acompanhamento**.
+  - Vê tudo (congregações, pastores, membros, finanças, patrimônio, relatórios).
+  - **Não** apaga membros.
+  - **Não** aprova solicitações.
+  - **Não** edita finanças, patrimônio etc.
+  - Continua podendo cadastrar congregações, pastores e secretários (gestão estrutural do sistema).
+- **Secretário**: gestão total do sistema.
+  - Pode apagar membros.
+  - Pode aprovar/recusar solicitações (patrimônio, tesouraria etc.).
+  - Pode editar e gerir todos os módulos.
+  - Atua em todas as congregações.
+- **Pastor**: sem alteração nos poderes atuais (gestão dentro da sua congregação, sem apagar membros, sem cadastrar secretário).
+- **Líder de departamento**: cadastra e edita membros do próprio departamento. **Não apaga.**
+
+### 5. Novos campos no cadastro de membros
+- Adicionar ao formulário de cadastro e edição de membros:
+  - **Função na igreja**: campo de texto livre.
+  - **Cargo na igreja**: seleção com as opções:
+    - Cooperador
+    - Diácono
+    - Presbítero
+    - Pastor
+    - Evangelista
+    - Missionária/o
+- Mostrar os campos onde o membro é visualizado/editado, mantendo layout mobile-first.
+
+### 6. Banco de dados e segurança
+- Migração para:
+  - adicionar o papel `secretary`
+  - adicionar os campos `função na igreja` e `cargo na igreja` em membros
+  - reescrever as políticas de acesso para refletir os novos poderes:
+    - super admin: somente leitura nos módulos de dados (membros, finanças, patrimônio, solicitações). Mantém criação/gestão de congregações, pastores e secretários.
+    - secretário: gestão total (ler, criar, editar, apagar, aprovar) em todos os módulos.
+    - pastor: mantém regras atuais.
+    - líder: mantém regras atuais, sem apagar membros.
+- Garantir isolamento por congregação onde já existia, sem afetar o acesso global do secretário e do super admin.
+
+### 7. Promoção dos três e-mails informados
+- Após o usuário criar as contas no sistema, promover esses três usuários para `secretary`.
+- Se algum ainda não existir no momento da execução, deixar instrução clara para promover assim que existirem (sem quebrar a migração).
+
+### 8. Validação final
+- Testar criação de pastor pelo super admin (resolução do erro 403).
+- Testar criação de secretário pelo super admin.
+- Testar que super admin **não** consegue apagar membros nem aprovar solicitações.
+- Testar que secretário consegue apagar membros e aprovar solicitações em qualquer congregação.
+- Testar que líder não consegue apagar membros.
+- Testar cadastro/edição de membros com os novos campos.
+- Revisar responsividade mobile.
