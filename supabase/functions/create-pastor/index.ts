@@ -113,7 +113,7 @@ Deno.serve(async (req) => {
       console.error('Error assigning role:', roleError);
       await supabaseClient.auth.admin.deleteUser(newUser.user.id);
       return new Response(
-        JSON.stringify({ error: 'Failed to assign pastor role' }),
+        JSON.stringify({ error: `Failed to assign pastor role: ${roleError.message || JSON.stringify(roleError)}` }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
