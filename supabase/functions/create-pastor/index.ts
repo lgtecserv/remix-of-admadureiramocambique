@@ -98,7 +98,24 @@ Deno.serve(async (req) => {
     }
 
     console.log('User created:', newUser.user.id);
-    console.log('Profile created automatically by trigger');
+
+    // Ensure profile exists in profiles table before inserting role to avoid foreign key / replication lag issues
+    const { error: profileError } = await supabaseClient
+      .from('profiles')
+      .upsert({
+        id: newUser.user.id,
+        full_name: fullName,
+        email: email,
+      }, { onConflict: 'id' });
+
+    if (profileError) {
+      console.error('Error ensuring profile exists:', profileError);
+      await supabaseClient.auth.admin.deleteUser(newUser.user.id);
+      return new Response(
+        JSON.stringify({ error: `Failed to ensure profile exists: ${profileError.message}` }),
+        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
 
     // Assign pastor role + vincular à congregação
     const { error: roleError } = await supabaseClient

@@ -70,6 +70,22 @@ Deno.serve(async (req) => {
       });
     }
 
+    // Ensure profile exists in profiles table before inserting role to avoid foreign key / replication lag issues
+    const { error: profileError } = await admin
+      .from('profiles')
+      .upsert({
+        id: newUser.user.id,
+        full_name: fullName,
+        email: email,
+      }, { onConflict: 'id' });
+
+    if (profileError) {
+      await admin.auth.admin.deleteUser(newUser.user.id);
+      return new Response(JSON.stringify({ success: false, error: 'Falha ao garantir que o perfil existe: ' + profileError.message }), {
+        status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
     const { error: roleError } = await admin
       .from('user_roles')
       .insert({ user_id: newUser.user.id, role: 'secretary' });

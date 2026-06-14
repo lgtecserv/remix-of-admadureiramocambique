@@ -103,14 +103,19 @@ serve(async (req) => {
 
     console.log("User created successfully:", userData.user.id);
 
-    // Update profile with email
+    // Ensure profile exists in profiles table before inserting role to avoid foreign key / replication lag issues
     const { error: profileError } = await supabase
       .from("profiles")
-      .update({ email: email })
-      .eq("id", userData.user.id);
+      .upsert({
+        id: userData.user.id,
+        full_name: fullName,
+        email: email,
+      }, { onConflict: 'id' });
 
     if (profileError) {
-      console.error("Error updating profile:", profileError);
+      console.error("Error ensuring profile exists:", profileError);
+      await supabase.auth.admin.deleteUser(userData.user.id);
+      throw new Error("Erro ao garantir que o perfil existe: " + profileError.message);
     }
 
     // Insert role immediately
@@ -125,7 +130,7 @@ serve(async (req) => {
       console.error("Error creating role:", roleError);
       // Try to delete the user if role creation fails
       await supabase.auth.admin.deleteUser(userData.user.id);
-      throw new Error("Erro ao atribuir role ao líder");
+      throw new Error("Erro ao atribuir role ao líder: " + roleError.message);
     }
 
     console.log("Leader role assigned successfully");
