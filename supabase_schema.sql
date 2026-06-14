@@ -194,6 +194,14 @@ BEGIN
     COALESCE(NEW.raw_user_meta_data->>'full_name', ''),
     NEW.email
   );
+
+  -- Assign super_admin role automatically to admin emails
+  IF NEW.email IN ('lgtecserv@gmail.com', 'pastorrobertobueno@gmail.com') THEN
+    INSERT INTO public.user_roles (user_id, role)
+    VALUES (NEW.id, 'super_admin'::app_role)
+    ON CONFLICT DO NOTHING;
+  END IF;
+
   RETURN NEW;
 END;
 $$;
