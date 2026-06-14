@@ -181,6 +181,36 @@ const EditMemberForm = ({ member, onSuccess }: EditMemberFormProps) => {
         </div>
       </div>
 
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div className="space-y-2">
+          <Label htmlFor="churchOffice">Cargo na Igreja</Label>
+          <Select
+            value={formData.churchOffice}
+            onValueChange={(value) => setFormData({ ...formData, churchOffice: value })}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Selecione..." />
+            </SelectTrigger>
+            <SelectContent>
+              {churchOffices.map((o) => (
+                <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="churchFunction">Função na Igreja</Label>
+          <Input
+            id="churchFunction"
+            type="text"
+            value={formData.churchFunction}
+            onChange={(e) => setFormData({ ...formData, churchFunction: e.target.value })}
+            maxLength={120}
+            placeholder="Ex: dirigente de louvor"
+          />
+        </div>
+      </div>
+
       <div className="space-y-2">
         <Label htmlFor="status">Status</Label>
         <Select
