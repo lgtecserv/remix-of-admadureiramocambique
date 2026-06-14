@@ -51,18 +51,19 @@ Deno.serve(async (req) => {
       );
     }
 
-    // Verify super admin status via user_roles
-    const { data: superCheck, error: superErr } = await supabaseClient
+    // Verify super_admin OR secretary via user_roles
+    const { data: roles, error: rolesErr } = await supabaseClient
       .from('user_roles')
-      .select('id')
-      .eq('user_id', user.id)
-      .eq('role', 'super_admin')
-      .maybeSingle();
+      .select('role')
+      .eq('user_id', user.id);
 
-    if (superErr || !superCheck) {
-      console.log('Not super admin:', user.id, superErr);
+    const callerRoles = (roles ?? []).map((r: any) => r.role);
+    const allowed = callerRoles.includes('super_admin') || callerRoles.includes('secretary');
+
+    if (rolesErr || !allowed) {
+      console.log('Not allowed:', user.id, 'roles=', callerRoles, 'err=', rolesErr);
       return new Response(
-        JSON.stringify({ error: 'Forbidden: Only super admin can create pastors' }),
+        JSON.stringify({ error: 'Forbidden: Only super admin or secretary can create pastors' }),
         { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
