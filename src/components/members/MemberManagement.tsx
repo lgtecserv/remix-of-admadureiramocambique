@@ -292,7 +292,7 @@ const MemberManagement = ({
                     </TableCell>
                     <TableCell className="hidden md:table-cell">{new Date(member.created_at).toLocaleDateString("pt-BR")}</TableCell>
                     <TableCell className="text-right space-x-2">
-                      {(userRole === "pastor" || member.leader_id === currentUserId) ? (
+                      {(userRole === "pastor" || userRole === "secretary" || member.leader_id === currentUserId) ? (
                         <>
                           <Button
                             variant="outline"
@@ -305,7 +305,7 @@ const MemberManagement = ({
                             <Pencil className="h-4 w-4" />
                           </Button>
 
-                          {userRole === "pastor" && (
+                          {userRole === "secretary" && (
                             <AlertDialog>
                               <AlertDialogTrigger asChild>
                                 <Button variant="destructive" size="sm">
