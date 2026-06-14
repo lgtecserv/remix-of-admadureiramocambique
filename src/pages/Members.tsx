@@ -65,7 +65,9 @@ const Members = () => {
     return <PageLoader message="Carregando membros..." />;
   }
 
-  const effectiveRole = isSuperAdmin ? "super_admin" : role;
+  const effectiveRole = isSuperAdmin ? (role === "secretary" ? "secretary" : "super_admin") : role;
+  const isReadOnlySuper = role === "super_admin"; // só super admin é somente leitura
+  const canCreate = !isReadOnlySuper;
 
   return (
     <AppLayout userName={profile?.full_name} role={effectiveRole || undefined}>
@@ -74,12 +76,14 @@ const Members = () => {
           <div className="flex-1 min-w-0">
             <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-foreground">Gestão de Membros</h1>
             <p className="text-sm text-muted-foreground">
-              {isSuperAdmin
+              {isReadOnlySuper
                 ? "Visualize os membros de todas as congregações"
-                : `Gerencie os membros ${role === "leader" ? "do seu departamento" : "da igreja"}`}
+                : role === "secretary"
+                  ? "Gerencie os membros de todas as congregações"
+                  : `Gerencie os membros ${role === "leader" ? "do seu departamento" : "da igreja"}`}
             </p>
           </div>
-          {!isSuperAdmin && (
+          {canCreate && (
             <CreateMemberButton role={role} onSuccess={() => setCreateDialogOpen(false)} />
           )}
         </div>
