@@ -19,6 +19,7 @@ const Members = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [departmentFilter, setDepartmentFilter] = useState("all");
+  const [cargoFilter, setCargoFilter] = useState("all");
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -96,12 +97,15 @@ const Members = () => {
           departmentFilter={departmentFilter}
           onDepartmentFilterChange={setDepartmentFilter}
           showDepartmentFilter={role === "pastor" || isSuperAdmin}
+          cargoFilter={cargoFilter}
+          onCargoFilterChange={setCargoFilter}
         />
 
         <MemberManagement 
           searchTerm={searchTerm}
           statusFilter={statusFilter}
           departmentFilter={departmentFilter}
+          cargoFilter={cargoFilter}
         />
       </div>
     </AppLayout>

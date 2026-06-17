@@ -37,9 +37,10 @@ interface CreateMemberFormProps {
   leaderId: string;
   onSuccess: () => void;
   defaultType?: "membro" | "congregado";
+  role?: string | null;
 }
 
-const CreateMemberForm = ({ department, leaderId, onSuccess, defaultType = "membro" }: CreateMemberFormProps) => {
+const CreateMemberForm = ({ department, leaderId, onSuccess, defaultType = "membro", role }: CreateMemberFormProps) => {
   const [loading, setLoading] = useState(false);
   const [selectedDepartment, setSelectedDepartment] = useState<string>(department || "");
   const [formData, setFormData] = useState({
@@ -70,13 +71,15 @@ const CreateMemberForm = ({ department, leaderId, onSuccess, defaultType = "memb
     }
   }, [congId]);
 
+  const showCongregationDropdown = isSuperAdmin || role === "secretary" || role === "super_admin";
+
   useEffect(() => {
-    if (isSuperAdmin) {
+    if (showCongregationDropdown) {
       supabase.from("congregations").select("id, name").eq("active", true).order("name").then(({ data }) => {
         if (data) setCongregations(data);
       });
     }
-  }, [isSuperAdmin]);
+  }, [showCongregationDropdown]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -92,7 +95,7 @@ const CreateMemberForm = ({ department, leaderId, onSuccess, defaultType = "memb
 
       const validatedData = memberSchema.parse(formData);
 
-      let finalCongId = isSuperAdmin ? selectedCongregation : congId;
+      let finalCongId = showCongregationDropdown ? selectedCongregation : congId;
       if (!finalCongId) {
         finalCongId = await getCurrentUserCongregationId();
       }
@@ -171,7 +174,7 @@ const CreateMemberForm = ({ department, leaderId, onSuccess, defaultType = "memb
         </div>
       )}
 
-      {isSuperAdmin && (
+      {showCongregationDropdown && (
         <div className="space-y-2">
           <Label htmlFor="congregation">Congregação</Label>
           <Select

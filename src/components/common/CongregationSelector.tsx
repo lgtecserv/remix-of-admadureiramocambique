@@ -31,8 +31,9 @@ export function CongregationSelector() {
 
   useEffect(() => {
     const loadCongregations = async () => {
-      if (isSuperAdmin) {
-        // Super admin vê todas
+      const isSuperAdminOrSecretary = isSuperAdmin || userRole?.trim()?.toLowerCase() === "secretary";
+      if (isSuperAdminOrSecretary) {
+        // Super admin/secretary vê todas
         const { data } = await supabase
           .from("congregations")
           .select("id, name")
@@ -54,12 +55,25 @@ export function CongregationSelector() {
     if (!contextLoading) {
       loadCongregations();
     }
-  }, [isSuperAdmin, userCongregationId, contextLoading]);
+  }, [isSuperAdmin, userRole, userCongregationId, contextLoading]);
 
-  if (contextLoading || loading) return null;
+  if (contextLoading || loading) {
+    return (
+      <div className="flex items-center gap-1.5">
+        <Building2 className="h-4 w-4 text-muted-foreground shrink-0" />
+        <Select disabled>
+          <SelectTrigger className="h-8 w-[180px] text-xs">
+            <SelectValue placeholder="Carregando..." />
+          </SelectTrigger>
+        </Select>
+      </div>
+    );
+  }
+
+  const isSuperAdminOrSecretary = isSuperAdmin || userRole?.trim()?.toLowerCase() === "secretary";
 
   // Para pastor/líder: mostrar badge estático com nome da congregação
-  if (!isSuperAdmin) {
+  if (!isSuperAdminOrSecretary) {
     const congName = congregations.length > 0 ? congregations[0].name : "—";
     return (
       <div className="flex items-center gap-1.5">

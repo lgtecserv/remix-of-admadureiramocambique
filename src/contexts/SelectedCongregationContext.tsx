@@ -28,7 +28,8 @@ export const SelectedCongregationProvider = ({ children }: { children: ReactNode
   const [userDepartment, setUserDepartment] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const isSuperAdmin = userRole === "super_admin" || userRole === "secretary";
+  const normalizedRole = userRole?.trim()?.toLowerCase();
+  const isSuperAdmin = normalizedRole === "super_admin" || normalizedRole === "super-admin" || normalizedRole === "secretary" || normalizedRole === "secretário" || normalizedRole === "secretario" || normalizedRole === "admin";
 
   useEffect(() => {
     let isMounted = true;
@@ -53,7 +54,8 @@ export const SelectedCongregationProvider = ({ children }: { children: ReactNode
         setUserRole(roleData.role);
         setUserDepartment(roleData.department);
 
-        if (roleData.role === "super_admin" || roleData.role === "secretary") {
+        const rRole = roleData.role?.trim()?.toLowerCase();
+        if (rRole === "super_admin" || rRole === "super-admin" || rRole === "secretary" || rRole === "secretário" || rRole === "secretario" || rRole === "admin") {
           // Super admin / Secretário começam com "all" (acesso global)
           setSelectedCongregationId("all");
           setUserCongregationId(null);

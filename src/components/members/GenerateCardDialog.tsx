@@ -243,7 +243,7 @@ export const GenerateCardDialog = ({ member, open, onOpenChange }: GenerateCardD
               <div className="flex gap-8 h-full items-end pb-5">
                 <div className="flex flex-col items-center">
                   <div className="w-48 border-b border-slate-800 mb-1.5"></div>
-                  <p className="text-[9px] font-bold text-slate-500 uppercase tracking-widest">Dirigente Local</p>
+                  <p className="text-[9px] font-bold text-slate-500 uppercase tracking-widest">Secretário Geral</p>
                 </div>
                 <div className="flex flex-col items-center">
                   <div className="w-48 border-b border-slate-800 mb-1.5"></div>

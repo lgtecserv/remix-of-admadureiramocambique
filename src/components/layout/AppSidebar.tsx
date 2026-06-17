@@ -1,4 +1,4 @@
-import { Home, Users, BarChart3, Settings, LogOut, UserCog, Shield, FileText, MessageSquare, Package, DollarSign, UserPlus, ClipboardList, Images, Calendar } from "lucide-react";
+import { Home, Users, BarChart3, Settings, LogOut, UserCog, Shield, FileText, MessageSquare, Package, DollarSign, UserPlus, ClipboardList, Images, Calendar, Mail } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import {
   Sidebar,
@@ -30,6 +30,7 @@ const superAdminItems = [
   { title: "Tesouraria", url: "/dashboard/tesouraria", icon: DollarSign },
   { title: "Patrimônio", url: "/dashboard/patrimonio", icon: Images },
   { title: "Chat", url: "/dashboard/chat", icon: MessageSquare },
+  { title: "Cartas", url: "/dashboard/letters", icon: Mail },
   { title: "Relatórios", url: "/dashboard/reports", icon: FileText },
   { title: "Estatísticas", url: "/dashboard/statistics", icon: BarChart3 },
   { title: "Configurações", url: "/dashboard/settings", icon: Settings },
@@ -44,6 +45,7 @@ const secretaryItems = [
   { title: "Tesouraria", url: "/dashboard/tesouraria", icon: DollarSign },
   { title: "Patrimônio", url: "/dashboard/patrimonio", icon: Images },
   { title: "Chat", url: "/dashboard/chat", icon: MessageSquare },
+  { title: "Cartas", url: "/dashboard/letters", icon: Mail },
   { title: "Relatórios", url: "/dashboard/reports", icon: FileText },
   { title: "Estatísticas", url: "/dashboard/statistics", icon: BarChart3 },
   { title: "Configurações", url: "/dashboard/settings", icon: Settings },
@@ -55,6 +57,7 @@ const pastorItems = [
   { title: "Membros", url: "/dashboard/members", icon: Users },
   { title: "Congregados", url: "/dashboard/congregados", icon: Users },
   { title: "Chat", url: "/dashboard/chat", icon: Users },
+  { title: "Cartas", url: "/dashboard/letters", icon: Mail },
   { title: "Relatórios", url: "/dashboard/reports", icon: FileText },
   { title: "Estatísticas", url: "/dashboard/statistics", icon: BarChart3 },
   { title: "Configurações", url: "/dashboard/settings", icon: Settings },

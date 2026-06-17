@@ -41,12 +41,14 @@ interface MemberManagementProps {
   searchTerm?: string;
   statusFilter?: string;
   departmentFilter?: string;
+  cargoFilter?: string;
 }
 
 const MemberManagement = ({ 
   searchTerm = "", 
   statusFilter = "all", 
-  departmentFilter = "all" 
+  departmentFilter = "all",
+  cargoFilter = "all"
 }: MemberManagementProps) => {
   const [members, setMembers] = useState<Member[]>([]);
   const [filteredMembers, setFilteredMembers] = useState<Member[]>([]);
@@ -136,8 +138,18 @@ const MemberManagement = ({
       filtered = filtered.filter(member => member.department === departmentFilter);
     }
 
+    if (cargoFilter !== "all") {
+      if (cargoFilter === "nenhum") {
+        filtered = filtered.filter(member => !member.church_office || member.church_office.trim() === "");
+      } else {
+        filtered = filtered.filter(member => 
+          member.church_office && member.church_office.toLowerCase() === cargoFilter.toLowerCase()
+        );
+      }
+    }
+
     setFilteredMembers(filtered);
-  }, [members, searchTerm, statusFilter, departmentFilter]);
+  }, [members, searchTerm, statusFilter, departmentFilter, cargoFilter]);
 
   const handleDelete = async (id: string) => {
     const { error } = await supabase.from("members").delete().eq("id", id);

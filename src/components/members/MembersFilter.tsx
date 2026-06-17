@@ -10,6 +10,8 @@ interface MembersFilterProps {
   departmentFilter?: string;
   onDepartmentFilterChange?: (value: string) => void;
   showDepartmentFilter?: boolean;
+  cargoFilter?: string;
+  onCargoFilterChange?: (value: string) => void;
 }
 
 const MembersFilter = ({
@@ -20,6 +22,8 @@ const MembersFilter = ({
   departmentFilter,
   onDepartmentFilterChange,
   showDepartmentFilter = false,
+  cargoFilter = "all",
+  onCargoFilterChange,
 }: MembersFilterProps) => {
   return (
     <div className="flex flex-col gap-3 mb-4">
@@ -58,6 +62,24 @@ const MembersFilter = ({
               <SelectItem value="varoes">Varões</SelectItem>
               <SelectItem value="adolescentes">Adolescentes</SelectItem>
               <SelectItem value="criancas">Crianças</SelectItem>
+            </SelectContent>
+          </Select>
+        )}
+
+        {onCargoFilterChange && (
+          <Select value={cargoFilter} onValueChange={onCargoFilterChange}>
+            <SelectTrigger className="h-10">
+              <SelectValue placeholder="Cargo na Igreja" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todos os Cargos</SelectItem>
+              <SelectItem value="nenhum">Sem Cargo</SelectItem>
+              <SelectItem value="cooperador">Cooperador</SelectItem>
+              <SelectItem value="diacono">Diácono</SelectItem>
+              <SelectItem value="presbitero">Presbítero</SelectItem>
+              <SelectItem value="evangelista">Evangelista</SelectItem>
+              <SelectItem value="pastor">Pastor</SelectItem>
+              <SelectItem value="missionario">Missionário</SelectItem>
             </SelectContent>
           </Select>
         )}

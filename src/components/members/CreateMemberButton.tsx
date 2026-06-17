@@ -64,6 +64,7 @@ const CreateMemberButton = ({ role, onSuccess, defaultType = "membro" }: CreateM
             leaderId={leaderId} 
             onSuccess={handleSuccess} 
             defaultType={defaultType}
+            role={role}
           />
         )}
       </DialogContent>
