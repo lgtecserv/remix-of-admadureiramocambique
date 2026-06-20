@@ -164,11 +164,6 @@ const CreateMemberForm = ({ department, leaderId, onSuccess, defaultType = "memb
               <SelectItem value="varoes">Varões</SelectItem>
               <SelectItem value="adolescentes">Adolescentes</SelectItem>
               <SelectItem value="criancas">Crianças</SelectItem>
-              <SelectItem value="patrimonio">Patrimônio</SelectItem>
-              <SelectItem value="tesouraria">Tesouraria</SelectItem>
-              <SelectItem value="diaconato">Diaconato</SelectItem>
-              <SelectItem value="musica">Música</SelectItem>
-              <SelectItem value="ensino">Ensino</SelectItem>
             </SelectContent>
           </Select>
         </div>
