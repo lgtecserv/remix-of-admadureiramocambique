@@ -242,7 +242,7 @@ const Letters = () => {
                   <img 
                     src={logoUrl} 
                     alt="Watermark" 
-                    className="w-[70%] opacity-20 object-contain" 
+                    className="w-[70%] opacity-30 object-contain" 
                     crossOrigin="anonymous" 
                   />
                 </div>
