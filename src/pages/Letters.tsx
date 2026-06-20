@@ -228,7 +228,7 @@ const Letters = () => {
             <div className="w-full max-w-[500px] overflow-hidden border border-slate-300 shadow-xl bg-white flex justify-center">
               <div 
                 ref={pdfRef}
-                className="bg-white px-16 py-20 relative shrink-0"
+                className="bg-white px-16 py-20 relative shrink-0 flex flex-col"
                 style={{ 
                   width: "794px", 
                   minHeight: "1123px", 
@@ -237,8 +237,18 @@ const Letters = () => {
                   marginBottom: "-40%" // compensate for the scaled height
                 }}
               >
+                {/* Watermark Background */}
+                <div className="absolute inset-0 flex items-center justify-center pointer-events-none select-none z-0 overflow-hidden">
+                  <img 
+                    src={logoUrl} 
+                    alt="Watermark" 
+                    className="w-[70%] opacity-20 object-contain" 
+                    crossOrigin="anonymous" 
+                  />
+                </div>
+
                 {/* Header with Logo */}
-                <div className="flex flex-col items-center justify-center mb-12">
+                <div className="flex flex-col items-center justify-center mb-12 relative z-10">
                   <img src={logoUrl} alt="Logo" className="h-28 object-contain mb-4" crossOrigin="anonymous" />
                   <h1 className="text-xl font-bold uppercase tracking-widest text-center" style={{ fontFamily: "'Times New Roman', Times, serif" }}>
                     Igreja Evangélica Assembleia de Deus
@@ -249,13 +259,13 @@ const Letters = () => {
                 </div>
 
                 {/* Letter Title */}
-                <h3 className="text-2xl font-bold text-center underline uppercase mb-12" style={{ fontFamily: "'Times New Roman', Times, serif" }}>
+                <h3 className="text-2xl font-bold text-center underline uppercase mb-12 relative z-10" style={{ fontFamily: "'Times New Roman', Times, serif" }}>
                   {LETTER_TEMPLATES[letterType]?.title || "CARTA"}
                 </h3>
 
                 {/* Content */}
                 <div 
-                  className="whitespace-pre-wrap text-lg mb-12"
+                  className="whitespace-pre-wrap text-lg mb-12 relative z-10"
                   style={{ 
                     fontFamily: "'Times New Roman', Times, serif", 
                     lineHeight: "1.5", 
@@ -266,12 +276,12 @@ const Letters = () => {
                 </div>
 
                 {/* Date */}
-                <div className="text-right text-lg mb-24" style={{ fontFamily: "'Times New Roman', Times, serif" }}>
+                <div className="text-right text-lg mb-24 relative z-10" style={{ fontFamily: "'Times New Roman', Times, serif" }}>
                   Maputo, {currentDateFormatted}
                 </div>
 
                 {/* Signatures */}
-                <div className="flex justify-between items-end px-4 mt-auto">
+                <div className="flex justify-between items-end px-4 mt-auto relative z-10">
                   <div className="flex flex-col items-center w-64">
                     <div className="w-full border-b border-black mb-2"></div>
                     <p className="text-sm font-bold uppercase" style={{ fontFamily: "'Times New Roman', Times, serif" }}>
