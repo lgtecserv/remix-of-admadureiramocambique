@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Download, Loader2 } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import html2canvas from "html2canvas";
+import { toPng } from "html-to-image";
 import { jsPDF } from "jspdf";
 import { toast } from "sonner";
 import { supabase } from "@/lib/supabase";
@@ -93,34 +93,18 @@ export const GenerateCardDialog = ({ member, open, onOpenChange }: GenerateCardD
     if (!cardRef.current) return;
     setLoadingPng(true);
     try {
-      const canvas = await html2canvas(cardRef.current, { 
-        scale: 4, // Increased scale for 4K quality
+      const dataUrl = await toPng(cardRef.current, {
+        cacheBust: true,
+        pixelRatio: 4, // 4K quality!
         width: 856,
         height: 540,
-        windowWidth: 856,
-        windowHeight: 540,
-        useCORS: true,
-        allowTaint: true,
-        logging: false,
-        onclone: (clonedDoc) => {
-          const el = clonedDoc.getElementById("card-capture");
-          if (el) {
-            el.style.transform = "none";
-            // Move to body to bypass any parent max-width or overflow constraints
-            if (el.parentNode) el.parentNode.removeChild(el);
-            clonedDoc.body.appendChild(el);
-            clonedDoc.body.style.overflow = "visible";
-            el.style.position = "absolute";
-            el.style.top = "0px";
-            el.style.left = "0px";
-            el.style.margin = "0";
-          }
+        style: {
+          transform: 'none'
         }
       });
-      const imgData = canvas.toDataURL("image/png", 1.0);
       const link = document.createElement("a");
       link.download = `Cartao_${member.full_name.replace(/\s+/g, "_")}.png`;
-      link.href = imgData;
+      link.href = dataUrl;
       link.click();
       toast.success("PNG baixado com sucesso!");
     } catch (err) {
@@ -135,37 +119,21 @@ export const GenerateCardDialog = ({ member, open, onOpenChange }: GenerateCardD
     if (!cardRef.current) return;
     setLoadingPdf(true);
     try {
-      const canvas = await html2canvas(cardRef.current, { 
-        scale: 4, // Increased scale for 4K quality
+      const dataUrl = await toPng(cardRef.current, {
+        cacheBust: true,
+        pixelRatio: 4, // 4K quality!
         width: 856,
         height: 540,
-        windowWidth: 856,
-        windowHeight: 540,
-        useCORS: true,
-        allowTaint: true,
-        logging: false,
-        onclone: (clonedDoc) => {
-          const el = clonedDoc.getElementById("card-capture");
-          if (el) {
-            el.style.transform = "none";
-            // Move to body to bypass any parent max-width or overflow constraints
-            if (el.parentNode) el.parentNode.removeChild(el);
-            clonedDoc.body.appendChild(el);
-            clonedDoc.body.style.overflow = "visible";
-            el.style.position = "absolute";
-            el.style.top = "0px";
-            el.style.left = "0px";
-            el.style.margin = "0";
-          }
+        style: {
+          transform: 'none'
         }
       });
-      const imgData = canvas.toDataURL("image/png", 1.0);
       const pdf = new jsPDF({
         orientation: "landscape",
         unit: "mm",
         format: [85.6, 53.98], // CR80 Standard credit card size
       });
-      pdf.addImage(imgData, "PNG", 0, 0, 85.6, 53.98);
+      pdf.addImage(dataUrl, "PNG", 0, 0, 85.6, 53.98);
       pdf.save(`Cartao_${member.full_name.replace(/\s+/g, "_")}.pdf`);
       toast.success("PDF baixado com sucesso!");
     } catch (err) {
