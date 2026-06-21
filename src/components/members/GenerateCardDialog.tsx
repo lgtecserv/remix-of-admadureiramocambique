@@ -92,6 +92,9 @@ export const GenerateCardDialog = ({ member, open, onOpenChange }: GenerateCardD
   const handleDownloadPNG = async () => {
     if (!cardRef.current) return;
     setLoadingPng(true);
+    const originalTransform = cardRef.current.style.transform;
+    cardRef.current.style.transform = "none";
+
     try {
       const canvas = await html2canvas(cardRef.current, { 
         scale: 4, // Increased scale for 4K quality
@@ -109,6 +112,7 @@ export const GenerateCardDialog = ({ member, open, onOpenChange }: GenerateCardD
       console.error(err);
       toast.error("Erro ao gerar PNG.");
     } finally {
+      if (cardRef.current) cardRef.current.style.transform = originalTransform;
       setLoadingPng(false);
     }
   };
@@ -116,6 +120,9 @@ export const GenerateCardDialog = ({ member, open, onOpenChange }: GenerateCardD
   const handleDownloadPDF = async () => {
     if (!cardRef.current) return;
     setLoadingPdf(true);
+    const originalTransform = cardRef.current.style.transform;
+    cardRef.current.style.transform = "none";
+
     try {
       const canvas = await html2canvas(cardRef.current, { 
         scale: 4, // Increased scale for 4K quality
@@ -136,6 +143,7 @@ export const GenerateCardDialog = ({ member, open, onOpenChange }: GenerateCardD
       console.error(err);
       toast.error("Erro ao gerar PDF.");
     } finally {
+      if (cardRef.current) cardRef.current.style.transform = originalTransform;
       setLoadingPdf(false);
     }
   };
@@ -149,14 +157,12 @@ export const GenerateCardDialog = ({ member, open, onOpenChange }: GenerateCardD
 
         {/* Card Preview Container */}
         <div className="w-full flex justify-center py-4" style={{ height: "380px" }}>
-          {/* Wrapper for scale to avoid html2canvas capturing scaled element */}
-          <div style={{ transform: "scale(0.65)", transformOrigin: "top center" }}>
-            {/* Physical Card Layout (Credit Card Size Ratio) */}
-            <div
-              ref={cardRef}
-              className="relative bg-white overflow-hidden shadow-2xl rounded-xl shrink-0"
-              style={{ width: "856px", height: "540px", minWidth: "856px", minHeight: "540px" }}
-            >
+          {/* Physical Card Layout (Credit Card Size Ratio) */}
+          <div
+            ref={cardRef}
+            className="relative bg-white overflow-hidden shadow-2xl rounded-xl shrink-0"
+            style={{ width: "856px", height: "540px", minWidth: "856px", minHeight: "540px", transform: "scale(0.65)", transformOrigin: "top center" }}
+          >
             {/* Minimalist Background */}
             <div className="absolute inset-0 bg-slate-50"></div>
 
@@ -264,7 +270,6 @@ export const GenerateCardDialog = ({ member, open, onOpenChange }: GenerateCardD
               </div>
             </div>
           </div>
-        </div>
         </div>
 
         <div className="flex gap-4 mt-2">
