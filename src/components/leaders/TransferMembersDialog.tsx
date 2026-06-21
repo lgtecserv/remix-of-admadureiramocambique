@@ -119,7 +119,7 @@ const TransferMembersDialog = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[500px]">
+      <DialogContent className="sm:max-w-[500px] w-[calc(100%-2rem)] max-h-[90vh] overflow-y-auto mx-auto">
         <DialogHeader>
           <DialogTitle>Transferir Membros</DialogTitle>
           <DialogDescription>

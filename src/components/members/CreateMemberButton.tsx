@@ -54,7 +54,7 @@ const CreateMemberButton = ({ role, onSuccess, defaultType = "membro" }: CreateM
           <span className="hidden xs:inline">Novo </span>{defaultType === "congregado" ? "Congregado" : "Membro"}
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-w-md w-[calc(100%-2rem)] mx-auto">
+      <DialogContent className="max-w-md w-[calc(100%-2rem)] max-h-[90vh] overflow-y-auto mx-auto">
         <DialogHeader>
           <DialogTitle>Cadastrar Novo {defaultType === "congregado" ? "Congregado" : "Membro"}</DialogTitle>
         </DialogHeader>

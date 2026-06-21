@@ -225,7 +225,7 @@ const Letters = () => {
               A4 Container Ratio (1:1.414)
               We scale it down for visual preview, but the actual node has a fixed 794px width.
             */}
-            <div className="w-full max-w-[500px] overflow-hidden border border-slate-300 shadow-xl bg-white flex justify-center">
+            <div className="w-full max-w-[500px] overflow-x-auto border border-slate-300 shadow-xl bg-white flex justify-center">
               <div 
                 ref={pdfRef}
                 className="bg-white px-16 py-20 relative shrink-0 flex flex-col"

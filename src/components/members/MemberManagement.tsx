@@ -387,7 +387,7 @@ const MemberManagement = ({
       </div>
 
       <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
-        <DialogContent className="max-w-md w-[calc(100%-2rem)] mx-auto">
+        <DialogContent className="max-w-md w-[calc(100%-2rem)] max-h-[90vh] overflow-y-auto mx-auto">
           <DialogHeader>
             <DialogTitle>Editar Membro</DialogTitle>
           </DialogHeader>

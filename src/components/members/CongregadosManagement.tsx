@@ -414,7 +414,7 @@ const CongregadosManagement = ({
       </div>
 
       <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
-        <DialogContent className="max-w-md w-[calc(100%-2rem)] mx-auto">
+        <DialogContent className="max-w-md w-[calc(100%-2rem)] max-h-[90vh] overflow-y-auto mx-auto">
           <DialogHeader>
             <DialogTitle>Editar Membro</DialogTitle>
           </DialogHeader>
@@ -431,7 +431,7 @@ const CongregadosManagement = ({
       </Dialog>
 
       <Dialog open={baptizeDialogOpen} onOpenChange={setBaptizeDialogOpen}>
-        <DialogContent className="max-w-md mx-auto">
+        <DialogContent className="max-w-md w-[calc(100%-2rem)] max-h-[90vh] overflow-y-auto mx-auto">
           <DialogHeader>
             <DialogTitle>Tornar Membro (Batismo)</DialogTitle>
           </DialogHeader>

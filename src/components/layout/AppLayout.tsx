@@ -64,7 +64,7 @@ const AppLayout = ({ children, userName, role, department, userEmail, user }: Ap
         <AppSidebar role={role} department={department} userEmail={userEmail} />
         <div className="flex-1 flex flex-col">
           <header className="sticky top-0 z-40 bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/60 border-b border-border">
-            <div className="flex items-center gap-4 px-6 py-4">
+            <div className="flex items-center gap-2 sm:gap-4 px-4 sm:px-6 py-4">
               <SidebarTrigger />
               <CongregationSelector />
               <div className="flex-1" />

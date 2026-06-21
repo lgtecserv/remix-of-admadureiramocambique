@@ -93,8 +93,13 @@ export const GenerateCardDialog = ({ member, open, onOpenChange }: GenerateCardD
     if (!cardRef.current) return;
     setLoadingPng(true);
     try {
-      const canvas = await html2canvas(cardRef.current, { scale: 3, useCORS: true });
-      const imgData = canvas.toDataURL("image/png");
+      const canvas = await html2canvas(cardRef.current, { 
+        scale: 4, // Increased scale for 4K quality
+        useCORS: true,
+        allowTaint: true,
+        logging: false,
+      });
+      const imgData = canvas.toDataURL("image/png", 1.0);
       const link = document.createElement("a");
       link.download = `Cartao_${member.full_name.replace(/\s+/g, "_")}.png`;
       link.href = imgData;
@@ -112,8 +117,13 @@ export const GenerateCardDialog = ({ member, open, onOpenChange }: GenerateCardD
     if (!cardRef.current) return;
     setLoadingPdf(true);
     try {
-      const canvas = await html2canvas(cardRef.current, { scale: 3, useCORS: true });
-      const imgData = canvas.toDataURL("image/png");
+      const canvas = await html2canvas(cardRef.current, { 
+        scale: 4, // Increased scale for 4K quality
+        useCORS: true,
+        allowTaint: true,
+        logging: false,
+      });
+      const imgData = canvas.toDataURL("image/png", 1.0);
       const pdf = new jsPDF({
         orientation: "landscape",
         unit: "mm",
@@ -132,19 +142,21 @@ export const GenerateCardDialog = ({ member, open, onOpenChange }: GenerateCardD
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl w-full flex flex-col items-center">
+      <DialogContent className="max-w-2xl w-[calc(100%-2rem)] max-h-[90vh] overflow-y-auto flex flex-col items-center mx-auto">
         <DialogHeader>
           <DialogTitle>Gerar Cartão de Membro</DialogTitle>
         </DialogHeader>
 
         {/* Card Preview Container */}
         <div className="w-full flex justify-center py-4" style={{ height: "380px" }}>
-          {/* Physical Card Layout (Credit Card Size Ratio) */}
-          <div
-            ref={cardRef}
-            className="relative bg-white overflow-hidden shadow-2xl rounded-xl shrink-0"
-            style={{ width: "856px", height: "540px", minWidth: "856px", minHeight: "540px", transform: "scale(0.65)", transformOrigin: "top center" }}
-          >
+          {/* Wrapper for scale to avoid html2canvas capturing scaled element */}
+          <div style={{ transform: "scale(0.65)", transformOrigin: "top center" }}>
+            {/* Physical Card Layout (Credit Card Size Ratio) */}
+            <div
+              ref={cardRef}
+              className="relative bg-white overflow-hidden shadow-2xl rounded-xl shrink-0"
+              style={{ width: "856px", height: "540px", minWidth: "856px", minHeight: "540px" }}
+            >
             {/* Minimalist Background */}
             <div className="absolute inset-0 bg-slate-50"></div>
 
@@ -252,6 +264,7 @@ export const GenerateCardDialog = ({ member, open, onOpenChange }: GenerateCardD
               </div>
             </div>
           </div>
+        </div>
         </div>
 
         <div className="flex gap-4 mt-2">
