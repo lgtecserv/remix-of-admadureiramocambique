@@ -251,7 +251,7 @@ export const GenerateCardDialog = ({ member, open, onOpenChange }: GenerateCardD
 
             {/* Legal Text */}
             <div className="absolute top-[360px] left-20 right-8 z-20">
-              <p className="text-[11px] leading-relaxed text-slate-600 text-justify font-medium">
+              <p className="text-[11.5px] leading-relaxed text-slate-800 text-justify font-bold tracking-tight">
                 A presente credencial identifica oficialmente o portador como membro autorizado da Igreja, sendo pessoal e intransferível. Seu uso está condicionado à observância dos princípios da Igreja e da Palavra de Deus, devendo ser devolvida em caso de desligamento ou perda do vínculo com a instituição.
               </p>
             </div>
