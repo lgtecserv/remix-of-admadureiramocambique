@@ -13,6 +13,7 @@ import logoUrl from "@/assets/logo.png";
 interface Member {
   id: string;
   full_name: string;
+  phone_number?: string;
   registration_number?: string;
   church_office?: string;
   church_function?: string;
@@ -239,6 +240,10 @@ export const GenerateCardDialog = ({ member, open, onOpenChange }: GenerateCardD
                   <div className="border-b border-slate-200 pb-1">
                     <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">Estado Civil</p>
                     <p className="text-lg font-bold text-[#1A365D] uppercase">{member.marital_status ? getMaritalStatusLabel(member.marital_status, member.gender) : "—"}</p>
+                  </div>
+                  <div className="border-b border-slate-200 pb-1">
+                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">Celular</p>
+                    <p className="text-lg font-bold text-[#1A365D] uppercase">{member.phone_number || "—"}</p>
                   </div>
                 </div>
               </div>

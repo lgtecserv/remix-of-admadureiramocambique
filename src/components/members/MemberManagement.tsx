@@ -149,7 +149,14 @@ const MemberManagement = ({
     }
 
     setFilteredMembers(filtered);
-  }, [members, searchTerm, statusFilter, departmentFilter, cargoFilter]);
+
+    if (cardMember) {
+      const updatedCardMember = members.find(m => m.id === cardMember.id);
+      if (updatedCardMember && JSON.stringify(updatedCardMember) !== JSON.stringify(cardMember)) {
+        setCardMember(updatedCardMember);
+      }
+    }
+  }, [members, searchTerm, statusFilter, departmentFilter, cargoFilter, cardMember]);
 
   const handleDelete = async (id: string) => {
     const { error } = await supabase.from("members").delete().eq("id", id);
