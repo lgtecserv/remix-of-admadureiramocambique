@@ -222,7 +222,7 @@ export const GenerateCardDialog = ({ member, open, onOpenChange }: GenerateCardD
                 </div>
 
                 {/* Grid Info */}
-                <div className="grid grid-cols-2 gap-x-6 gap-y-4">
+                <div className="grid grid-cols-3 gap-x-4 gap-y-4">
                   <div className="border-b border-slate-200 pb-1">
                     <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">Matrícula</p>
                     <p className="text-lg font-black text-[#1A365D]">{member.registration_number || "—"}</p>
@@ -230,6 +230,10 @@ export const GenerateCardDialog = ({ member, open, onOpenChange }: GenerateCardD
                   <div className="border-b border-slate-200 pb-1">
                     <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">Congregação</p>
                     <p className="text-lg font-black text-[#1A365D] uppercase leading-tight">{congregationName}</p>
+                  </div>
+                  <div className="border-b border-slate-200 pb-1">
+                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">Celular</p>
+                    <p className="text-lg font-bold text-[#1A365D] uppercase">{member.phone_number || "—"}</p>
                   </div>
                   <div className="border-b border-slate-200 pb-1">
                     <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">Data de Batismo</p>
@@ -240,10 +244,6 @@ export const GenerateCardDialog = ({ member, open, onOpenChange }: GenerateCardD
                   <div className="border-b border-slate-200 pb-1">
                     <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">Estado Civil</p>
                     <p className="text-lg font-bold text-[#1A365D] uppercase">{member.marital_status ? getMaritalStatusLabel(member.marital_status, member.gender) : "—"}</p>
-                  </div>
-                  <div className="border-b border-slate-200 pb-1">
-                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">Celular</p>
-                    <p className="text-lg font-bold text-[#1A365D] uppercase">{member.phone_number || "—"}</p>
                   </div>
                 </div>
               </div>
