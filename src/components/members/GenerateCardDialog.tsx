@@ -92,15 +92,16 @@ export const GenerateCardDialog = ({ member, open, onOpenChange }: GenerateCardD
   const handleDownloadPNG = async () => {
     if (!cardRef.current) return;
     setLoadingPng(true);
-    const originalTransform = cardRef.current.style.transform;
-    cardRef.current.style.transform = "none";
-
     try {
       const canvas = await html2canvas(cardRef.current, { 
         scale: 4, // Increased scale for 4K quality
         useCORS: true,
         allowTaint: true,
         logging: false,
+        onclone: (clonedDoc) => {
+          const el = clonedDoc.getElementById("card-capture");
+          if (el) el.style.transform = "none";
+        }
       });
       const imgData = canvas.toDataURL("image/png", 1.0);
       const link = document.createElement("a");
@@ -112,7 +113,6 @@ export const GenerateCardDialog = ({ member, open, onOpenChange }: GenerateCardD
       console.error(err);
       toast.error("Erro ao gerar PNG.");
     } finally {
-      if (cardRef.current) cardRef.current.style.transform = originalTransform;
       setLoadingPng(false);
     }
   };
@@ -120,15 +120,16 @@ export const GenerateCardDialog = ({ member, open, onOpenChange }: GenerateCardD
   const handleDownloadPDF = async () => {
     if (!cardRef.current) return;
     setLoadingPdf(true);
-    const originalTransform = cardRef.current.style.transform;
-    cardRef.current.style.transform = "none";
-
     try {
       const canvas = await html2canvas(cardRef.current, { 
         scale: 4, // Increased scale for 4K quality
         useCORS: true,
         allowTaint: true,
         logging: false,
+        onclone: (clonedDoc) => {
+          const el = clonedDoc.getElementById("card-capture");
+          if (el) el.style.transform = "none";
+        }
       });
       const imgData = canvas.toDataURL("image/png", 1.0);
       const pdf = new jsPDF({
@@ -143,7 +144,6 @@ export const GenerateCardDialog = ({ member, open, onOpenChange }: GenerateCardD
       console.error(err);
       toast.error("Erro ao gerar PDF.");
     } finally {
-      if (cardRef.current) cardRef.current.style.transform = originalTransform;
       setLoadingPdf(false);
     }
   };
@@ -159,6 +159,7 @@ export const GenerateCardDialog = ({ member, open, onOpenChange }: GenerateCardD
         <div className="w-full flex justify-center py-4" style={{ height: "380px" }}>
           {/* Physical Card Layout (Credit Card Size Ratio) */}
           <div
+            id="card-capture"
             ref={cardRef}
             className="relative bg-white overflow-hidden shadow-2xl rounded-xl shrink-0"
             style={{ width: "856px", height: "540px", minWidth: "856px", minHeight: "540px", transform: "scale(0.65)", transformOrigin: "top center" }}
@@ -194,7 +195,15 @@ export const GenerateCardDialog = ({ member, open, onOpenChange }: GenerateCardD
               {/* Photo */}
               <div className="w-36 h-48 bg-gray-200 rounded-md border-2 border-slate-300 shadow-sm overflow-hidden flex-shrink-0">
                 {member.photo_url ? (
-                  <img src={member.photo_url} alt="Foto do membro" className="w-full h-full object-cover" crossOrigin="anonymous" />
+                  <div 
+                    className="w-full h-full" 
+                    style={{ 
+                      backgroundImage: `url(${member.photo_url})`, 
+                      backgroundSize: 'cover', 
+                      backgroundPosition: 'center',
+                      backgroundRepeat: 'no-repeat'
+                    }} 
+                  />
                 ) : (
                   <div className="w-full h-full flex flex-col items-center justify-center text-gray-400">
                     <svg className="w-16 h-16" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" /></svg>
