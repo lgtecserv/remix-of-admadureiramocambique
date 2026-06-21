@@ -95,12 +95,26 @@ export const GenerateCardDialog = ({ member, open, onOpenChange }: GenerateCardD
     try {
       const canvas = await html2canvas(cardRef.current, { 
         scale: 4, // Increased scale for 4K quality
+        width: 856,
+        height: 540,
+        windowWidth: 856,
+        windowHeight: 540,
         useCORS: true,
         allowTaint: true,
         logging: false,
         onclone: (clonedDoc) => {
           const el = clonedDoc.getElementById("card-capture");
-          if (el) el.style.transform = "none";
+          if (el) {
+            el.style.transform = "none";
+            // Move to body to bypass any parent max-width or overflow constraints
+            if (el.parentNode) el.parentNode.removeChild(el);
+            clonedDoc.body.appendChild(el);
+            clonedDoc.body.style.overflow = "visible";
+            el.style.position = "absolute";
+            el.style.top = "0px";
+            el.style.left = "0px";
+            el.style.margin = "0";
+          }
         }
       });
       const imgData = canvas.toDataURL("image/png", 1.0);
@@ -123,12 +137,26 @@ export const GenerateCardDialog = ({ member, open, onOpenChange }: GenerateCardD
     try {
       const canvas = await html2canvas(cardRef.current, { 
         scale: 4, // Increased scale for 4K quality
+        width: 856,
+        height: 540,
+        windowWidth: 856,
+        windowHeight: 540,
         useCORS: true,
         allowTaint: true,
         logging: false,
         onclone: (clonedDoc) => {
           const el = clonedDoc.getElementById("card-capture");
-          if (el) el.style.transform = "none";
+          if (el) {
+            el.style.transform = "none";
+            // Move to body to bypass any parent max-width or overflow constraints
+            if (el.parentNode) el.parentNode.removeChild(el);
+            clonedDoc.body.appendChild(el);
+            clonedDoc.body.style.overflow = "visible";
+            el.style.position = "absolute";
+            el.style.top = "0px";
+            el.style.left = "0px";
+            el.style.margin = "0";
+          }
         }
       });
       const imgData = canvas.toDataURL("image/png", 1.0);
