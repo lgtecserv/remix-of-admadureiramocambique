@@ -73,7 +73,7 @@ const Members = () => {
   return (
     <AppLayout userName={profile?.full_name} role={effectiveRole || undefined}>
       <div className="space-y-6 animate-fade-in">
-        <div className="flex items-start justify-between gap-3">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div className="flex-1 min-w-0">
             <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-foreground">Gestão de Membros</h1>
             <p className="text-sm text-muted-foreground">
@@ -85,7 +85,9 @@ const Members = () => {
             </p>
           </div>
           {canCreate && (
-            <CreateMemberButton role={role} onSuccess={() => setCreateDialogOpen(false)} />
+            <div className="w-full sm:w-auto [&>button]:w-full sm:[&>button]:w-auto">
+              <CreateMemberButton role={role} onSuccess={() => setCreateDialogOpen(false)} />
+            </div>
           )}
         </div>
 

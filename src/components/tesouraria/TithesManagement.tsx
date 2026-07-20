@@ -167,8 +167,8 @@ export const TithesManagement = () => {
         </Card>
       </div>
 
-      <div className="flex justify-end">
-        <Button onClick={() => setCreateDialogOpen(true)}>
+      <div className="flex sm:justify-end">
+        <Button onClick={() => setCreateDialogOpen(true)} className="w-full sm:w-auto">
           <Plus className="mr-2 h-4 w-4" />
           Registrar Dízimo
         </Button>
@@ -198,10 +198,11 @@ export const TithesManagement = () => {
                   })}
                 </span>
               </div>
-              <div className="flex gap-2 pt-2">
+              <div className="flex flex-col sm:flex-row gap-2 pt-2">
                 <Button
                   size="sm"
                   variant="outline"
+                  className="w-full sm:w-auto"
                   onClick={() => {
                     setSelectedTithe(tithe);
                     setEditDialogOpen(true);
@@ -213,6 +214,7 @@ export const TithesManagement = () => {
                 <Button
                   size="sm"
                   variant="destructive"
+                  className="w-full sm:w-auto"
                   onClick={() => handleDelete(tithe.id)}
                 >
                   <Trash2 className="h-3 w-3 mr-2" />

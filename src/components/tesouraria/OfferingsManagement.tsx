@@ -84,8 +84,8 @@ export const OfferingsManagement = () => {
 
   return (
     <div className="space-y-4">
-      <div className="flex justify-end">
-        <Button onClick={() => setCreateDialogOpen(true)}>
+      <div className="flex sm:justify-end">
+        <Button onClick={() => setCreateDialogOpen(true)} className="w-full sm:w-auto">
           <Plus className="mr-2 h-4 w-4" />
           Registrar Oferta
         </Button>
@@ -122,10 +122,11 @@ export const OfferingsManagement = () => {
               {offering.notes && (
                 <p className="text-sm text-muted-foreground">{offering.notes}</p>
               )}
-              <div className="flex gap-2 pt-2">
+              <div className="flex flex-col sm:flex-row gap-2 pt-2">
                 <Button
                   size="sm"
                   variant="outline"
+                  className="w-full sm:w-auto"
                   onClick={() => {
                     setSelectedOffering(offering);
                     setEditDialogOpen(true);
@@ -137,6 +138,7 @@ export const OfferingsManagement = () => {
                 <Button
                   size="sm"
                   variant="destructive"
+                  className="w-full sm:w-auto"
                   onClick={() => handleDelete(offering.id)}
                 >
                   <Trash2 className="h-3 w-3 mr-2" />

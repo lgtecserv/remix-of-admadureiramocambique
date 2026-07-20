@@ -96,8 +96,8 @@ export const ExpensesManagement = () => {
 
   return (
     <div className="space-y-4">
-      <div className="flex justify-end">
-        <Button onClick={() => setCreateDialogOpen(true)}>
+      <div className="flex sm:justify-end">
+        <Button onClick={() => setCreateDialogOpen(true)} className="w-full sm:w-auto">
           <Plus className="mr-2 h-4 w-4" />
           Registrar Gasto
         </Button>
@@ -128,10 +128,11 @@ export const ExpensesManagement = () => {
                   })}
                 </span>
               </div>
-              <div className="flex gap-2 pt-2">
+              <div className="flex flex-col sm:flex-row gap-2 pt-2">
                 <Button
                   size="sm"
                   variant="outline"
+                  className="w-full sm:w-auto"
                   onClick={() => {
                     setSelectedExpense(expense);
                     setEditDialogOpen(true);
@@ -143,6 +144,7 @@ export const ExpensesManagement = () => {
                 <Button
                   size="sm"
                   variant="destructive"
+                  className="w-full sm:w-auto"
                   onClick={() => handleDelete(expense.id)}
                 >
                   <Trash2 className="h-3 w-3 mr-2" />

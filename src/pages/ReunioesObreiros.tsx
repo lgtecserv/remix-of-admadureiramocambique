@@ -120,7 +120,7 @@ export default function ReunioesObreiros() {
   return (
     <AppLayout userName={profile?.full_name} role={role || undefined} user={user}>
       <div className="space-y-6">
-        <div className="flex justify-between items-center">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div>
             <h1 className="text-3xl font-bold tracking-tight text-[#1A365D]">Reuniões de Obreiros</h1>
             <p className="text-muted-foreground mt-1">
@@ -128,7 +128,7 @@ export default function ReunioesObreiros() {
             </p>
           </div>
           <Button 
-            className="bg-[#1A365D] hover:bg-[#1A365D]/90" 
+            className="bg-[#1A365D] hover:bg-[#1A365D]/90 w-full sm:w-auto" 
             onClick={() => {
               setEditingMeeting(null);
               setDialogOpen(true);
@@ -153,7 +153,7 @@ export default function ReunioesObreiros() {
           ) : (
             <div className="divide-y">
               {meetings.map((meeting) => (
-                <div key={meeting.id} className="py-4 flex items-center justify-between">
+                <div key={meeting.id} className="py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                   <div className="flex items-start gap-4">
                     <div className="bg-primary/10 text-primary p-3 rounded-lg flex flex-col items-center justify-center min-w-[70px]">
                       <span className="text-xs font-semibold uppercase">{format(new Date(meeting.date + "T00:00:00"), "MMM", { locale: ptBR })}</span>
@@ -161,17 +161,18 @@ export default function ReunioesObreiros() {
                     </div>
                     <div>
                       <h4 className="font-semibold text-lg text-slate-900">{meeting.theme}</h4>
-                      <div className="flex gap-4 mt-2 text-sm text-slate-500">
+                      <div className="flex flex-wrap gap-x-4 gap-y-1 mt-2 text-sm text-slate-500">
                         <span className="text-green-600 font-medium">{meeting.total_presentes || 0} Presentes</span>
                         <span className="text-red-500 font-medium">{meeting.total_ausentes || 0} Faltas</span>
                         <span className="text-amber-500 font-medium">{meeting.total_justificados || 0} Justificados</span>
                       </div>
                     </div>
                   </div>
-                  <div className="flex gap-2">
+                  <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
                     <Button 
                       variant="outline" 
                       size="sm"
+                      className="w-full sm:w-auto"
                       onClick={() => {
                         setEditingMeeting(meeting);
                         setDialogOpen(true);
@@ -183,10 +184,11 @@ export default function ReunioesObreiros() {
                     <Button 
                       variant="outline" 
                       size="sm" 
-                      className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                      className="text-red-600 hover:text-red-700 hover:bg-red-50 w-full sm:w-auto justify-center"
                       onClick={() => setMeetingToDelete(meeting)}
                     >
-                      <Trash2 className="w-4 h-4" />
+                      <Trash2 className="w-4 h-4 sm:mr-0 mr-2" />
+                      <span className="sm:hidden">Excluir</span>
                     </Button>
                   </div>
                 </div>
