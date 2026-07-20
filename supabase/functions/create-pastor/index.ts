@@ -1,4 +1,5 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.75.1';
+import { checkRateLimit } from '../_shared/rate-limit.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -16,6 +17,21 @@ interface CreatePastorRequest {
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
+  }
+
+  const rateLimit = checkRateLimit(req);
+  if (!rateLimit.allowed) {
+    return new Response(
+      JSON.stringify({ error: `Too many requests. Please try again in ${rateLimit.retryAfter} seconds.` }),
+      { 
+        status: 429, 
+        headers: { 
+          ...corsHeaders, 
+          'Content-Type': 'application/json',
+          'Retry-After': String(rateLimit.retryAfter)
+        } 
+      }
+    );
   }
 
   try {
