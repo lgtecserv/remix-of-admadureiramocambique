@@ -183,6 +183,11 @@ export const GenerateCardDialog = ({ member, open, onOpenChange }: GenerateCardD
               style={{ width: "856px", height: "540px", minWidth: "856px", minHeight: "540px" }}
             >
               <div className="absolute inset-0 bg-slate-50"></div>
+              
+              {/* Watermark Logo (Front) */}
+              <div className="absolute inset-0 flex items-center justify-center opacity-[0.12] z-0 pointer-events-none">
+                <img src={logoUrl} alt="" className="w-[500px] h-[500px] object-contain" crossOrigin="anonymous" />
+              </div>
 
               {/* Left Vertical Bar (Blue from logo) */}
               <div className="absolute top-0 left-0 bottom-0 w-12 bg-[#1A365D] flex items-center justify-center z-10">
@@ -301,9 +306,9 @@ export const GenerateCardDialog = ({ member, open, onOpenChange }: GenerateCardD
               {/* Minimalist Background Pattern for Back */}
               <div className="absolute inset-0 bg-slate-50 opacity-50"></div>
               
-              {/* Watermark Logo (Optional, very subtle) */}
-              <div className="absolute inset-0 flex items-center justify-center opacity-[0.03] z-0 pointer-events-none">
-                <img src={logoUrl} alt="" className="w-96 h-96 object-contain grayscale" crossOrigin="anonymous" />
+              {/* Watermark Logo (Back) */}
+              <div className="absolute inset-0 flex items-center justify-center opacity-[0.12] z-0 pointer-events-none">
+                <img src={logoUrl} alt="" className="w-[500px] h-[500px] object-contain" crossOrigin="anonymous" />
               </div>
 
               <div className="absolute inset-8 flex flex-col justify-between z-10">
