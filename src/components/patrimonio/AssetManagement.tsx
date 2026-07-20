@@ -83,16 +83,16 @@ export const AssetManagement = () => {
   }
 
   return (
-    <Tabs defaultValue="table" className="space-y-4">
+    <Tabs defaultValue="cards" className="space-y-4">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <TabsList>
-          <TabsTrigger value="table">
-            <List className="w-4 h-4 mr-2" />
-            Tabela
-          </TabsTrigger>
+        <TabsList className="hidden sm:inline-flex">
           <TabsTrigger value="cards">
             <LayoutGrid className="w-4 h-4 mr-2" />
             Cards
+          </TabsTrigger>
+          <TabsTrigger value="table">
+            <List className="w-4 h-4 mr-2" />
+            Tabela
           </TabsTrigger>
         </TabsList>
         <Button onClick={() => setCreateDialogOpen(true)} className="w-full sm:w-auto">
@@ -162,8 +162,8 @@ export const AssetManagement = () => {
         )}
       </TabsContent>
 
-      <TabsContent value="table" className="m-0">
-        <div className="bg-card rounded-md border">
+      <TabsContent value="table" className="m-0 hidden sm:block">
+        <div className="bg-card rounded-md border overflow-x-auto">
           <Table>
             <TableHeader>
               <TableRow>

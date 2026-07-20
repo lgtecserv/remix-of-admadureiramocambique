@@ -119,32 +119,56 @@ const SuperAdmin = () => {
                   Nenhum pastor cadastrado ainda
                 </p>
               ) : (
-                 <div className="rounded-md border">
-                  <div className="overflow-x-auto -mx-4 sm:mx-0">
-                    <div className="inline-block min-w-full align-middle">
-                      <Table>
-                        <TableHeader>
-                          <TableRow>
-                            <TableHead>Nome</TableHead>
-                            <TableHead>Email</TableHead>
-                            <TableHead>Status</TableHead>
-                          </TableRow>
-                        </TableHeader>
-                    <TableBody>
-                      {pastors.map((pastor) => (
-                        <TableRow key={pastor.id}>
-                          <TableCell className="font-medium">{pastor.full_name}</TableCell>
-                          <TableCell>{pastor.email}</TableCell>
-                          <TableCell>
-                            <Badge variant="default">Pastor</Badge>
-                          </TableCell>
-                        </TableRow>
+                  <div className="space-y-4">
+                    {/* Cards para Mobile */}
+                    <div className="block sm:hidden space-y-3">
+                      {pastors.map((pastor, index) => (
+                        <Card 
+                          key={pastor.id} 
+                          className="p-4 animate-fade-in card-hover bg-card/50"
+                          style={{ animationDelay: `${index * 50}ms` }}
+                        >
+                          <div className="flex items-start justify-between gap-3">
+                            <div className="flex-1 min-w-0">
+                              <p className="font-medium truncate text-sm">{pastor.full_name}</p>
+                              <p className="text-xs text-muted-foreground mt-0.5">{pastor.email}</p>
+                            </div>
+                            <div className="shrink-0">
+                              <Badge variant="default" className="text-xs">Pastor</Badge>
+                            </div>
+                          </div>
+                        </Card>
                       ))}
-                        </TableBody>
-                      </Table>
+                    </div>
+
+                    {/* Tabela para Desktop */}
+                    <div className="hidden sm:block">
+                      <div className="rounded-md border bg-card overflow-x-auto">
+                        <div className="inline-block min-w-full align-middle">
+                          <Table>
+                            <TableHeader>
+                              <TableRow>
+                                <TableHead>Nome</TableHead>
+                                <TableHead>Email</TableHead>
+                                <TableHead>Status</TableHead>
+                              </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                              {pastors.map((pastor) => (
+                                <TableRow key={pastor.id}>
+                                  <TableCell className="font-medium">{pastor.full_name}</TableCell>
+                                  <TableCell>{pastor.email}</TableCell>
+                                  <TableCell>
+                                    <Badge variant="default">Pastor</Badge>
+                                  </TableCell>
+                                </TableRow>
+                              ))}
+                            </TableBody>
+                          </Table>
+                        </div>
+                      </div>
                     </div>
                   </div>
-                </div>
               )}
             </CardContent>
           </Card>

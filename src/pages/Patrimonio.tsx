@@ -135,13 +135,14 @@ const Patrimonio = () => {
         </div>
 
         {/* Filtros e Views */}
-        <Tabs defaultValue="table" className="space-y-4">
+        <Tabs defaultValue="cards" className="space-y-4">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-            <div className="flex gap-2 overflow-x-auto pb-2 sm:pb-0">
+            <div className="flex gap-2 overflow-x-auto pb-2 sm:pb-0 w-full sm:w-auto">
               <Button
                 variant={filter === "all" ? "default" : "outline"}
                 onClick={() => setFilter("all")}
                 size="sm"
+                className="shrink-0"
               >
                 Todos ({assets.length})
               </Button>
@@ -149,6 +150,7 @@ const Patrimonio = () => {
                 variant={filter === "perfeito" ? "default" : "outline"}
                 onClick={() => setFilter("perfeito")}
                 size="sm"
+                className="shrink-0"
               >
                 Perfeito ({assets.filter((a) => a.condition?.toLowerCase() === "perfeito").length})
               </Button>
@@ -156,19 +158,20 @@ const Patrimonio = () => {
                 variant={filter === "danificado" ? "default" : "outline"}
                 onClick={() => setFilter("danificado")}
                 size="sm"
+                className="shrink-0"
               >
                 Danificado ({assets.filter((a) => a.condition?.toLowerCase() === "danificado").length})
               </Button>
             </div>
             
-            <TabsList>
-              <TabsTrigger value="table">
-                <List className="w-4 h-4 mr-2" />
-                Tabela
-              </TabsTrigger>
+            <TabsList className="hidden sm:inline-flex">
               <TabsTrigger value="cards">
                 <LayoutGrid className="w-4 h-4 mr-2" />
                 Cards
+              </TabsTrigger>
+              <TabsTrigger value="table">
+                <List className="w-4 h-4 mr-2" />
+                Tabela
               </TabsTrigger>
             </TabsList>
           </div>
@@ -218,8 +221,8 @@ const Patrimonio = () => {
             )}
           </TabsContent>
 
-          <TabsContent value="table" className="m-0">
-            <div className="bg-card rounded-md border mt-4">
+          <TabsContent value="table" className="m-0 hidden sm:block">
+            <div className="bg-card rounded-md border mt-4 overflow-x-auto">
               <Table>
                 <TableHeader>
                   <TableRow>

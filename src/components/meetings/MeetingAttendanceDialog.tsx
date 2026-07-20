@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
+import { Card } from "@/components/ui/card";
 import { supabase } from "@/lib/supabase";
 import { toast } from "sonner";
 import { useSelectedCongregation } from "@/contexts/SelectedCongregationContext";
@@ -236,14 +237,68 @@ export const MeetingAttendanceDialog = ({
               <p className="text-sm">Certifique-se de que os membros tenham o Tipo 'Obreiro' ou um Cargo/Função.</p>
             </div>
           ) : (
-            <Table>
-              <TableHeader className="bg-slate-50 sticky top-0 z-10 shadow-sm">
-                <TableRow>
-                  <TableHead>Obreiro(a)</TableHead>
-                  <TableHead>Cargo / Função</TableHead>
-                  <TableHead className="text-center w-[300px]">Presença</TableHead>
-                </TableRow>
-              </TableHeader>
+            <div className="space-y-0 sm:space-y-4">
+              {/* Mobile View */}
+              <div className="block sm:hidden space-y-3 p-2">
+                {workers.map(worker => {
+                  const status = attendance[worker.id] || "ausente";
+                  return (
+                    <Card key={worker.id} className="p-3 bg-card shadow-sm border">
+                      <div className="space-y-3">
+                        <div className="flex flex-col">
+                          <span className="font-medium text-sm">{worker.full_name}</span>
+                          {worker.church_office && <span className="text-xs text-muted-foreground">{worker.church_office}</span>}
+                          {worker.church_function && <span className="text-xs text-muted-foreground">{worker.church_function}</span>}
+                          {!worker.church_office && !worker.church_function && <span className="text-[10px] text-red-500 font-medium">⚠️ Sem cargo/função</span>}
+                        </div>
+                        <div className="flex gap-2">
+                          <Button
+                            size="sm"
+                            type="button"
+                            variant={status === "presente" ? "default" : "outline"}
+                            className={status === "presente" ? "bg-green-600 hover:bg-green-700 flex-1 px-1 h-8" : "flex-1 px-1 h-8"}
+                            onClick={() => handleStatusChange(worker.id, "presente")}
+                          >
+                            <CheckCircle2 className="w-3 h-3 mr-1" />
+                            <span className="text-xs">Pres</span>
+                          </Button>
+                          <Button
+                            size="sm"
+                            type="button"
+                            variant={status === "ausente" ? "destructive" : "outline"}
+                            className="flex-1 px-1 h-8"
+                            onClick={() => handleStatusChange(worker.id, "ausente")}
+                          >
+                            <XCircle className="w-3 h-3 mr-1" />
+                            <span className="text-xs">Falta</span>
+                          </Button>
+                          <Button
+                            size="sm"
+                            type="button"
+                            variant={status === "justificado" ? "secondary" : "outline"}
+                            className={status === "justificado" ? "bg-amber-100 text-amber-800 hover:bg-amber-200 border-amber-300 flex-1 px-1 h-8" : "flex-1 px-1 h-8"}
+                            onClick={() => handleStatusChange(worker.id, "justificado")}
+                          >
+                            <AlertCircle className="w-3 h-3 mr-1" />
+                            <span className="text-xs">Justif</span>
+                          </Button>
+                        </div>
+                      </div>
+                    </Card>
+                  );
+                })}
+              </div>
+
+              {/* Desktop View */}
+              <div className="hidden sm:block">
+                <Table>
+                  <TableHeader className="bg-slate-50 sticky top-0 z-10 shadow-sm">
+                    <TableRow>
+                      <TableHead>Obreiro(a)</TableHead>
+                      <TableHead>Cargo / Função</TableHead>
+                      <TableHead className="text-center w-[300px]">Presença</TableHead>
+                    </TableRow>
+                  </TableHeader>
               <TableBody>
                 {workers.map(worker => {
                   const status = attendance[worker.id] || "ausente";
@@ -295,6 +350,8 @@ export const MeetingAttendanceDialog = ({
                 })}
               </TableBody>
             </Table>
+          </div>
+        </div>
           )}
         </div>
 

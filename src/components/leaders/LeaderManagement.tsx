@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { supabase, getDepartmentLabel } from "@/lib/supabase";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { Trash2, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import TransferMembersDialog from "./TransferMembersDialog";
@@ -137,9 +139,57 @@ const LeaderManagement = () => {
         }}
       />
 
-      <div className="overflow-x-auto -mx-4 sm:mx-0">
-        <div className="inline-block min-w-full align-middle">
-          <div className="rounded-md border">
+      {/* Cards para Mobile */}
+      <div className="block sm:hidden space-y-3">
+        {leaders.map((leader, index) => (
+          <Card 
+            key={leader.id} 
+            className="p-4 animate-fade-in card-hover"
+            style={{ animationDelay: `${index * 50}ms` }}
+          >
+            <div className="flex items-start justify-between gap-3">
+              <div className="flex-1 min-w-0">
+                <p className="font-medium truncate text-sm">{leader.full_name}</p>
+                <p className="text-xs text-muted-foreground mt-0.5">{leader.email}</p>
+                <div className="mt-2">
+                  <Badge variant="outline" className="text-xs">
+                    {getDepartmentLabel(leader.department)}
+                  </Badge>
+                </div>
+              </div>
+              <div className="flex gap-1 shrink-0">
+                {!isSuperAdmin && (
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button variant="destructive" size="icon" className="h-8 w-8">
+                        <Trash2 className="h-3 w-3" />
+                      </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>Confirmar remoção</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          Tem certeza que deseja remover este líder? Esta ação não pode ser desfeita.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                        <AlertDialogAction onClick={() => handleDelete(leader)}>
+                          Remover
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
+                )}
+              </div>
+            </div>
+          </Card>
+        ))}
+      </div>
+
+      {/* Tabela para Desktop */}
+      <div className="hidden sm:block overflow-x-auto">
+        <div className="rounded-md border bg-card">
             <Table>
               <TableHeader>
                 <TableRow>
@@ -188,7 +238,6 @@ const LeaderManagement = () => {
       </Table>
         </div>
       </div>
-    </div>
     </>
   );
 };
