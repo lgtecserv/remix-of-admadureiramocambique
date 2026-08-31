@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Download, Loader2 } from "lucide-react";
 import { format } from "date-fns";
@@ -31,6 +31,85 @@ interface GenerateCardDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
+
+const TRANSPARENT_PLACEHOLDER = "data:image/png;base64,iVBORw0KGgoAAAANSU5CYII=";
+
+/**
+ * Safely converts an image URL (Supabase storage or local asset) to a Base64 Data URL.
+ * Avoids CORS errors, timestamp cache busting failures, and network timeouts during html-to-image canvas rendering.
+ */
+const convertUrlToBase64 = async (url: string): Promise<string | null> => {
+  if (!url) return null;
+  if (url.startsWith("data:")) return url;
+
+  // Try Supabase Storage SDK download if it's a Supabase storage URL
+  if (url.includes("supabase.co") && url.includes("/storage/v1/object/")) {
+    try {
+      const urlObj = new URL(url);
+      const pathnameParts = urlObj.pathname.split("/object/public/");
+      if (pathnameParts.length > 1) {
+        const fullStoragePath = pathnameParts[1];
+        const slashIndex = fullStoragePath.indexOf("/");
+        if (slashIndex !== -1) {
+          const bucket = fullStoragePath.substring(0, slashIndex);
+          const path = fullStoragePath.substring(slashIndex + 1);
+
+          const { data, error } = await supabase.storage.from(bucket).download(path);
+          if (!error && data) {
+            return await new Promise<string>((resolve, reject) => {
+              const reader = new FileReader();
+              reader.onloadend = () => resolve(reader.result as string);
+              reader.onerror = reject;
+              reader.readAsDataURL(data);
+            });
+          }
+        }
+      }
+    } catch (e) {
+      console.warn("Supabase SDK storage download failed, falling back to fetch:", e);
+    }
+  }
+
+  // Fallback 1: Standard fetch
+  try {
+    const response = await fetch(url, { mode: "cors" });
+    if (response.ok) {
+      const blob = await response.blob();
+      return await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result as string);
+        reader.onerror = reject;
+        reader.readAsDataURL(blob);
+      });
+    }
+  } catch (e) {
+    console.warn("Fetch base64 conversion failed, trying Image element fallback:", e);
+  }
+
+  // Fallback 2: HTML Image element + Canvas
+  return new Promise<string | null>((resolve) => {
+    const img = new Image();
+    img.crossOrigin = "anonymous";
+    img.onload = () => {
+      try {
+        const canvas = document.createElement("canvas");
+        canvas.width = img.naturalWidth || img.width;
+        canvas.height = img.naturalHeight || img.height;
+        const ctx = canvas.getContext("2d");
+        if (ctx) {
+          ctx.drawImage(img, 0, 0);
+          resolve(canvas.toDataURL("image/png"));
+          return;
+        }
+      } catch (err) {
+        console.warn("Canvas toDataURL failed:", err);
+      }
+      resolve(null);
+    };
+    img.onerror = () => resolve(null);
+    img.src = url;
+  });
+};
 
 const getOfficeLabel = (value: string, gender?: string) => {
   const isFemale = gender === "feminino";
@@ -76,6 +155,9 @@ export const GenerateCardDialog = ({ member, open, onOpenChange }: GenerateCardD
   const [congregationName, setCongregationName] = useState("SEDE");
   const [pastorPhone, setPastorPhone] = useState("—");
 
+  const [logoBase64, setLogoBase64] = useState<string | null>(null);
+  const [photoBase64, setPhotoBase64] = useState<string | null>(null);
+
   useEffect(() => {
     if (member?.congregation_id && open) {
       supabase
@@ -92,29 +174,57 @@ export const GenerateCardDialog = ({ member, open, onOpenChange }: GenerateCardD
     }
   }, [member, open]);
 
+  // Pre-load images as Base64 when dialog opens
+  useEffect(() => {
+    if (open) {
+      convertUrlToBase64(logoUrl).then((b64) => setLogoBase64(b64));
+      if (member?.photo_url) {
+        convertUrlToBase64(member.photo_url).then((b64) => setPhotoBase64(b64));
+      } else {
+        setPhotoBase64(null);
+      }
+    }
+  }, [member, open]);
+
   if (!member) return null;
 
   const validDate = new Date();
   validDate.setFullYear(validDate.getFullYear() + 2); // Expiry in 2 years
 
+  const cardConfig = {
+    cacheBust: false,
+    pixelRatio: 3, 
+    width: 856,
+    height: 540,
+    style: { transform: 'none' },
+    imagePlaceholder: TRANSPARENT_PLACEHOLDER,
+    fetchRequestInit: { mode: 'cors' as RequestMode }
+  };
+
   const handleDownloadPNG = async () => {
-    if (!containerRef.current) return;
+    if (!frontCardRef.current || !backCardRef.current) return;
     setLoadingPng(true);
     try {
-      const dataUrl = await toPng(containerRef.current, {
-        cacheBust: true,
-        pixelRatio: 4, // 4K quality
-        style: {
-          transform: 'none'
-        }
-      });
-      const link = document.createElement("a");
-      link.download = `Cartao_${member.full_name.replace(/\\s+/g, "_")}.png`;
-      link.href = dataUrl;
-      link.click();
-      toast.success("PNG baixado com sucesso!");
+      const frontDataUrl = await toPng(frontCardRef.current, cardConfig);
+      const backDataUrl = await toPng(backCardRef.current, cardConfig);
+
+      const sanitizeName = member.full_name.replace(/\s+/g, "_");
+
+      const linkFront = document.createElement("a");
+      linkFront.download = `Cartao_${sanitizeName}_Frente.png`;
+      linkFront.href = frontDataUrl;
+      linkFront.click();
+
+      setTimeout(() => {
+        const linkBack = document.createElement("a");
+        linkBack.download = `Cartao_${sanitizeName}_Verso.png`;
+        linkBack.href = backDataUrl;
+        linkBack.click();
+      }, 300);
+
+      toast.success("PNGs baixados com sucesso!");
     } catch (err) {
-      console.error(err);
+      console.error("Erro ao gerar PNG:", err);
       toast.error("Erro ao gerar PNG.");
     } finally {
       setLoadingPng(false);
@@ -125,17 +235,8 @@ export const GenerateCardDialog = ({ member, open, onOpenChange }: GenerateCardD
     if (!frontCardRef.current || !backCardRef.current) return;
     setLoadingPdf(true);
     try {
-      // Configs for the toPng function
-      const config = {
-        cacheBust: true,
-        pixelRatio: 4, 
-        width: 856,
-        height: 540,
-        style: { transform: 'none' }
-      };
-
-      const frontDataUrl = await toPng(frontCardRef.current, config);
-      const backDataUrl = await toPng(backCardRef.current, config);
+      const frontDataUrl = await toPng(frontCardRef.current, cardConfig);
+      const backDataUrl = await toPng(backCardRef.current, cardConfig);
 
       const pdf = new jsPDF({
         orientation: "landscape",
@@ -150,21 +251,25 @@ export const GenerateCardDialog = ({ member, open, onOpenChange }: GenerateCardD
       pdf.addPage();
       pdf.addImage(backDataUrl, "PNG", 0, 0, 85.6, 53.98);
 
-      pdf.save(`Cartao_${member.full_name.replace(/\\s+/g, "_")}.pdf`);
+      pdf.save(`Cartao_${member.full_name.replace(/\s+/g, "_")}.pdf`);
       toast.success("PDF baixado com sucesso!");
     } catch (err) {
-      console.error(err);
+      console.error("Erro ao gerar PDF:", err);
       toast.error("Erro ao gerar PDF.");
     } finally {
       setLoadingPdf(false);
     }
   };
 
+  const currentLogoSrc = logoBase64 || logoUrl;
+  const currentPhotoSrc = photoBase64 || member.photo_url;
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl w-[calc(100%-2rem)] max-h-[90vh] overflow-y-auto flex flex-col items-center mx-auto">
-        <DialogHeader>
+        <DialogHeader className="w-full text-center">
           <DialogTitle>Gerar Cartão de Membro</DialogTitle>
+          <DialogDescription className="sr-only">Visualização e download do cartão de membro</DialogDescription>
         </DialogHeader>
 
         {/* Card Preview Container */}
@@ -193,8 +298,8 @@ export const GenerateCardDialog = ({ member, open, onOpenChange }: GenerateCardD
 
               {/* Top Header - clean */}
               <div className="absolute top-0 left-12 right-0 h-28 bg-white flex items-center px-8 z-20 border-b border-slate-200">
-                <div className="h-20 w-auto mr-6 flex-shrink-0">
-                  <img src={logoUrl} alt="Logo" className="h-full object-contain" crossOrigin="anonymous" />
+                <div className="h-20 w-auto mr-6 flex-shrink-0 flex items-center">
+                  <img src={currentLogoSrc} alt="Logo" className="h-full object-contain" />
                 </div>
                 <div className="flex flex-col justify-center pt-2">
                   <h1 className="text-[#1A365D] text-[2rem] font-black uppercase tracking-widest leading-none mb-1">
@@ -211,19 +316,17 @@ export const GenerateCardDialog = ({ member, open, onOpenChange }: GenerateCardD
                 
                 {/* Photo */}
                 <div className="w-36 h-48 bg-gray-200 rounded-md border-2 border-slate-300 shadow-sm overflow-hidden flex-shrink-0">
-                  {member.photo_url ? (
-                    <div 
-                      className="w-full h-full" 
-                      style={{ 
-                        backgroundImage: `url(${member.photo_url})`, 
-                        backgroundSize: 'cover', 
-                        backgroundPosition: 'center',
-                        backgroundRepeat: 'no-repeat'
-                      }} 
+                  {currentPhotoSrc ? (
+                    <img 
+                      src={currentPhotoSrc} 
+                      alt={member.full_name} 
+                      className="w-full h-full object-cover" 
                     />
                   ) : (
                     <div className="w-full h-full flex flex-col items-center justify-center text-gray-400">
-                      <svg className="w-16 h-16" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" /></svg>
+                      <svg className="w-16 h-16" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
+                      </svg>
                     </div>
                   )}
                 </div>
@@ -269,7 +372,7 @@ export const GenerateCardDialog = ({ member, open, onOpenChange }: GenerateCardD
                 </div>
               </div>
 
-              {/* BIG VISIBLE TEXT where warning was */}
+              {/* BIG VISIBLE TEXT */}
               <div className="absolute top-[370px] left-20 right-8 z-20 flex justify-center items-center">
                 <p className="text-2xl font-black text-[#1A365D] uppercase tracking-[0.15em] opacity-80 border-t-2 border-b-2 border-slate-300 py-2 px-8">
                   Igreja Ponissa Vana Va Moçambique
@@ -303,7 +406,7 @@ export const GenerateCardDialog = ({ member, open, onOpenChange }: GenerateCardD
               
               {/* Watermark Logo (Back) */}
               <div className="absolute inset-0 flex items-center justify-center opacity-[0.12] z-0 pointer-events-none">
-                <img src={logoUrl} alt="" className="w-[500px] h-[500px] object-contain" crossOrigin="anonymous" />
+                <img src={currentLogoSrc} alt="" className="w-[500px] h-[500px] object-contain" />
               </div>
 
               <div className="absolute inset-8 flex flex-col justify-between z-10">
