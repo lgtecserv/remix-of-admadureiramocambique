@@ -191,8 +191,8 @@ const MemberManagement = ({
   };
 
   const handleBulkPrint = () => {
-    if (selectedMemberIds.length > 8) {
-      toast.error("Por favor, selecione no máximo 8 membros por vez.");
+    if (selectedMemberIds.length > 10) {
+      toast.error("Por favor, selecione no máximo 10 membros por vez.");
       return;
     }
     setBulkDialogOpen(true);

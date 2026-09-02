@@ -192,8 +192,8 @@ export const BulkGenerateCardsDialog = ({ members, open, onOpenChange, onClose }
   const cardConfig = {
     cacheBust: false,
     pixelRatio: 1, 
-    width: 2480,
-    height: 3508,
+    width: 2100,
+    height: 2970,
     style: { transform: 'none' },
     imagePlaceholder: TRANSPARENT_PLACEHOLDER,
     fetchRequestInit: { mode: 'cors' as RequestMode }
@@ -384,7 +384,7 @@ export const BulkGenerateCardsDialog = ({ members, open, onOpenChange, onClose }
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-md w-[calc(100%-2rem)] flex flex-col items-center mx-auto">
         <DialogHeader className="w-full text-center">
-          <DialogTitle>Imprimir Cartões em Lote ({members.length}/8)</DialogTitle>
+          <DialogTitle>Imprimir Cartões em Lote ({members.length}/10)</DialogTitle>
           <DialogDescription>
             {ready ? "Os cartões estão prontos para serem baixados." : "Preparando os cartões... aguarde."}
           </DialogDescription>
@@ -402,11 +402,11 @@ export const BulkGenerateCardsDialog = ({ members, open, onOpenChange, onClose }
             ref={frontPageRef}
             className="bg-white flex flex-wrap content-start"
             style={{ 
-              width: "2480px", 
-              height: "3508px",
-              paddingTop: "140px",
-              paddingLeft: "240px",
-              gap: "80px 240px" 
+              width: "2100px", 
+              height: "2970px",
+              paddingTop: "35px",
+              paddingLeft: "124px",
+              gap: "50px 140px" 
             }}
           >
             {members.map((member, i) => (
@@ -420,11 +420,11 @@ export const BulkGenerateCardsDialog = ({ members, open, onOpenChange, onClose }
             ref={backPageRef}
             className="bg-white flex flex-wrap content-start"
             style={{ 
-              width: "2480px", 
-              height: "3508px",
-              paddingTop: "140px",
-              paddingLeft: "240px",
-              gap: "80px 240px" 
+              width: "2100px", 
+              height: "2970px",
+              paddingTop: "35px",
+              paddingLeft: "124px",
+              gap: "50px 140px" 
             }}
           >
             {backLayoutMembers.map((member, index) => (
