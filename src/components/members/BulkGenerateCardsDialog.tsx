@@ -240,7 +240,7 @@ export const BulkGenerateCardsDialog = ({ members, open, onOpenChange, onClose }
   const currentLogoSrc = logoBase64 || logoUrl;
 
   const renderFrontCard = (member: Member) => {
-    const congInfo = member.congregation_id ? congregations[member.congregation_id] : { name: "SEDE", phone: "—" };
+    const congInfo = member.congregation_id && congregations[member.congregation_id] ? congregations[member.congregation_id] : { name: "SEDE", phone: "—" };
     const currentPhotoSrc = photosBase64[member.id] || member.photo_url;
     
     return (
@@ -332,7 +332,7 @@ export const BulkGenerateCardsDialog = ({ members, open, onOpenChange, onClose }
   };
 
   const renderBackCard = (member: Member) => {
-    const congInfo = member.congregation_id ? congregations[member.congregation_id] : { name: "SEDE", phone: "—" };
+    const congInfo = member.congregation_id && congregations[member.congregation_id] ? congregations[member.congregation_id] : { name: "SEDE", phone: "—" };
 
     return (
       <div className="relative bg-white overflow-hidden shadow-sm rounded-xl shrink-0 border border-slate-200" style={{ width: "856px", height: "540px" }}>
