@@ -442,8 +442,8 @@ export const GenerateCardDialog = ({ member, open, onOpenChange }: GenerateCardD
                 <div className="mt-auto flex justify-between items-end px-4 pb-4">
                   {/* General Secretary */}
                   <div className="flex flex-col items-center">
-                    <div className="h-12 w-full flex items-end justify-center mb-1">
-                      {signatureSecBase64 && <img src={signatureSecBase64} alt="Assinatura Sec" className="max-h-full max-w-[200px] object-contain mix-blend-multiply opacity-90" />}
+                    <div className="h-20 w-full flex items-end justify-center mb-1">
+                      {signatureSecBase64 && <img src={signatureSecBase64} alt="Assinatura Sec" className="max-h-full max-w-[200px] object-contain drop-shadow-sm" />}
                     </div>
                     <div className="w-56 border-b border-slate-800 mb-2"></div>
                     <p className="text-[11px] font-bold text-slate-800 uppercase tracking-widest">Secretário Geral</p>
@@ -452,8 +452,8 @@ export const GenerateCardDialog = ({ member, open, onOpenChange }: GenerateCardD
                   
                   {/* Congregation Pastor */}
                   <div className="flex flex-col items-center">
-                    <div className="h-12 w-full flex items-end justify-center mb-1">
-                      {signaturePastorBase64 && <img src={signaturePastorBase64} alt="Assinatura Pastor" className="max-h-full max-w-[200px] object-contain mix-blend-multiply opacity-90" />}
+                    <div className="h-20 w-full flex items-end justify-center mb-1">
+                      {signaturePastorBase64 && <img src={signaturePastorBase64} alt="Assinatura Pastor" className="max-h-full max-w-[200px] object-contain drop-shadow-sm" />}
                     </div>
                     <div className="w-56 border-b border-slate-800 mb-2"></div>
                     <p className="text-[11px] font-bold text-slate-800 uppercase tracking-widest">Pastor da Igreja</p>
