@@ -296,7 +296,7 @@ export const GenerateCardDialog = ({ member, open, onOpenChange }: GenerateCardD
               {/* Left Vertical Bar (Blue from logo) */}
               <div className="absolute top-0 left-0 bottom-0 w-12 bg-[#1A365D] flex items-center justify-center z-10">
                 <span className="text-white font-black text-xl tracking-[0.2em] uppercase whitespace-nowrap" style={{ transform: "rotate(-90deg)" }}>
-                  Assembleia de Deus
+                  Ministério Madureira
                 </span>
               </div>
 
@@ -310,7 +310,7 @@ export const GenerateCardDialog = ({ member, open, onOpenChange }: GenerateCardD
                     Cartão de Membro
                   </h1>
                   <p className="text-yellow-600 text-lg font-bold uppercase tracking-widest">
-                    MINISTÉRIO MADUREIRA
+                    ASSEMBLEIA DE DEUS
                   </p>
                 </div>
               </div>

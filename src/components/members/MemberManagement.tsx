@@ -5,9 +5,11 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
-import { Pencil, Trash2, IdCard } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Pencil, Trash2, IdCard, Printer } from "lucide-react";
 import EditMemberForm from "./EditMemberForm";
 import { GenerateCardDialog } from "./GenerateCardDialog";
+import { BulkGenerateCardsDialog } from "./BulkGenerateCardsDialog";
 import { toast } from "sonner";
 import { getDepartmentLabel, getStatusLabel } from "@/lib/supabase";
 import { useSelectedCongregation } from "@/contexts/SelectedCongregationContext";
@@ -59,6 +61,8 @@ const MemberManagement = ({
   const [loading, setLoading] = useState(true);
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const [userRole, setUserRole] = useState<string | null>(null);
+  const [selectedMemberIds, setSelectedMemberIds] = useState<string[]>([]);
+  const [bulkDialogOpen, setBulkDialogOpen] = useState(false);
   const { getEffectiveCongregationId } = useSelectedCongregation();
   const congId = getEffectiveCongregationId();
 
@@ -169,6 +173,31 @@ const MemberManagement = ({
     toast.success("Membro removido com sucesso");
   };
 
+  const handleSelectAll = (checked: boolean) => {
+    if (checked) {
+      const allIds = filteredMembers.map(m => m.id);
+      setSelectedMemberIds(allIds);
+    } else {
+      setSelectedMemberIds([]);
+    }
+  };
+
+  const handleSelectMember = (id: string, checked: boolean) => {
+    if (checked) {
+      setSelectedMemberIds(prev => [...prev, id]);
+    } else {
+      setSelectedMemberIds(prev => prev.filter(memberId => memberId !== id));
+    }
+  };
+
+  const handleBulkPrint = () => {
+    if (selectedMemberIds.length > 8) {
+      toast.error("Por favor, selecione no máximo 8 membros por vez.");
+      return;
+    }
+    setBulkDialogOpen(true);
+  };
+
   const getStatusBadgeVariant = (status: string) => {
     switch (status) {
       case "novo":
@@ -197,6 +226,23 @@ const MemberManagement = ({
 
   return (
     <div className="space-y-4">
+      {selectedMemberIds.length > 0 && (
+        <div className="bg-muted/50 p-4 rounded-lg flex items-center justify-between animate-fade-in border">
+          <span className="text-sm font-medium">
+            {selectedMemberIds.length} membro(s) selecionado(s)
+          </span>
+          <Button 
+            onClick={handleBulkPrint}
+            variant="default"
+            size="sm"
+            className="gap-2"
+          >
+            <Printer className="h-4 w-4" />
+            Imprimir Cartões
+          </Button>
+        </div>
+      )}
+
       {/* Cards para Mobile */}
       <div className="block sm:hidden space-y-3">
         {filteredMembers.length === 0 ? (
@@ -211,10 +257,16 @@ const MemberManagement = ({
           filteredMembers.map((member, index) => (
             <Card 
               key={member.id} 
-              className="p-4 animate-fade-in card-hover"
+              className="p-4 animate-fade-in card-hover relative"
               style={{ animationDelay: `${index * 50}ms` }}
             >
-              <div className="flex items-start justify-between gap-3">
+              <div className="absolute top-4 right-4 z-10">
+                <Checkbox 
+                  checked={selectedMemberIds.includes(member.id)}
+                  onCheckedChange={(checked) => handleSelectMember(member.id, checked as boolean)}
+                />
+              </div>
+              <div className="flex items-start justify-between gap-3 pr-8">
                 <div className="flex-1 min-w-0">
                   <p className="font-medium truncate text-sm">{member.full_name}</p>
                   <p className="text-xs text-muted-foreground mt-0.5">
@@ -284,6 +336,12 @@ const MemberManagement = ({
           <Table>
             <TableHeader>
               <TableRow>
+                <TableHead className="w-12">
+                  <Checkbox 
+                    checked={filteredMembers.length > 0 && selectedMemberIds.length === filteredMembers.length}
+                    onCheckedChange={(checked) => handleSelectAll(checked as boolean)}
+                  />
+                </TableHead>
                 <TableHead className="whitespace-nowrap">Nome</TableHead>
                 <TableHead className="whitespace-nowrap">Telefone</TableHead>
                 <TableHead className="whitespace-nowrap">Departamento</TableHead>
@@ -310,6 +368,12 @@ const MemberManagement = ({
                     className="animate-fade-in"
                     style={{ animationDelay: `${index * 30}ms` }}
                   >
+                    <TableCell>
+                      <Checkbox 
+                        checked={selectedMemberIds.includes(member.id)}
+                        onCheckedChange={(checked) => handleSelectMember(member.id, checked as boolean)}
+                      />
+                    </TableCell>
                     <TableCell className="font-medium">{member.full_name}</TableCell>
                     <TableCell>{member.phone_number}</TableCell>
                     <TableCell>
@@ -414,6 +478,13 @@ const MemberManagement = ({
         member={cardMember}
         open={cardDialogOpen}
         onOpenChange={setCardDialogOpen}
+      />
+
+      <BulkGenerateCardsDialog
+        members={members.filter(m => selectedMemberIds.includes(m.id))}
+        open={bulkDialogOpen}
+        onOpenChange={setBulkDialogOpen}
+        onClose={() => setBulkDialogOpen(false)}
       />
     </div>
   );
