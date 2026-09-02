@@ -9,6 +9,8 @@ import { jsPDF } from "jspdf";
 import { toast } from "sonner";
 import { supabase } from "@/lib/supabase";
 import logoUrl from "@/assets/logo.png";
+import signatureSecUrl from "@/assets/signature_sec.png";
+import signaturePastorUrl from "@/assets/signature_pastor.png";
 
 interface Member {
   id: string;
@@ -156,6 +158,8 @@ export const GenerateCardDialog = ({ member, open, onOpenChange }: GenerateCardD
   const [pastorPhone, setPastorPhone] = useState("—");
 
   const [logoBase64, setLogoBase64] = useState<string | null>(null);
+  const [signatureSecBase64, setSignatureSecBase64] = useState<string | null>(null);
+  const [signaturePastorBase64, setSignaturePastorBase64] = useState<string | null>(null);
   const [photoBase64, setPhotoBase64] = useState<string | null>(null);
 
   useEffect(() => {
@@ -178,6 +182,8 @@ export const GenerateCardDialog = ({ member, open, onOpenChange }: GenerateCardD
   useEffect(() => {
     if (open) {
       convertUrlToBase64(logoUrl).then((b64) => setLogoBase64(b64));
+      convertUrlToBase64(signatureSecUrl).then((b64) => setSignatureSecBase64(b64));
+      convertUrlToBase64(signaturePastorUrl).then((b64) => setSignaturePastorBase64(b64));
       if (member?.photo_url) {
         convertUrlToBase64(member.photo_url).then((b64) => setPhotoBase64(b64));
       } else {
@@ -436,6 +442,9 @@ export const GenerateCardDialog = ({ member, open, onOpenChange }: GenerateCardD
                 <div className="mt-auto flex justify-between items-end px-4 pb-4">
                   {/* General Secretary */}
                   <div className="flex flex-col items-center">
+                    <div className="h-12 w-full flex items-end justify-center mb-1">
+                      {signatureSecBase64 && <img src={signatureSecBase64} alt="Assinatura Sec" className="max-h-full max-w-[200px] object-contain mix-blend-multiply opacity-90" />}
+                    </div>
                     <div className="w-56 border-b border-slate-800 mb-2"></div>
                     <p className="text-[11px] font-bold text-slate-800 uppercase tracking-widest">Secretário Geral</p>
                     <p className="text-[10px] font-semibold text-slate-500 mt-1">Contato: +258 87 825 5110</p>
@@ -443,6 +452,9 @@ export const GenerateCardDialog = ({ member, open, onOpenChange }: GenerateCardD
                   
                   {/* Congregation Pastor */}
                   <div className="flex flex-col items-center">
+                    <div className="h-12 w-full flex items-end justify-center mb-1">
+                      {signaturePastorBase64 && <img src={signaturePastorBase64} alt="Assinatura Pastor" className="max-h-full max-w-[200px] object-contain mix-blend-multiply opacity-90" />}
+                    </div>
                     <div className="w-56 border-b border-slate-800 mb-2"></div>
                     <p className="text-[11px] font-bold text-slate-800 uppercase tracking-widest">Pastor da Igreja</p>
                     <p className="text-[10px] font-semibold text-slate-500 mt-1">Contato: {pastorPhone}</p>

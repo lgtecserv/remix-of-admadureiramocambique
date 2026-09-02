@@ -7,6 +7,8 @@ import { toPng } from "html-to-image";
 import { toast } from "sonner";
 import { supabase } from "@/lib/supabase";
 import logoUrl from "@/assets/logo.png";
+import signatureSecUrl from "@/assets/signature_sec.png";
+import signaturePastorUrl from "@/assets/signature_pastor.png";
 
 interface Member {
   id: string;
@@ -146,6 +148,8 @@ export const BulkGenerateCardsDialog = ({ members, open, onOpenChange, onClose }
   
   const [congregations, setCongregations] = useState<Record<string, {name: string, phone: string}>>({});
   const [logoBase64, setLogoBase64] = useState<string | null>(null);
+  const [signatureSecBase64, setSignatureSecBase64] = useState<string | null>(null);
+  const [signaturePastorBase64, setSignaturePastorBase64] = useState<string | null>(null);
   const [photosBase64, setPhotosBase64] = useState<Record<string, string | null>>({});
 
   useEffect(() => {
@@ -156,6 +160,12 @@ export const BulkGenerateCardsDialog = ({ members, open, onOpenChange, onClose }
       
       const logoB64 = await convertUrlToBase64(logoUrl);
       setLogoBase64(logoB64);
+      
+      const sigSecB64 = await convertUrlToBase64(signatureSecUrl);
+      setSignatureSecBase64(sigSecB64);
+      
+      const sigPastorB64 = await convertUrlToBase64(signaturePastorUrl);
+      setSignaturePastorBase64(sigPastorB64);
 
       const congregationIds = [...new Set(members.map(m => m.congregation_id).filter(Boolean))] as string[];
       if (congregationIds.length > 0) {
@@ -356,11 +366,17 @@ export const BulkGenerateCardsDialog = ({ members, open, onOpenChange, onClose }
           </div>
           <div className="mt-auto flex justify-between items-end px-4 pb-4">
             <div className="flex flex-col items-center">
+              <div className="h-12 w-full flex items-end justify-center mb-1">
+                {signatureSecBase64 && <img src={signatureSecBase64} alt="Assinatura Sec" className="max-h-full max-w-[200px] object-contain mix-blend-multiply opacity-90" />}
+              </div>
               <div className="w-56 border-b border-slate-800 mb-2"></div>
               <p className="text-[11px] font-bold text-slate-800 uppercase tracking-widest">Secretário Geral</p>
               <p className="text-[10px] font-semibold text-slate-500 mt-1">Contato: +258 87 825 5110</p>
             </div>
             <div className="flex flex-col items-center">
+              <div className="h-12 w-full flex items-end justify-center mb-1">
+                {signaturePastorBase64 && <img src={signaturePastorBase64} alt="Assinatura Pastor" className="max-h-full max-w-[200px] object-contain mix-blend-multiply opacity-90" />}
+              </div>
               <div className="w-56 border-b border-slate-800 mb-2"></div>
               <p className="text-[11px] font-bold text-slate-800 uppercase tracking-widest">Pastor da Igreja</p>
               <p className="text-[10px] font-semibold text-slate-500 mt-1">Contato: {congInfo.phone}</p>
