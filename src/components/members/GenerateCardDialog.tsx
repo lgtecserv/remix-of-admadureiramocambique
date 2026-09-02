@@ -213,14 +213,18 @@ export const GenerateCardDialog = ({ member, open, onOpenChange }: GenerateCardD
       const linkFront = document.createElement("a");
       linkFront.download = `Cartao_${sanitizeName}_Frente.png`;
       linkFront.href = frontDataUrl;
+      document.body.appendChild(linkFront);
       linkFront.click();
+      document.body.removeChild(linkFront);
 
       setTimeout(() => {
         const linkBack = document.createElement("a");
         linkBack.download = `Cartao_${sanitizeName}_Verso.png`;
         linkBack.href = backDataUrl;
+        document.body.appendChild(linkBack);
         linkBack.click();
-      }, 300);
+        document.body.removeChild(linkBack);
+      }, 500);
 
       toast.success("PNGs baixados com sucesso!");
     } catch (err) {
