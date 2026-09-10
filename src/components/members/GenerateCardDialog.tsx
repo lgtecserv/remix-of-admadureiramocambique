@@ -356,27 +356,27 @@ export const GenerateCardDialog = ({ member, open, onOpenChange }: GenerateCardD
 
                   {/* Grid Info */}
                   <div className="grid grid-cols-3 gap-x-4 gap-y-4">
-                    <div className="border-b border-slate-200 pb-1">
-                      <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">Matrícula</p>
+                    <div className="border-b border-slate-300 pb-1">
+                      <p className="text-xs font-black text-slate-900 uppercase tracking-wider mb-0.5">Matrícula</p>
                       <p className="text-lg font-black text-[#1A365D]">{member.registration_number || "—"}</p>
                     </div>
-                    <div className="border-b border-slate-200 pb-1">
-                      <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">Congregação</p>
+                    <div className="border-b border-slate-300 pb-1">
+                      <p className="text-xs font-black text-slate-900 uppercase tracking-wider mb-0.5">Congregação</p>
                       <p className="text-lg font-black text-[#1A365D] uppercase leading-tight">{congregationName}</p>
                     </div>
-                    <div className="border-b border-slate-200 pb-1">
-                      <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">Celular</p>
-                      <p className="text-lg font-bold text-[#1A365D] uppercase">{member.phone_number || "—"}</p>
+                    <div className="border-b border-slate-300 pb-1">
+                      <p className="text-xs font-black text-slate-900 uppercase tracking-wider mb-0.5">Celular</p>
+                      <p className="text-lg font-black text-[#1A365D] uppercase">{member.phone_number || "—"}</p>
                     </div>
-                    <div className="border-b border-slate-200 pb-1">
-                      <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">Data de Batismo</p>
-                      <p className="text-lg font-bold text-[#1A365D]">
+                    <div className="border-b border-slate-300 pb-1">
+                      <p className="text-xs font-black text-slate-900 uppercase tracking-wider mb-0.5">Data de Batismo</p>
+                      <p className="text-lg font-black text-[#1A365D]">
                         {member.baptism_date ? format(new Date(member.baptism_date + "T00:00:00"), "dd/MM/yyyy") : "—"}
                       </p>
                     </div>
-                    <div className="border-b border-slate-200 pb-1">
-                      <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">Estado Civil</p>
-                      <p className="text-lg font-bold text-[#1A365D] uppercase">{member.marital_status ? getMaritalStatusLabel(member.marital_status, member.gender) : "—"}</p>
+                    <div className="border-b border-slate-300 pb-1">
+                      <p className="text-xs font-black text-slate-900 uppercase tracking-wider mb-0.5">Estado Civil</p>
+                      <p className="text-lg font-black text-[#1A365D] uppercase">{member.marital_status ? getMaritalStatusLabel(member.marital_status, member.gender) : "—"}</p>
                     </div>
                   </div>
                 </div>
@@ -393,11 +393,11 @@ export const GenerateCardDialog = ({ member, open, onOpenChange }: GenerateCardD
               <div className="absolute bottom-0 left-12 right-0 h-20 bg-slate-100 flex items-center justify-between px-8 z-10 border-t border-slate-200">
                 <div className="flex gap-12 w-full justify-center">
                   <div className="text-center">
-                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Emissão</p>
+                    <p className="text-xs font-black text-slate-900 uppercase tracking-wider mb-0.5">Emissão</p>
                     <p className="text-base font-black text-[#1A365D]">{format(new Date(), "dd/MM/yyyy")}</p>
                   </div>
                   <div className="text-center">
-                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Validade</p>
+                    <p className="text-xs font-black text-slate-900 uppercase tracking-wider mb-0.5">Validade</p>
                     <p className="text-base font-black text-[#1A365D]">{format(validDate, "dd/MM/yyyy")}</p>
                   </div>
                 </div>
@@ -445,9 +445,9 @@ export const GenerateCardDialog = ({ member, open, onOpenChange }: GenerateCardD
                     <div className="h-20 w-full flex items-end justify-center mb-1">
                       {signatureSecBase64 && <img src={signatureSecBase64} alt="Assinatura Sec" className="max-h-full max-w-[200px] object-contain drop-shadow-sm" />}
                     </div>
-                    <div className="w-56 border-b border-slate-800 mb-2"></div>
-                    <p className="text-[11px] font-bold text-slate-800 uppercase tracking-widest">Secretário Geral</p>
-                    <p className="text-[10px] font-semibold text-slate-500 mt-1">Contato: +258 87 825 5110</p>
+                    <div className="w-56 border-b-2 border-slate-900 mb-2"></div>
+                    <p className="text-xs font-black text-slate-900 uppercase tracking-widest">Secretário Geral</p>
+                    <p className="text-xs font-bold text-slate-900 mt-1">Contato: +258 87 825 5110</p>
                   </div>
                   
                   {/* Congregation Pastor */}
@@ -455,9 +455,9 @@ export const GenerateCardDialog = ({ member, open, onOpenChange }: GenerateCardD
                     <div className="h-20 w-full flex items-end justify-center mb-1">
                       {signaturePastorBase64 && <img src={signaturePastorBase64} alt="Assinatura Pastor" className="max-h-full max-w-[200px] object-contain drop-shadow-sm" />}
                     </div>
-                    <div className="w-56 border-b border-slate-800 mb-2"></div>
-                    <p className="text-[11px] font-bold text-slate-800 uppercase tracking-widest">Pastor da Igreja</p>
-                    <p className="text-[10px] font-semibold text-slate-500 mt-1">Contato: {pastorPhone}</p>
+                    <div className="w-56 border-b-2 border-slate-900 mb-2"></div>
+                    <p className="text-xs font-black text-slate-900 uppercase tracking-widest">Pastor da Igreja</p>
+                    <p className="text-xs font-bold text-slate-900 mt-1">Contato: {pastorPhone}</p>
                   </div>
                 </div>
               </div>
