@@ -87,13 +87,17 @@ export const SelectedCongregationProvider = ({ children }: { children: ReactNode
 
     loadUserContext();
 
-    // Listener para sign out
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (event === "SIGNED_OUT") {
         setSelectedCongregationId(null);
         setUserCongregationId(null);
         setUserRole(null);
         setUserDepartment(null);
+      } else if (event === "SIGNED_IN" || event === "INITIAL_SESSION") {
+        if (session?.user) {
+          setLoading(true);
+          loadUserContext();
+        }
       }
     });
 
