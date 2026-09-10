@@ -19,6 +19,7 @@ const Congregados = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [departmentFilter, setDepartmentFilter] = useState("all");
+  const [photoFilter, setPhotoFilter] = useState("all");
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -98,12 +99,15 @@ const Congregados = () => {
           departmentFilter={departmentFilter}
           onDepartmentFilterChange={setDepartmentFilter}
           showDepartmentFilter={role === "pastor" || isSuperAdmin}
+          photoFilter={photoFilter}
+          onPhotoFilterChange={setPhotoFilter}
         />
 
         <CongregadosManagement
           searchTerm={searchTerm}
           statusFilter={statusFilter}
           departmentFilter={departmentFilter}
+          photoFilter={photoFilter}
         />
       </div>
     </AppLayout>

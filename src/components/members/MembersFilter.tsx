@@ -12,6 +12,8 @@ interface MembersFilterProps {
   showDepartmentFilter?: boolean;
   cargoFilter?: string;
   onCargoFilterChange?: (value: string) => void;
+  photoFilter?: string;
+  onPhotoFilterChange?: (value: string) => void;
 }
 
 const MembersFilter = ({
@@ -24,6 +26,8 @@ const MembersFilter = ({
   showDepartmentFilter = false,
   cargoFilter = "all",
   onCargoFilterChange,
+  photoFilter = "all",
+  onPhotoFilterChange,
 }: MembersFilterProps) => {
   return (
     <div className="flex flex-col gap-3 mb-4">
@@ -37,7 +41,7 @@ const MembersFilter = ({
         />
       </div>
       
-      <div className={`grid gap-2 ${showDepartmentFilter ? 'grid-cols-2' : 'grid-cols-1 sm:grid-cols-2'}`}>
+      <div className={`grid gap-2 ${showDepartmentFilter ? 'grid-cols-1 sm:grid-cols-2 md:grid-cols-4' : 'grid-cols-1 sm:grid-cols-3'}`}>
         <Select value={statusFilter} onValueChange={onStatusFilterChange}>
           <SelectTrigger className="h-10">
             <SelectValue placeholder="Status" />
@@ -80,6 +84,19 @@ const MembersFilter = ({
               <SelectItem value="evangelista">Evangelista</SelectItem>
               <SelectItem value="pastor">Pastor</SelectItem>
               <SelectItem value="missionario">Missionário</SelectItem>
+            </SelectContent>
+          </Select>
+        )}
+
+        {onPhotoFilterChange && (
+          <Select value={photoFilter} onValueChange={onPhotoFilterChange}>
+            <SelectTrigger className="h-10">
+              <SelectValue placeholder="Foto de Perfil" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todas as Fotos</SelectItem>
+              <SelectItem value="with_photo">Com Foto</SelectItem>
+              <SelectItem value="without_photo">Sem Foto</SelectItem>
             </SelectContent>
           </Select>
         )}

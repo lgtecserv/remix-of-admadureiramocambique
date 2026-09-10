@@ -4,31 +4,25 @@ import "./index.css";
 
 createRoot(document.getElementById("root")!).render(<App />);
 
-// Register service workers
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    // Register main PWA service worker
-    navigator.serviceWorker.register('/sw.js').then(
-      (registration) => {
-        console.log('ServiceWorker registration successful');
-        
-        registration.addEventListener('updatefound', () => {
-          const newWorker = registration.installing;
-          if (newWorker) {
-            newWorker.addEventListener('statechange', () => {
-              if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                console.log('Nova versão disponível. Será aplicada no próximo reload.');
-              }
-            });
-          }
-        });
-      },
-      (error) => {
-        console.log('ServiceWorker registration failed:', error);
-      }
-    );
+import { registerSW } from 'virtual:pwa-register';
 
-    // Register push notification service worker
+// Register service worker using vite-plugin-pwa
+if ('serviceWorker' in navigator) {
+  // Unregister any old service workers first to prevent caching issues on refresh
+  navigator.serviceWorker.getRegistrations().then((registrations) => {
+    for (let registration of registrations) {
+      // Don't unregister the push SW if it's separate, but unregister the main one
+      if (registration.active?.scriptURL.includes('sw.js')) {
+        registration.unregister();
+      }
+    }
+  }).then(() => {
+    // Register the new SW
+    registerSW({ immediate: true });
+  });
+  
+  window.addEventListener('load', () => {
+    // Register push notification service worker (keep this one if custom)
     navigator.serviceWorker.register('/sw-push.js').then(
       (registration) => {
         console.log('Push ServiceWorker registration successful');

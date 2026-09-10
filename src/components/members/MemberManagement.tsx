@@ -37,6 +37,7 @@ interface Member {
   baptism_date?: string | null;
   church_office?: string | null;
   church_function?: string | null;
+  photo_url?: string | null;
 }
 
 interface MemberManagementProps {
@@ -44,13 +45,15 @@ interface MemberManagementProps {
   statusFilter?: string;
   departmentFilter?: string;
   cargoFilter?: string;
+  photoFilter?: string;
 }
 
 const MemberManagement = ({ 
   searchTerm = "", 
   statusFilter = "all", 
   departmentFilter = "all",
-  cargoFilter = "all"
+  cargoFilter = "all",
+  photoFilter = "all"
 }: MemberManagementProps) => {
   const [members, setMembers] = useState<Member[]>([]);
   const [filteredMembers, setFilteredMembers] = useState<Member[]>([]);
@@ -149,6 +152,14 @@ const MemberManagement = ({
         filtered = filtered.filter(member => 
           member.church_office && member.church_office.toLowerCase() === cargoFilter.toLowerCase()
         );
+      }
+    }
+
+    if (photoFilter !== "all") {
+      if (photoFilter === "with_photo") {
+        filtered = filtered.filter(member => member.photo_url && member.photo_url.trim() !== "");
+      } else if (photoFilter === "without_photo") {
+        filtered = filtered.filter(member => !member.photo_url || member.photo_url.trim() === "");
       }
     }
 

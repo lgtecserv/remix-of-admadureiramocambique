@@ -20,6 +20,7 @@ const Members = () => {
   const [statusFilter, setStatusFilter] = useState("all");
   const [departmentFilter, setDepartmentFilter] = useState("all");
   const [cargoFilter, setCargoFilter] = useState("all");
+  const [photoFilter, setPhotoFilter] = useState("all");
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -101,6 +102,8 @@ const Members = () => {
           showDepartmentFilter={role === "pastor" || isSuperAdmin}
           cargoFilter={cargoFilter}
           onCargoFilterChange={setCargoFilter}
+          photoFilter={photoFilter}
+          onPhotoFilterChange={setPhotoFilter}
         />
 
         <MemberManagement 
@@ -108,6 +111,7 @@ const Members = () => {
           statusFilter={statusFilter}
           departmentFilter={departmentFilter}
           cargoFilter={cargoFilter}
+          photoFilter={photoFilter}
         />
       </div>
     </AppLayout>

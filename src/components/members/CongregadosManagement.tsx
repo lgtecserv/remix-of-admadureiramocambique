@@ -36,18 +36,21 @@ interface Member {
   baptism_date?: string | null;
   church_office?: string | null;
   church_function?: string | null;
+  photo_url?: string | null;
 }
 
 interface MemberManagementProps {
   searchTerm?: string;
   statusFilter?: string;
   departmentFilter?: string;
+  photoFilter?: string;
 }
 
 const CongregadosManagement = ({ 
   searchTerm = "", 
   statusFilter = "all", 
-  departmentFilter = "all" 
+  departmentFilter = "all",
+  photoFilter = "all"
 }: MemberManagementProps) => {
   const [members, setMembers] = useState<Member[]>([]);
   const [filteredMembers, setFilteredMembers] = useState<Member[]>([]);
@@ -138,8 +141,16 @@ const CongregadosManagement = ({
       filtered = filtered.filter(member => member.department === departmentFilter);
     }
 
+    if (photoFilter !== "all") {
+      if (photoFilter === "with_photo") {
+        filtered = filtered.filter(member => member.photo_url && member.photo_url.trim() !== "");
+      } else if (photoFilter === "without_photo") {
+        filtered = filtered.filter(member => !member.photo_url || member.photo_url.trim() === "");
+      }
+    }
+
     setFilteredMembers(filtered);
-  }, [members, searchTerm, statusFilter, departmentFilter]);
+  }, [members, searchTerm, statusFilter, departmentFilter, photoFilter]);
 
   const handleDelete = async (id: string) => {
     const { error } = await supabase.from("members").delete().eq("id", id);
