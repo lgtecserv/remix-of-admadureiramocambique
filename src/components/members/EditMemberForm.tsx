@@ -25,6 +25,7 @@ const editMemberSchema = z.object({
   churchFunction: z.string().trim().max(120).optional(),
   churchOffice: z.string().optional(),
   maritalStatus: z.enum(["solteiro", "casado", "divorciado", "viuvo"]).optional(),
+  baptismDate: z.string().optional().nullable(),
 });
 
 interface EditMemberFormProps {
@@ -39,6 +40,7 @@ interface EditMemberFormProps {
     church_function?: string | null;
     church_office?: string | null;
     marital_status?: string | null;
+    baptism_date?: string | null;
   };
   onSuccess: () => void;
 }
@@ -90,6 +92,7 @@ const EditMemberForm = ({ member, onSuccess }: EditMemberFormProps) => {
     churchFunction: member.church_function || "",
     churchOffice: member.church_office || "",
     maritalStatus: member.marital_status || "",
+    baptismDate: member.baptism_date || "",
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -111,6 +114,7 @@ const EditMemberForm = ({ member, onSuccess }: EditMemberFormProps) => {
           church_function: validatedData.churchFunction || null,
           church_office: validatedData.churchOffice || null,
           marital_status: validatedData.maritalStatus || null,
+          baptism_date: validatedData.baptismDate || null,
         } as any)
         .eq("id", member.id);
 
@@ -231,21 +235,33 @@ const EditMemberForm = ({ member, onSuccess }: EditMemberFormProps) => {
         </div>
       </div>
 
-      <div className="space-y-2">
-        <Label htmlFor="maritalStatus">Estado Civil</Label>
-        <Select
-          value={formData.maritalStatus}
-          onValueChange={(value) => setFormData({ ...formData, maritalStatus: value })}
-        >
-          <SelectTrigger>
-            <SelectValue placeholder="Selecione..." />
-          </SelectTrigger>
-          <SelectContent>
-            {getMaritalStatuses(formData.gender).map((status) => (
-              <SelectItem key={status.value} value={status.value}>{status.label}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div className="space-y-2">
+          <Label htmlFor="maritalStatus">Estado Civil</Label>
+          <Select
+            value={formData.maritalStatus}
+            onValueChange={(value) => setFormData({ ...formData, maritalStatus: value })}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Selecione..." />
+            </SelectTrigger>
+            <SelectContent>
+              {getMaritalStatuses(formData.gender).map((status) => (
+                <SelectItem key={status.value} value={status.value}>{status.label}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="baptismDate">Data de Batismo</Label>
+          <Input
+            id="baptismDate"
+            type="date"
+            value={formData.baptismDate ? formData.baptismDate.split("T")[0] : ""}
+            onChange={(e) => setFormData({ ...formData, baptismDate: e.target.value })}
+          />
+        </div>
       </div>
 
       <div className="space-y-2">

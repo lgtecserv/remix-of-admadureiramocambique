@@ -259,12 +259,14 @@ export const BulkGenerateCardsDialog = ({ members, open, onOpenChange, onClose }
     const currentPhotoSrc = photosBase64[member.id] || member.photo_url;
     
     let photoZoom = 1;
+    let photoPanX = 0;
     let photoPanY = 0;
     try {
       const saved = localStorage.getItem(`photo_adjust_${member.id}`);
       if (saved) {
         const parsed = JSON.parse(saved);
-        photoZoom = parsed.zoom || 1;
+        if (parsed.zoom) photoZoom = parsed.zoom;
+        photoPanX = parsed.panX || 0;
         photoPanY = parsed.panY || 0;
       }
     } catch (e) {}
@@ -278,7 +280,7 @@ export const BulkGenerateCardsDialog = ({ members, open, onOpenChange, onClose }
           </span>
         </div>
         <div className="absolute top-0 left-12 right-0 h-28 bg-white flex items-center px-8 z-20 border-b border-slate-200">
-          <div className="h-20 w-auto mr-6 flex-shrink-0 flex items-center">
+          <div className="h-24 w-auto mr-6 flex-shrink-0 flex items-center">
             <img src={currentLogoSrc} alt="Logo" className="h-full object-contain" />
           </div>
           <div className="flex flex-col justify-center pt-2">
@@ -293,7 +295,7 @@ export const BulkGenerateCardsDialog = ({ members, open, onOpenChange, onClose }
         <div className="absolute top-36 left-20 right-8 bottom-20 flex gap-8 z-20">
           <div className="w-36 h-48 bg-gray-200 rounded-md border-2 border-slate-300 shadow-sm overflow-hidden flex-shrink-0">
             {currentPhotoSrc ? (
-              <img src={currentPhotoSrc} alt={member.full_name} className="w-full h-full object-cover" style={{ transform: `scale(${photoZoom}) translateY(${photoPanY}px)`, transformOrigin: 'center' }} />
+              <img src={currentPhotoSrc} alt={member.full_name} className="w-full h-full object-cover" style={{ transform: `scale(${photoZoom}) translate(${photoPanX}px, ${photoPanY}px)`, transformOrigin: 'center' }} />
             ) : (
               <div className="w-full h-full flex flex-col items-center justify-center text-gray-400">
                 <svg className="w-16 h-16" fill="currentColor" viewBox="0 0 20 20">
@@ -376,7 +378,7 @@ export const BulkGenerateCardsDialog = ({ members, open, onOpenChange, onClose }
           </div>
           <div className="absolute top-[50%] left-[50%] -translate-x-[50%] -translate-y-[40%] flex flex-col items-center justify-center">
             {stampBase64 ? (
-              <img src={stampBase64} alt="Carimbo" className="w-40 h-40 object-contain opacity-90 drop-shadow-sm mix-blend-multiply" />
+              <img src={stampBase64} alt="Carimbo" className="w-64 h-64 object-contain opacity-90 drop-shadow-sm mix-blend-multiply" />
             ) : (
               <div className="w-36 h-36 border-2 border-dashed border-slate-300 rounded-full flex items-center justify-center bg-slate-50/80 backdrop-blur-sm shadow-sm">
                 <span className="text-slate-400 font-bold text-xs uppercase tracking-widest opacity-70 text-center">Espaço para<br/>Carimbo</span>

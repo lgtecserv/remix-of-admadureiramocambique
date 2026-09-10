@@ -165,6 +165,7 @@ export const GenerateCardDialog = ({ member, open, onOpenChange }: GenerateCardD
   const [photoBase64, setPhotoBase64] = useState<string | null>(null);
 
   const [photoZoom, setPhotoZoom] = useState(1);
+  const [photoPanX, setPhotoPanX] = useState(0);
   const [photoPanY, setPhotoPanY] = useState(0);
 
   useEffect(() => {
@@ -173,21 +174,23 @@ export const GenerateCardDialog = ({ member, open, onOpenChange }: GenerateCardD
       if (saved) {
         try {
           const parsed = JSON.parse(saved);
-          setPhotoZoom(parsed.zoom || 1);
+          if (parsed.zoom) setPhotoZoom(parsed.zoom);
+          setPhotoPanX(parsed.panX || 0);
           setPhotoPanY(parsed.panY || 0);
         } catch (e) {}
       } else {
         setPhotoZoom(1);
+        setPhotoPanX(0);
         setPhotoPanY(0);
       }
     }
   }, [member]);
 
   useEffect(() => {
-    if (member) {
-      localStorage.setItem(`photo_adjust_${member.id}`, JSON.stringify({ zoom: photoZoom, panY: photoPanY }));
+    if (member?.id) {
+      localStorage.setItem(`photo_adjust_${member.id}`, JSON.stringify({ zoom: photoZoom, panX: photoPanX, panY: photoPanY }));
     }
-  }, [photoZoom, photoPanY, member]);
+  }, [photoZoom, photoPanX, photoPanY, member]);
 
   useEffect(() => {
     if (member?.congregation_id && open) {
@@ -300,7 +303,7 @@ export const GenerateCardDialog = ({ member, open, onOpenChange }: GenerateCardD
   };
 
   const currentLogoSrc = logoBase64 || logoUrl;
-  const currentPhotoSrc = photoBase64 || member.photo_url;
+  const currentPhotoSrc = photoBase64 || member?.photo_url;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -326,6 +329,16 @@ export const GenerateCardDialog = ({ member, open, onOpenChange }: GenerateCardD
               />
             </div>
             <div className="flex items-center gap-2 ml-2">
+              <span className="text-xs font-semibold text-slate-500">Lateral</span>
+              <input 
+                type="range" 
+                min="-150" max="150" step="1" 
+                value={photoPanX} 
+                onChange={(e) => setPhotoPanX(parseInt(e.target.value))} 
+                className="w-24 accent-[#1A365D]"
+              />
+            </div>
+            <div className="flex items-center gap-2 ml-2">
               <span className="text-xs font-semibold text-slate-500">Vertical</span>
               <input 
                 type="range" 
@@ -335,7 +348,7 @@ export const GenerateCardDialog = ({ member, open, onOpenChange }: GenerateCardD
                 className="w-24 accent-[#1A365D]"
               />
             </div>
-            <Button variant="ghost" size="sm" className="ml-2 h-7 px-2 text-xs" onClick={() => { setPhotoZoom(1); setPhotoPanY(0); }}>
+            <Button variant="ghost" size="sm" className="ml-2 h-7 px-2 text-xs" onClick={() => { setPhotoZoom(1); setPhotoPanX(0); setPhotoPanY(0); }}>
               Reset
             </Button>
           </div>
@@ -363,7 +376,7 @@ export const GenerateCardDialog = ({ member, open, onOpenChange }: GenerateCardD
 
               {/* Top Header - clean */}
               <div className="absolute top-0 left-12 right-0 h-28 bg-white flex items-center px-8 z-20 border-b border-slate-200">
-                <div className="h-20 w-auto mr-6 flex-shrink-0 flex items-center">
+                <div className="h-24 w-auto mr-6 flex-shrink-0 flex items-center">
                   <img src={currentLogoSrc} alt="Logo" className="h-full object-contain" />
                 </div>
                 <div className="flex flex-col justify-center pt-2">
@@ -382,12 +395,7 @@ export const GenerateCardDialog = ({ member, open, onOpenChange }: GenerateCardD
                 {/* Photo */}
                 <div className="w-36 h-48 bg-gray-200 rounded-md border-2 border-slate-300 shadow-sm overflow-hidden flex-shrink-0">
                   {currentPhotoSrc ? (
-                    <img 
-                      src={currentPhotoSrc} 
-                      alt={member.full_name} 
-                      className="w-full h-full object-cover" 
-                      style={{ transform: `scale(${photoZoom}) translateY(${photoPanY}px)`, transformOrigin: 'center' }}
-                    />
+                    <img src={currentPhotoSrc} alt={member.full_name} className="w-full h-full object-cover" style={{ transform: `scale(${photoZoom}) translate(${photoPanX}px, ${photoPanY}px)`, transformOrigin: 'center' }} />
                   ) : (
                     <div className="w-full h-full flex flex-col items-center justify-center text-gray-400">
                       <svg className="w-16 h-16" fill="currentColor" viewBox="0 0 20 20">
@@ -489,7 +497,7 @@ export const GenerateCardDialog = ({ member, open, onOpenChange }: GenerateCardD
                 {/* Stamp Area - Center Right */}
                 <div className="absolute top-[50%] left-[50%] -translate-x-[50%] -translate-y-[40%] flex flex-col items-center justify-center">
                   {stampBase64 ? (
-                    <img src={stampBase64} alt="Carimbo" className="w-40 h-40 object-contain opacity-90 drop-shadow-sm mix-blend-multiply" />
+                    <img src={stampBase64} alt="Carimbo" className="w-64 h-64 object-contain opacity-90 drop-shadow-sm mix-blend-multiply" />
                   ) : (
                     <div className="w-36 h-36 border-2 border-dashed border-slate-300 rounded-full flex items-center justify-center bg-slate-50/80 backdrop-blur-sm shadow-sm">
                       <span className="text-slate-400 font-bold text-xs uppercase tracking-widest opacity-70 text-center">Espaço para<br/>Carimbo</span>
