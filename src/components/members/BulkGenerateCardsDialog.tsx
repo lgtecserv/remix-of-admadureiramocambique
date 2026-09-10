@@ -312,27 +312,27 @@ export const BulkGenerateCardsDialog = ({ members, open, onOpenChange, onClose }
               </p>
             </div>
             <div className="grid grid-cols-3 gap-x-4 gap-y-4">
-              <div className="border-b border-slate-200 pb-1">
-                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">Matrícula</p>
+              <div className="border-b border-slate-300 pb-1">
+                <p className="text-xs font-black text-slate-900 uppercase tracking-wider mb-0.5">Matrícula</p>
                 <p className="text-lg font-black text-[#1A365D]">{member.registration_number || "—"}</p>
               </div>
-              <div className="border-b border-slate-200 pb-1">
-                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">Congregação</p>
+              <div className="border-b border-slate-300 pb-1">
+                <p className="text-xs font-black text-slate-900 uppercase tracking-wider mb-0.5">Congregação</p>
                 <p className="text-lg font-black text-[#1A365D] uppercase leading-tight">{congInfo.name}</p>
               </div>
-              <div className="border-b border-slate-200 pb-1">
-                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">Celular</p>
-                <p className="text-lg font-bold text-[#1A365D] uppercase">{member.phone_number || "—"}</p>
+              <div className="border-b border-slate-300 pb-1">
+                <p className="text-xs font-black text-slate-900 uppercase tracking-wider mb-0.5">Celular</p>
+                <p className="text-lg font-black text-[#1A365D] uppercase">{member.phone_number || "—"}</p>
               </div>
-              <div className="border-b border-slate-200 pb-1">
-                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">Data de Batismo</p>
-                <p className="text-lg font-bold text-[#1A365D]">
+              <div className="border-b border-slate-300 pb-1">
+                <p className="text-xs font-black text-slate-900 uppercase tracking-wider mb-0.5">Data de Batismo</p>
+                <p className="text-lg font-black text-[#1A365D]">
                   {member.baptism_date ? format(new Date(member.baptism_date + "T00:00:00"), "dd/MM/yyyy") : "—"}
                 </p>
               </div>
-              <div className="border-b border-slate-200 pb-1">
-                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">Estado Civil</p>
-                <p className="text-lg font-bold text-[#1A365D] uppercase">{member.marital_status ? getMaritalStatusLabel(member.marital_status, member.gender) : "—"}</p>
+              <div className="border-b border-slate-300 pb-1">
+                <p className="text-xs font-black text-slate-900 uppercase tracking-wider mb-0.5">Estado Civil</p>
+                <p className="text-lg font-black text-[#1A365D] uppercase">{member.marital_status ? getMaritalStatusLabel(member.marital_status, member.gender) : "—"}</p>
               </div>
             </div>
           </div>
@@ -342,16 +342,16 @@ export const BulkGenerateCardsDialog = ({ members, open, onOpenChange, onClose }
             Igreja Ponissa Vana Va Moçambique
           </p>
         </div>
-        <div className="absolute bottom-0 left-12 right-0 h-20 bg-slate-100 flex items-center justify-between px-8 z-10 border-t border-slate-200">
-          <div className="flex gap-12 w-full justify-center">
-            <div className="text-center">
-              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Emissão</p>
-              <p className="text-base font-black text-[#1A365D]">{format(new Date(), "dd/MM/yyyy")}</p>
-            </div>
-            <div className="text-center">
-              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Validade</p>
-              <p className="text-base font-black text-[#1A365D]">{format(validDate, "dd/MM/yyyy")}</p>
-            </div>
+        <div className="absolute bottom-4 left-20 right-8 flex justify-between z-20 px-12">
+          <div className="text-center">
+            <p className="text-[10px] font-black text-slate-900 uppercase tracking-widest mb-1">Emissão</p>
+            <p className="text-sm font-black text-[#1A365D]">{format(new Date(), "dd/MM/yyyy")}</p>
+          </div>
+          <div className="text-center">
+            <p className="text-[10px] font-black text-slate-900 uppercase tracking-widest mb-1">Validade</p>
+            <p className="text-sm font-black text-[#1A365D]">
+              {format(new Date(new Date().setFullYear(new Date().getFullYear() + 2)), "dd/MM/yyyy")}
+            </p>
           </div>
         </div>
       </div>
