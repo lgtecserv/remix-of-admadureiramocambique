@@ -11,6 +11,7 @@ import { supabase } from "@/lib/supabase";
 import logoUrl from "@/assets/logo.png";
 import signatureSecUrl from "@/assets/signature_sec.png";
 import signaturePastorUrl from "@/assets/signature_pastor.png";
+import stampUrl from "@/assets/carrimbo.png";
 
 interface Member {
   id: string;
@@ -160,7 +161,33 @@ export const GenerateCardDialog = ({ member, open, onOpenChange }: GenerateCardD
   const [logoBase64, setLogoBase64] = useState<string | null>(null);
   const [signatureSecBase64, setSignatureSecBase64] = useState<string | null>(null);
   const [signaturePastorBase64, setSignaturePastorBase64] = useState<string | null>(null);
+  const [stampBase64, setStampBase64] = useState<string | null>(null);
   const [photoBase64, setPhotoBase64] = useState<string | null>(null);
+
+  const [photoZoom, setPhotoZoom] = useState(1);
+  const [photoPanY, setPhotoPanY] = useState(0);
+
+  useEffect(() => {
+    if (member) {
+      const saved = localStorage.getItem(`photo_adjust_${member.id}`);
+      if (saved) {
+        try {
+          const parsed = JSON.parse(saved);
+          setPhotoZoom(parsed.zoom || 1);
+          setPhotoPanY(parsed.panY || 0);
+        } catch (e) {}
+      } else {
+        setPhotoZoom(1);
+        setPhotoPanY(0);
+      }
+    }
+  }, [member]);
+
+  useEffect(() => {
+    if (member) {
+      localStorage.setItem(`photo_adjust_${member.id}`, JSON.stringify({ zoom: photoZoom, panY: photoPanY }));
+    }
+  }, [photoZoom, photoPanY, member]);
 
   useEffect(() => {
     if (member?.congregation_id && open) {
@@ -184,6 +211,7 @@ export const GenerateCardDialog = ({ member, open, onOpenChange }: GenerateCardD
       convertUrlToBase64(logoUrl).then((b64) => setLogoBase64(b64));
       convertUrlToBase64(signatureSecUrl).then((b64) => setSignatureSecBase64(b64));
       convertUrlToBase64(signaturePastorUrl).then((b64) => setSignaturePastorBase64(b64));
+      convertUrlToBase64(stampUrl).then((b64) => setStampBase64(b64));
       if (member?.photo_url) {
         convertUrlToBase64(member.photo_url).then((b64) => setPhotoBase64(b64));
       } else {
@@ -283,7 +311,34 @@ export const GenerateCardDialog = ({ member, open, onOpenChange }: GenerateCardD
         </DialogHeader>
 
         {/* Card Preview Container */}
-        <div className="w-full flex justify-center py-4 relative" style={{ minHeight: "800px" }}>
+        <div className="w-full flex flex-col items-center py-4 relative" style={{ minHeight: "800px" }}>
+          
+          <div className="flex flex-wrap justify-center gap-4 items-center bg-slate-100 p-3 rounded-lg mb-8 shadow-sm border border-slate-200 z-50">
+            <span className="text-sm font-bold text-slate-700 whitespace-nowrap">Ajuste da Foto:</span>
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-semibold text-slate-500">Zoom</span>
+              <input 
+                type="range" 
+                min="1" max="3" step="0.05" 
+                value={photoZoom} 
+                onChange={(e) => setPhotoZoom(parseFloat(e.target.value))} 
+                className="w-24 accent-[#1A365D]"
+              />
+            </div>
+            <div className="flex items-center gap-2 ml-2">
+              <span className="text-xs font-semibold text-slate-500">Vertical</span>
+              <input 
+                type="range" 
+                min="-150" max="150" step="1" 
+                value={photoPanY} 
+                onChange={(e) => setPhotoPanY(parseInt(e.target.value))} 
+                className="w-24 accent-[#1A365D]"
+              />
+            </div>
+            <Button variant="ghost" size="sm" className="ml-2 h-7 px-2 text-xs" onClick={() => { setPhotoZoom(1); setPhotoPanY(0); }}>
+              Reset
+            </Button>
+          </div>
           
           <div 
             ref={containerRef} 
@@ -294,7 +349,7 @@ export const GenerateCardDialog = ({ member, open, onOpenChange }: GenerateCardD
             <div
               id="card-front"
               ref={frontCardRef}
-              className="relative bg-white overflow-hidden shadow-2xl rounded-xl shrink-0 border border-[#1A365D]"
+              className="relative bg-white overflow-hidden shadow-2xl rounded-xl shrink-0 border-4 border-[#1A365D]"
               style={{ width: "856px", height: "540px", minWidth: "856px", minHeight: "540px" }}
             >
               <div className="absolute inset-0 bg-slate-50"></div>
@@ -331,6 +386,7 @@ export const GenerateCardDialog = ({ member, open, onOpenChange }: GenerateCardD
                       src={currentPhotoSrc} 
                       alt={member.full_name} 
                       className="w-full h-full object-cover" 
+                      style={{ transform: `scale(${photoZoom}) translateY(${photoPanY}px)`, transformOrigin: 'center' }}
                     />
                   ) : (
                     <div className="w-full h-full flex flex-col items-center justify-center text-gray-400">
@@ -407,7 +463,7 @@ export const GenerateCardDialog = ({ member, open, onOpenChange }: GenerateCardD
             <div
               id="card-back"
               ref={backCardRef}
-              className="relative bg-white overflow-hidden shadow-2xl rounded-xl shrink-0 border border-[#1A365D]"
+              className="relative bg-white overflow-hidden shadow-2xl rounded-xl shrink-0 border-4 border-[#1A365D]"
               style={{ width: "856px", height: "540px", minWidth: "856px", minHeight: "540px" }}
             >
               {/* Minimalist Background Pattern for Back */}
@@ -432,9 +488,13 @@ export const GenerateCardDialog = ({ member, open, onOpenChange }: GenerateCardD
 
                 {/* Stamp Area - Center Right */}
                 <div className="absolute top-[50%] left-[50%] -translate-x-[50%] -translate-y-[40%] flex flex-col items-center justify-center">
-                  <div className="w-36 h-36 border-2 border-dashed border-slate-300 rounded-full flex items-center justify-center bg-slate-50/80 backdrop-blur-sm shadow-sm">
-                    <span className="text-slate-400 font-bold text-xs uppercase tracking-widest opacity-70 text-center">Espaço para<br/>Carimbo</span>
-                  </div>
+                  {stampBase64 ? (
+                    <img src={stampBase64} alt="Carimbo" className="w-40 h-40 object-contain opacity-90 drop-shadow-sm mix-blend-multiply" />
+                  ) : (
+                    <div className="w-36 h-36 border-2 border-dashed border-slate-300 rounded-full flex items-center justify-center bg-slate-50/80 backdrop-blur-sm shadow-sm">
+                      <span className="text-slate-400 font-bold text-xs uppercase tracking-widest opacity-70 text-center">Espaço para<br/>Carimbo</span>
+                    </div>
+                  )}
                 </div>
 
                 {/* Signatures & Contacts Footer */}

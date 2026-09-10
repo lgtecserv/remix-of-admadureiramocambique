@@ -9,6 +9,7 @@ import { supabase } from "@/lib/supabase";
 import logoUrl from "@/assets/logo.png";
 import signatureSecUrl from "@/assets/signature_sec.png";
 import signaturePastorUrl from "@/assets/signature_pastor.png";
+import stampUrl from "@/assets/carrimbo.png";
 
 interface Member {
   id: string;
@@ -150,6 +151,7 @@ export const BulkGenerateCardsDialog = ({ members, open, onOpenChange, onClose }
   const [logoBase64, setLogoBase64] = useState<string | null>(null);
   const [signatureSecBase64, setSignatureSecBase64] = useState<string | null>(null);
   const [signaturePastorBase64, setSignaturePastorBase64] = useState<string | null>(null);
+  const [stampBase64, setStampBase64] = useState<string | null>(null);
   const [photosBase64, setPhotosBase64] = useState<Record<string, string | null>>({});
 
   useEffect(() => {
@@ -166,6 +168,9 @@ export const BulkGenerateCardsDialog = ({ members, open, onOpenChange, onClose }
       
       const sigPastorB64 = await convertUrlToBase64(signaturePastorUrl);
       setSignaturePastorBase64(sigPastorB64);
+
+      const stampB64 = await convertUrlToBase64(stampUrl);
+      setStampBase64(stampB64);
 
       const congregationIds = [...new Set(members.map(m => m.congregation_id).filter(Boolean))] as string[];
       if (congregationIds.length > 0) {
@@ -253,8 +258,19 @@ export const BulkGenerateCardsDialog = ({ members, open, onOpenChange, onClose }
     const congInfo = member.congregation_id && congregations[member.congregation_id] ? congregations[member.congregation_id] : { name: "SEDE", phone: "—" };
     const currentPhotoSrc = photosBase64[member.id] || member.photo_url;
     
+    let photoZoom = 1;
+    let photoPanY = 0;
+    try {
+      const saved = localStorage.getItem(`photo_adjust_${member.id}`);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        photoZoom = parsed.zoom || 1;
+        photoPanY = parsed.panY || 0;
+      }
+    } catch (e) {}
+    
     return (
-      <div className="relative bg-white overflow-hidden shadow-sm rounded-xl shrink-0 border border-[#1A365D]" style={{ width: "856px", height: "540px" }}>
+      <div className="relative bg-white overflow-hidden shadow-sm rounded-xl shrink-0 border-4 border-[#1A365D]" style={{ width: "856px", height: "540px" }}>
         <div className="absolute inset-0 bg-slate-50"></div>
         <div className="absolute top-0 left-0 bottom-0 w-12 bg-[#1A365D] flex items-center justify-center z-10">
           <span className="text-white font-black text-xl tracking-[0.2em] uppercase whitespace-nowrap" style={{ transform: "rotate(-90deg)" }}>
@@ -277,7 +293,7 @@ export const BulkGenerateCardsDialog = ({ members, open, onOpenChange, onClose }
         <div className="absolute top-36 left-20 right-8 bottom-20 flex gap-8 z-20">
           <div className="w-36 h-48 bg-gray-200 rounded-md border-2 border-slate-300 shadow-sm overflow-hidden flex-shrink-0">
             {currentPhotoSrc ? (
-              <img src={currentPhotoSrc} alt={member.full_name} className="w-full h-full object-cover" />
+              <img src={currentPhotoSrc} alt={member.full_name} className="w-full h-full object-cover" style={{ transform: `scale(${photoZoom}) translateY(${photoPanY}px)`, transformOrigin: 'center' }} />
             ) : (
               <div className="w-full h-full flex flex-col items-center justify-center text-gray-400">
                 <svg className="w-16 h-16" fill="currentColor" viewBox="0 0 20 20">
@@ -344,7 +360,7 @@ export const BulkGenerateCardsDialog = ({ members, open, onOpenChange, onClose }
     const congInfo = member.congregation_id && congregations[member.congregation_id] ? congregations[member.congregation_id] : { name: "SEDE", phone: "—" };
 
     return (
-      <div className="relative bg-white overflow-hidden shadow-sm rounded-xl shrink-0 border border-[#1A365D]" style={{ width: "856px", height: "540px" }}>
+      <div className="relative bg-white overflow-hidden shadow-sm rounded-xl shrink-0 border-4 border-[#1A365D]" style={{ width: "856px", height: "540px" }}>
         <div className="absolute inset-0 bg-slate-50 opacity-50"></div>
         <div className="absolute inset-0 flex items-center justify-center opacity-[0.12] z-0 pointer-events-none">
           <img src={currentLogoSrc} alt="" className="w-[500px] h-[500px] object-contain" />
@@ -359,9 +375,13 @@ export const BulkGenerateCardsDialog = ({ members, open, onOpenChange, onClose }
             </p>
           </div>
           <div className="absolute top-[50%] left-[50%] -translate-x-[50%] -translate-y-[40%] flex flex-col items-center justify-center">
-            <div className="w-36 h-36 border-2 border-dashed border-slate-300 rounded-full flex items-center justify-center bg-slate-50/80 backdrop-blur-sm shadow-sm">
-              <span className="text-slate-400 font-bold text-xs uppercase tracking-widest opacity-70 text-center">Espaço para<br/>Carimbo</span>
-            </div>
+            {stampBase64 ? (
+              <img src={stampBase64} alt="Carimbo" className="w-40 h-40 object-contain opacity-90 drop-shadow-sm mix-blend-multiply" />
+            ) : (
+              <div className="w-36 h-36 border-2 border-dashed border-slate-300 rounded-full flex items-center justify-center bg-slate-50/80 backdrop-blur-sm shadow-sm">
+                <span className="text-slate-400 font-bold text-xs uppercase tracking-widest opacity-70 text-center">Espaço para<br/>Carimbo</span>
+              </div>
+            )}
           </div>
           <div className="mt-auto flex justify-between items-end px-4 pb-4">
             <div className="flex flex-col items-center">
