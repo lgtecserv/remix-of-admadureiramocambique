@@ -294,7 +294,7 @@ export const GenerateCardDialog = ({ member, open, onOpenChange }: GenerateCardD
             <div
               id="card-front"
               ref={frontCardRef}
-              className="relative bg-white overflow-hidden shadow-2xl rounded-xl shrink-0"
+              className="relative bg-white overflow-hidden shadow-2xl rounded-xl shrink-0 border border-[#1A365D]"
               style={{ width: "856px", height: "540px", minWidth: "856px", minHeight: "540px" }}
             >
               <div className="absolute inset-0 bg-slate-50"></div>
@@ -350,7 +350,6 @@ export const GenerateCardDialog = ({ member, open, onOpenChange }: GenerateCardD
                     </h2>
                     <p className="text-xl font-bold text-yellow-600 uppercase tracking-widest">
                       {member.church_office ? getOfficeLabel(member.church_office, member.gender) : getTypeLabel(member.member_type || "membro")}
-                      {member.church_function ? ` - ${member.church_function}` : ""}
                     </p>
                   </div>
 
@@ -408,7 +407,7 @@ export const GenerateCardDialog = ({ member, open, onOpenChange }: GenerateCardD
             <div
               id="card-back"
               ref={backCardRef}
-              className="relative bg-white overflow-hidden shadow-2xl rounded-xl shrink-0 border border-slate-200"
+              className="relative bg-white overflow-hidden shadow-2xl rounded-xl shrink-0 border border-[#1A365D]"
               style={{ width: "856px", height: "540px", minWidth: "856px", minHeight: "540px" }}
             >
               {/* Minimalist Background Pattern for Back */}

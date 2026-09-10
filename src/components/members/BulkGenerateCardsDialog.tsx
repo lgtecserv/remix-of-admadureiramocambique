@@ -254,7 +254,7 @@ export const BulkGenerateCardsDialog = ({ members, open, onOpenChange, onClose }
     const currentPhotoSrc = photosBase64[member.id] || member.photo_url;
     
     return (
-      <div className="relative bg-white overflow-hidden shadow-sm rounded-xl shrink-0 border border-slate-200" style={{ width: "856px", height: "540px" }}>
+      <div className="relative bg-white overflow-hidden shadow-sm rounded-xl shrink-0 border border-[#1A365D]" style={{ width: "856px", height: "540px" }}>
         <div className="absolute inset-0 bg-slate-50"></div>
         <div className="absolute top-0 left-0 bottom-0 w-12 bg-[#1A365D] flex items-center justify-center z-10">
           <span className="text-white font-black text-xl tracking-[0.2em] uppercase whitespace-nowrap" style={{ transform: "rotate(-90deg)" }}>
@@ -291,7 +291,6 @@ export const BulkGenerateCardsDialog = ({ members, open, onOpenChange, onClose }
               <h2 className="text-[1.75rem] font-black text-[#1A365D] uppercase leading-tight mb-1">{member.full_name}</h2>
               <p className="text-xl font-bold text-yellow-600 uppercase tracking-widest">
                 {member.church_office ? getOfficeLabel(member.church_office, member.gender) : getTypeLabel(member.member_type || "membro")}
-                {member.church_function ? ` - ${member.church_function}` : ""}
               </p>
             </div>
             <div className="grid grid-cols-3 gap-x-4 gap-y-4">
@@ -345,7 +344,7 @@ export const BulkGenerateCardsDialog = ({ members, open, onOpenChange, onClose }
     const congInfo = member.congregation_id && congregations[member.congregation_id] ? congregations[member.congregation_id] : { name: "SEDE", phone: "—" };
 
     return (
-      <div className="relative bg-white overflow-hidden shadow-sm rounded-xl shrink-0 border border-slate-200" style={{ width: "856px", height: "540px" }}>
+      <div className="relative bg-white overflow-hidden shadow-sm rounded-xl shrink-0 border border-[#1A365D]" style={{ width: "856px", height: "540px" }}>
         <div className="absolute inset-0 bg-slate-50 opacity-50"></div>
         <div className="absolute inset-0 flex items-center justify-center opacity-[0.12] z-0 pointer-events-none">
           <img src={currentLogoSrc} alt="" className="w-[500px] h-[500px] object-contain" />
