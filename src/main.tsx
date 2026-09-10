@@ -11,8 +11,8 @@ if ('serviceWorker' in navigator) {
   registerSW({ immediate: true });
   
   window.addEventListener('load', () => {
-    // Register push notification service worker (keep this one if custom)
-    navigator.serviceWorker.register('/sw-push.js').then(
+    // Register push notification service worker with a different scope to prevent conflicts
+    navigator.serviceWorker.register('/sw-push.js', { scope: '/push/' }).then(
       (registration) => {
         console.log('Push ServiceWorker registration successful');
       },
