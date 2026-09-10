@@ -171,7 +171,7 @@ const MemberManagement = ({
         setCardMember(updatedCardMember);
       }
     }
-  }, [members, searchTerm, statusFilter, departmentFilter, cargoFilter, cardMember]);
+  }, [members, searchTerm, statusFilter, departmentFilter, cargoFilter, photoFilter, cardMember]);
 
   const handleDelete = async (id: string) => {
     const { error } = await supabase.from("members").delete().eq("id", id);
